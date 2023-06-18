@@ -1,0 +1,8 @@
+service Greeter {
+  // Sends a greeting
+  rpc SendMessage (Message) returns (Message);
+}
+
+message Message {
+  string text = 1;
+}
