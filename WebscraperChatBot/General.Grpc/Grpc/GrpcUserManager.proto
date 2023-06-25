@@ -1,0 +1,41 @@
+﻿syntax = "proto3";
+
+package Manager;
+
+service ManagerService {
+  rpc Register(NewUser) returns (StringResponse) ;
+  rpc Login(UserInfo) returns (StringResponse) ;
+  rpc GetUserInputs(EmptyRequest) returns (UserData) ;
+  rpc NewUserInput(NewInput) returns (StringResponse) ;
+  rpc DeleteInput(UserInput) returns (StringResponse) ;
+}
+
+message UserInfo {
+  string email = 1;
+  string password = 2;
+}
+
+message NewUser {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message UserData {
+  repeated UserInput inputs = 1;
+}
+
+message UserInput {
+  string id = 1;
+  string time = 2;
+  string text = 3;
+}
+
+message NewInput {
+  string text = 1;
+}
+
+message StringResponse{
+	string text = 1;
+}
+message EmptyRequest {}

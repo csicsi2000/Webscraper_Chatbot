@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+service Chatbot {
+  // Sends a greeting
+  rpc SendMessage (Message) returns (Message);
+
+  rpc SendMessageAdvanced (Message) returns (AdvancedMessage);
+}
+
+message Message {
+  string text = 1;
+}
+
+message AdvancedMessage{
+  string text = 1;
+  string sourceUrl = 2;
+  string context = 3;
+  int32 relevancy = 4;
+  repeated AdvancedMessage otherMessages = 5;
+}
