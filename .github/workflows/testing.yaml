@@ -62,7 +62,7 @@ jobs:
         with:
           name: Show Test Report         
           path: combined.xml   
-          reporter: jest-Junit        
+          reporter: java-junit        
 
       - name: Generate coverage report
         run: |
