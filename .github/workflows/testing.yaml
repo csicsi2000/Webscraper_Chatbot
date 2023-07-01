@@ -1,4 +1,4 @@
-name: MSTest and Coverage
+name: MSTest and Reports
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: windows-latest
 
     steps:
@@ -25,24 +25,24 @@ jobs:
         run: dotnet restore WebscraperChatBot
 
       - name: Build solution
-        run: dotnet build  WebscraperChatBot --configuration Release
+        run: dotnet build WebscraperChatBot --configuration Release
 
       - name: Run tests and collect coverage
         run: |
           dotnet test WebscraperChatBot --configuration Release --logger "trx;LogFileName=testresults.trx" --collect "Code Coverage"
 
-      - name: Publish test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: Test Results
-          path: '**/testresults.trx'
+      - name: Merge test results
+        if: always()
+        run: |
+          dotnet tool install -g trx-cli
+          trx-merger /trx:WebscraperChatBot /r /output:combinedTestResults.trx
 
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: success() || failure()    # run this step even if previous step failed
         with:
           name: MsTests          # Name of the check run which will be created
-          path: '*.trx'   # Path to test results
+          path: 'merged-tests.trx'   # Path to merged test results
           reporter: dotnet-trx        # Format of test results
 
       - name: Generate coverage report
@@ -71,4 +71,3 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
-
