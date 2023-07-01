@@ -45,24 +45,12 @@ jobs:
         run: |
           dotnet test WebscraperChatBot --configuration Release --logger "trx;LogFileName=testresults.trx" --collect "Code Coverage"
 
-      - name: Trx to junit
-        run: |
-          dotnet tool install -g trx2junit
-          $trxFiles = Get-ChildItem -Recurse -Filter *.trx | Select-Object -ExpandProperty FullName
-          trx2junit $trxFiles --output results
-
-      - name: Merge junit result
-        run: |
-          npm install -g junit-report-merger
-          jrm combined.xml *.xml
-
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: success() || failure()    
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
         with:
-          name: Show Test Report         
-          path: combined.xml   
-          reporter: java-junit        
+         files: |
+           **.trx
 
       - name: Generate coverage report
         run: |
