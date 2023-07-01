@@ -12,7 +12,7 @@ namespace Backend.DatabaseHandler.Data
     public class HtmlFileEntity : IHtmlFile
     {
         [Key]
-        public int Id { get; set; } = -1;
+        public int Id { get; set; }
 
         public string Url { get; set; }
 

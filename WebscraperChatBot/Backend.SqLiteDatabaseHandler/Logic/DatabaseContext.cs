@@ -19,12 +19,9 @@ namespace Backend.DatabaseHandler.Logic
         public DbSet<HtmlFileEntity> Files { get; set; }
 
         string _dbPath;
-
-        bool isInMemory = false;
         public DatabaseContext(string dbPath)
         {
             _dbPath = dbPath ?? throw new ArgumentNullException(nameof(dbPath));
-            Database.Migrate();
             try
             {
                 var databaseCreator = (Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator);
@@ -35,11 +32,6 @@ namespace Backend.DatabaseHandler.Logic
             {
                 _log4.Info("Tables exisits.");
             }
-        }
-
-        public DatabaseContext(DbContextOptions options) : base(options) 
-        {
-            isInMemory = true;   
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

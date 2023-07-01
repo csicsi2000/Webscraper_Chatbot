@@ -21,13 +21,10 @@ namespace Backend.DatabaseHandler
             dbContext = new DatabaseContext(connectionString);
         }
 
-        public DataBaseComponent(DbContextOptions options)
+        public void DeleteAll()
         {
-            _ = options ?? throw new ArgumentNullException(nameof(options));
-
-            dbContext = new DatabaseContext(options);
-            dbContext.Database.EnsureDeleted();
-            dbContext.Database.EnsureCreated();
+            dbContext.Contexts.ExecuteDelete();
+            dbContext.Files.ExecuteDelete();
         }
 
         public bool DeleteContext(string text)
