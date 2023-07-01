@@ -9,28 +9,10 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'  # Replace with your desired .NET version
-
-      - name: Restore dependencies
-        run: dotnet restore WebscraperChatBot
-
-      - name: Build solution
-        run: dotnet build WebscraperChatBot --configuration Release
 
   test:
     runs-on: windows-latest
 
-    needs: build
 
     steps:
       - name: Checkout repository
@@ -50,7 +32,7 @@ jobs:
         if: always()
         with:
          files: |
-           **.trx
+           **/*.trx
 
       - name: Generate coverage report
         run: |
