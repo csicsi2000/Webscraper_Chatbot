@@ -1,0 +1,74 @@
+name: MSTest and Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.0'  # Replace with your desired .NET version
+
+      - name: Restore dependencies
+        run: dotnet restore WebscraperChatBot
+
+      - name: Build solution
+        run: dotnet build  WebscraperChatBot --configuration Release
+
+      - name: Run tests and collect coverage
+        run: |
+          dotnet test WebscraperChatBot --configuration Release --logger "trx;LogFileName=testresults.trx" --collect "Code Coverage"
+
+      - name: Publish test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: Test Results
+          path: '**/testresults.trx'
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: MsTests          # Name of the check run which will be created
+          path: '*.trx'   # Path to test results
+          reporter: dotnet-trx        # Format of test results
+
+      - name: Generate coverage report
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool 
+          reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:HtmlInline_AzurePipelines"
+        env:
+          ReportGenerator_Version: ${{ env.ReportGenerator_Version }}
+
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: '**/coverage.cobertura.xml'
+          badge: true
+          fail_below_min: false
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: false
+          indicators: true
+          output: both
+          thresholds: '60 80'
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md
+
