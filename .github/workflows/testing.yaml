@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  test:
+  build:
     runs-on: windows-latest
 
     steps:
@@ -27,23 +27,44 @@ jobs:
       - name: Build solution
         run: dotnet build WebscraperChatBot --configuration Release
 
+  test:
+    runs-on: windows-latest
+
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'  # Replace with your desired .NET version
+
       - name: Run tests and collect coverage
         run: |
           dotnet test WebscraperChatBot --configuration Release --logger "trx;LogFileName=testresults.trx" --collect "Code Coverage"
 
-      - name: Merge test results
-        if: always()
+      - name: Trx to junit
         run: |
-          dotnet tool install -g trx-cli
-          trx-merger /trx:WebscraperChatBot /r /output:combinedTestResults.trx
+          dotnet tool install -g trx2junit
+          $trxFiles = Get-ChildItem -Recurse -Filter *.trx | Select-Object -ExpandProperty FullName
+          trx2junit $trxFiles --output $Junit-Location
+        env: 
+          Junit-Location: results
+
+      - name: Merge junit result
+        run: |
+          npm install -g junit-report-merger
+          jrm combined.xml *.xml
 
       - name: Test Report
         uses: dorny/test-reporter@v1
-        if: success() || failure()    # run this step even if previous step failed
+        if: success() || failure()    
         with:
-          name: MsTests          # Name of the check run which will be created
-          path: 'merged-tests.trx'   # Path to merged test results
-          reporter: dotnet-trx        # Format of test results
+          name: Show Test Report         
+          path: combined.xml   
+          reporter: jest-Junit        
 
       - name: Generate coverage report
         run: |
