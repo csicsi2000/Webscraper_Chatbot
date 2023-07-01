@@ -9,13 +9,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "General.Utils", "General.Ut
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontend.UI.RazorComponents", "Frontend.UI.RazorComponents\Frontend.UI.RazorComponents.csproj", "{675F9EED-ED26-4009-A98A-8007164B4FBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "General.Grpc", "General.Grpc\General.Grpc.csproj", "{A79E7A1F-D4A1-4021-BA35-A537B25D2924}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "General.Grpc", "General.Grpc\General.Grpc.csproj", "{A79E7A1F-D4A1-4021-BA35-A537B25D2924}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.DatabaseHandler", "Backend.DatabaseHandler\Backend.DatabaseHandler.csproj", "{120364B9-634B-48E2-BB9C-0D3C6CE1D208}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.SqLiteDatabaseHandler", "Backend.SqLiteDatabaseHandler\Backend.SqLiteDatabaseHandler.csproj", "{120364B9-634B-48E2-BB9C-0D3C6CE1D208}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.Server", "Backend.Server\Backend.Server.csproj", "{25F6D948-7236-4D39-9CA4-FE10272B9F0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Server", "Backend.Server\Backend.Server.csproj", "{25F6D948-7236-4D39-9CA4-FE10272B9F0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.QuestionAnswerModel", "Backend.QuestionAnswerModel\Backend.QuestionAnswerModel.csproj", "{D1CDB299-8CBD-4E00-95D9-AE308B17694F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.QuestionAnswerModel", "Backend.QuestionAnswerModel\Backend.QuestionAnswerModel.csproj", "{D1CDB299-8CBD-4E00-95D9-AE308B17694F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.WebScraper", "Backend.WebScraper\Backend.WebScraper.csproj", "{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.HtmlParser", "Backend.HtmlParser\Backend.HtmlParser.csproj", "{A1C81A08-25E5-4D01-B63A-27044B29B8D6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontend.BlazorWebassembly", "Frontend.BlazorWebassembly\Frontend.BlazorWebassembly.csproj", "{95FD0820-AF19-437C-8B8E-8304FB884720}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.SqLiteDatabaseHandler.Tests", "Backend.SqLiteDatabaseHandler.Tests\Backend.SqLiteDatabaseHandler.Tests.csproj", "{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +59,22 @@ Global
 		{D1CDB299-8CBD-4E00-95D9-AE308B17694F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1CDB299-8CBD-4E00-95D9-AE308B17694F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1CDB299-8CBD-4E00-95D9-AE308B17694F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1C81A08-25E5-4D01-B63A-27044B29B8D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1C81A08-25E5-4D01-B63A-27044B29B8D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1C81A08-25E5-4D01-B63A-27044B29B8D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1C81A08-25E5-4D01-B63A-27044B29B8D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95FD0820-AF19-437C-8B8E-8304FB884720}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95FD0820-AF19-437C-8B8E-8304FB884720}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95FD0820-AF19-437C-8B8E-8304FB884720}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95FD0820-AF19-437C-8B8E-8304FB884720}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
