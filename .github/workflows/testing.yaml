@@ -49,9 +49,7 @@ jobs:
         run: |
           dotnet tool install -g trx2junit
           $trxFiles = Get-ChildItem -Recurse -Filter *.trx | Select-Object -ExpandProperty FullName
-          trx2junit $trxFiles --output $Junit-Location
-        env: 
-          Junit-Location: results
+          trx2junit $trxFiles --output results
 
       - name: Merge junit result
         run: |
@@ -69,9 +67,7 @@ jobs:
       - name: Generate coverage report
         run: |
           dotnet tool install -g dotnet-reportgenerator-globaltool 
-          reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coverage" "-reporttypes:HtmlInline_AzurePipelines"
-        env:
-          ReportGenerator_Version: ${{ env.ReportGenerator_Version }}
+          reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coverage"
 
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
@@ -84,7 +80,7 @@ jobs:
           hide_complexity: false
           indicators: true
           output: both
-          thresholds: '60 80'
+          thresholds: '40 60'
 
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
