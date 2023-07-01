@@ -19,7 +19,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '6.0.0'  # Replace with your desired .NET version
+          dotnet-version: '6.0.x'  # Replace with your desired .NET version
 
       - name: Restore dependencies
         run: dotnet restore WebscraperChatBot
