@@ -7,6 +7,7 @@ using Backend.WebScraper.Data;
 using General.Interfaces.Backend;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
+using log4net;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
@@ -17,9 +18,19 @@ namespace Backend.WebScraper
 {
     public class HtmlFileExtractor : IWebScraper, IDisposable
     {
+        ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        string _waitedClassName;
+
         ChromeDriver _driver;
-        public HtmlFileExtractor(bool withUi = false)
+
+        /// <summary>
+        /// Etract html files from a root page
+        /// </summary>
+        /// <param name="waitedClassName">Name of the class which Selenium will wait to load</param>
+        /// <param name="withUi">Chrome UI visibility</param>
+        public HtmlFileExtractor(string waitedClassName ,bool withUi = false)
         {
+            _waitedClassName = waitedClassName;
             var options = new ChromeOptions();
             if (!withUi)
             {
@@ -100,11 +111,11 @@ namespace Backend.WebScraper
             wait.Until(driver => jsExecutor.ExecuteScript("return document.readyState").Equals("complete"));
             try
             {
-                wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.ClassName("main-top")));
+                wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.ClassName(_waitedClassName)));
             }
             catch
             {
-                
+                _log4.Warn("Page did not have the element.");
             }
 
             // wait.Until(ExpectedConditions.ElementIsVisible(By.Id("myElement")));
