@@ -12,7 +12,7 @@ namespace Backend.Webscraper.Tests
         public void TC01_GetHtmlFiles_ValidUrl_ReturnsHtmlFiles()
         {
             // Arrange
-            var extractor = new HtmlFileExtractor("test");
+            var extractor = new HtmlFileExtractor("test", new List<string>());
             var url = Path.Combine("file://",GlobalVariables.TestLocation, "TestFiles/index.html");
 
             // Act
@@ -27,10 +27,13 @@ namespace Backend.Webscraper.Tests
         }
 
         [TestMethod]
-        public void TC02_GetHtmlFiles_ValidUrl_ReturnsHtmlFiles()
+        public void TC02_GetHtmlFiles_ValidUrlWithExclude_ReturnsHtmlFiles()
         {
             // Arrange
-            var extractor = new HtmlFileExtractor("test");
+            var extractor = new HtmlFileExtractor("test", new List<string>() 
+            { 
+                Path.Combine("file://", GlobalVariables.TestLocation, "TestFiles/test.html") 
+            });
             var url = Path.Combine("file://", GlobalVariables.TestLocation, "TestFiles/index.html");
 
             // Act

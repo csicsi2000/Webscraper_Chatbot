@@ -13,9 +13,9 @@ namespace Backend.Server.Workflows
     public class ExtractContextWorkflow
     {
         const string dbPath = "database.sqlite";
-        public void ExtraxtContext(string baseUrl)
+        public void ExtraxtContext(string baseUrl, IList<string> excludedUrls)
         {
-            var htmlFileExtractor = new HtmlFileExtractor("main-top");
+            var htmlFileExtractor = new HtmlFileExtractor("main-top", excludedUrls);
 
             var databaseHandler = new SqLiteDataBaseComponent(dbPath,true);
 

@@ -19,18 +19,22 @@ namespace Backend.WebScraper
     public class HtmlFileExtractor : IWebScraper, IDisposable
     {
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        string _waitedClassName;
 
+        string _waitedClassName;
+        IList<string> _excludedUrls;
         ChromeDriver _driver;
 
         /// <summary>
         /// Etract html files from a root page
         /// </summary>
         /// <param name="waitedClassName">Name of the class which Selenium will wait to load</param>
+        /// <param name="excludedUrls">All url which starts with the excluded url will be ignored</param>
         /// <param name="withUi">Chrome UI visibility</param>
-        public HtmlFileExtractor(string waitedClassName ,bool withUi = false)
+        public HtmlFileExtractor(string waitedClassName , IList<string> excludedUrls ,bool withUi = false)
         {
             _waitedClassName = waitedClassName;
+            _excludedUrls = excludedUrls ?? throw new ArgumentNullException(nameof(excludedUrls));
+
             var options = new ChromeOptions();
             if (!withUi)
             {
@@ -60,6 +64,12 @@ namespace Backend.WebScraper
         {
             if (visitedUrls.Contains(url))
             {
+                yield break;
+            }
+            var foundExcluded = _excludedUrls.FirstOrDefault(x => url.StartsWith(x));
+            if(foundExcluded != null)
+            {
+                _log4.Info("Skipped url: " + url);
                 yield break;
             }
 
