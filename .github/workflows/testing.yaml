@@ -30,6 +30,10 @@ jobs:
       - name: Run tests and collect coverage
         run: |
           dotnet test .\WebscraperChatBot --collect:"XPlat Code Coverage" --logger "trx;LogFileName=testresults.trx"
+          $coverageFiles = Get-ChildItem -Path . -Filter coverage.cobertura.xml -File -Recurse
+          $targetDir = "coverage"
+          New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
+          $coverageFiles | ForEach-Object { Copy-Item -Path $_.FullName -Destination $targetDir }
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
@@ -45,6 +49,17 @@ jobs:
 
       - name: Archive coverage report
         uses: actions/upload-artifact@v2
+        with:
+          name: Coverage Report
+          path: coverage
+
+  coverage_report:
+    runs-on: ubuntu-latest
+    name: Generate Code coverage report
+    needs: test
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@master
         with:
           name: Coverage Report
           path: coverage
