@@ -7,4 +7,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Backend.HtmlParser\Backend.HtmlParser.csproj" />
+    <ProjectReference Include="..\Backend.QuestionAnswerModel\Backend.QuestionAnswerModel.csproj" />
+    <ProjectReference Include="..\Backend.Retriver\Backend.Retriver.csproj" />
+    <ProjectReference Include="..\Backend.SqLiteDatabaseHandler\Backend.SqLiteDatabaseHandler.csproj" />
+    <ProjectReference Include="..\Backend.WebScraper\Backend.WebScraper.csproj" />
+  </ItemGroup>
+
 </Project>

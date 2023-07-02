@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace General.Interfaces.Backend
 {
-    public interface IContextHandler
+    public interface IWebScraper
     {
-        public IEnumerable<IContext> FindContext();
-
-        public void ExtractContext(string input);
+        public IEnumerable<IHtmlFile> GetHtmlFiles(string baseUrl);
     }
 }
