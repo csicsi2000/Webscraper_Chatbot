@@ -1,0 +1,87 @@
+name: MSTest and Reports
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  test:
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'  # Replace with your desired .NET version
+
+      - name: Run tests and collect coverage
+        run: |
+          dotnet test .\WebscraperChatBot --collect:"XPlat Code Coverage" --logger "trx;LogFileName=testresults.trx"
+          $coverageFiles = Get-ChildItem -Path . -Filter coverage.cobertura.xml -File -Recurse
+          $targetDir = "coverage"
+          New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
+          $coverageFiles | ForEach-Object { Copy-Item -Path $_.FullName -Destination $targetDir }
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
+        with:
+         files: |
+           **/*.trx
+
+      - name: Generate coverage report
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool 
+          reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coverage"
+
+      - name: Archive coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: Coverage Report
+          path: coverage
+
+  coverage_report:
+    runs-on: ubuntu-latest
+    name: Generate Code coverage report
+    needs: test
+    permissions:
+      pull-requests: write
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@master
+        with:
+          name: Coverage Report
+          path: coverage
+
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: '**/coverage.cobertura.xml'
+          badge: true
+          fail_below_min: false
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: false
+          indicators: true
+          output: both
+          thresholds: '40 60'
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md

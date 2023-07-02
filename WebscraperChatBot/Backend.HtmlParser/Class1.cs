@@ -1,4 +1,4 @@
-﻿namespace Backend.DatabaseHandler
+﻿namespace Backend.HtmlParser
 {
     public class Class1
     {

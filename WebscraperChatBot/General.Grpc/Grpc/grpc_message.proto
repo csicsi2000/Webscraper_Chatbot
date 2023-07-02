@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-service Chatbot {
+service ChatbotService {
   // Sends a greeting
   rpc SendMessage (Message) returns (Message);
 

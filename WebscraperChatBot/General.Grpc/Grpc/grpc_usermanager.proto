@@ -1,13 +1,12 @@
 ﻿syntax = "proto3";
 
-package Manager;
-
-service ManagerService {
+service UserManagerService {
   rpc Register(NewUser) returns (StringResponse) ;
   rpc Login(UserInfo) returns (StringResponse) ;
   rpc GetUserInputs(EmptyRequest) returns (UserData) ;
   rpc NewUserInput(NewInput) returns (StringResponse) ;
   rpc DeleteInput(UserInput) returns (StringResponse) ;
+  rpc StartWebscrape(WebScrapeInfo) returns (EmptyRequest);
 }
 
 message UserInfo {
@@ -37,5 +36,30 @@ message NewInput {
 
 message StringResponse{
 	string text = 1;
+}
+
+message WebScrapeInfo{
+	string url = 1;
+	WebScrapeMode mode = 2;
+}
+
+enum WebScrapeMode{
+	UPDATE = 0;
+	RESET_UPDATE = 1;
+}
+
+message WebScrapeRuns{
+	string time = 1;
+	string user = 2;
+	string url = 3;
+	WebScrapeMode mode = 4;
+	Result result = 5;
+	optional string error_message = 6;
+}
+
+enum Result{
+	SUCCESS = 0;
+	FAIL = 1;
+	IN_PROGRESS = 2;
 }
 message EmptyRequest {}

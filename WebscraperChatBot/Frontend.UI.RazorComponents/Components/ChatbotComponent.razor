@@ -1,0 +1,64 @@
+﻿@layout DefaultLayout
+
+@using Interfaces.Data;
+@code {
+    [Parameter]
+    //public IList<IMessage> AllMessages { get; set; } = new List<IMessage>();
+    public IList<string> AllMessages { get; set; } = new List<string>();
+
+    protected override void OnInitialized()
+    {
+        AllMessages.Add("sadfasd");
+        AllMessages.Add("sadsd");
+        AllMessages.Add("helló");
+        AllMessages.Add("sadfafsdafsddf");
+    }
+}
+
+
+<h3>ChatbotUI</h3>
+
+        @foreach (var (message, index) in AllMessages.Select((m, i) => (m, i)))
+{
+    @if (index % 2 == 0)
+    {
+        <p style="padding: .25em; text-align: left; overflow-wrap: normal">
+            <span @key="index" class="tag is-large is-success is-light">
+                @message
+            </span>
+        </p>
+    }
+    else
+    {
+        <p style="padding: .25em; text-align: right; overflow-wrap: normal">
+            <span @key="index" class="tag is-large is-info is-light">
+                @message
+            </span>
+        </p>
+    }
+}
+<ul>
+    @foreach (var (message, index) in AllMessages.Select((m, i) => (m, i)))
+    {
+        @if (index % 2 == 0)
+        {
+            <li>
+                <article class="message is-info">
+                    <div class="message-body">
+                        @message
+                    </div>
+                </article>
+            </li>
+        }
+        else
+        {
+            <li>
+                <article class="message is-primary">
+                    <div class="message-body">
+                        @message
+                    </div>
+                </article>
+            </li>
+        }
+    }
+</ul>

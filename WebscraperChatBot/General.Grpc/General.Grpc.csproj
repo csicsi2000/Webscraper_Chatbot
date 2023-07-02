@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,22 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Grpc\GrpcMessage.proto" />
-    <None Remove="Grpc\GrpcUserManager.proto" />
+    <None Remove="Grpc\grpc_message.proto" />
+    <None Remove="Grpc\grpc_usermanager.proto" />
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Grpc\GrpcUserManager.proto" />
+    <Protobuf Include="Grpc\grpc_usermanager.proto" />
+	  <Protobuf Include="Grpc\grpc_message.proto" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.54.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Protobuf Include="Grpc\GrpcMessage.proto">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Protobuf>
+    <PackageReference Include="Grpc.Tools" Version="2.56.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
