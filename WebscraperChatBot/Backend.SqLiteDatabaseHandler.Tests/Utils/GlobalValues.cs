@@ -11,6 +11,6 @@ namespace Backend.DatabaseHandler.Tests.Utils
     {
         public static readonly string TestLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static readonly string TestDBPath = Path.Combine(TestLocation, "test.sqlite");
-        public static DataBaseComponent TestDatabase = null;
+        public static SqLiteDataBaseComponent TestDatabase = null;
     }
 }

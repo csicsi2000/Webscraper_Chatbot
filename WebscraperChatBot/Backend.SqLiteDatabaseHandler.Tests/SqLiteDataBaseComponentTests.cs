@@ -10,7 +10,7 @@ using System.Linq;
 namespace Backend.DatabaseHandler.Tests
 {
     [TestClass]
-    public class DataBaseComponentTests
+    public class SqLiteDataBaseComponentTests
     {
         [TestCleanup]
         public void TestCleanup()
@@ -105,21 +105,53 @@ namespace Backend.DatabaseHandler.Tests
             mockedFile1.Setup(x => x.Url).Returns(url1);
             mockedFile1.Setup(x => x.LastModified).Returns(new System.DateTime(2023, 1, 1));
             mockedFile1.Setup(x => x.Content).Returns("File 1 content");
-            GlobalValues.TestDatabase.InsertHtmlFile(mockedFile1.Object);
+            var res1 = GlobalValues.TestDatabase.InsertOrUpdateHtmlFile(mockedFile1.Object);
 
             var mockedFile2 = new Mock<IHtmlFile>();
             string url2 = "http://example.com/file2.html";
             mockedFile2.Setup(x => x.Url).Returns(url2);
             mockedFile2.Setup(x => x.LastModified).Returns(new System.DateTime(2023, 1, 1));
             mockedFile2.Setup(x => x.Content).Returns("File 2 content");
-            GlobalValues.TestDatabase.InsertHtmlFile(mockedFile2.Object);
+            var res2 = GlobalValues.TestDatabase.InsertOrUpdateHtmlFile(mockedFile2.Object);
 
             // Act
             var file = GlobalValues.TestDatabase.GetHtmlFile(url2);
 
             // Assert
+            Assert.IsTrue(res1);
+            Assert.IsTrue(res2);
             Assert.IsNotNull(file);
             Assert.AreEqual(url2, file.Url);
+        }
+
+        [TestMethod]
+        public void TC06_InsertOrUpdateHtmlFile_ExistingUrl_Updated()
+        {
+            // Arrange
+            var mockedFile1 = new Mock<IHtmlFile>();
+            string url1 = "http://example.com/file1.html";
+            mockedFile1.Setup(x => x.Url).Returns(url1);
+            mockedFile1.Setup(x => x.LastModified).Returns(new System.DateTime(2023, 1, 1));
+            mockedFile1.Setup(x => x.Content).Returns("File 1 content");
+            GlobalValues.TestDatabase.InsertOrUpdateHtmlFile(mockedFile1.Object);
+
+            var mockedFile2 = new Mock<IHtmlFile>();
+            string url2 = "http://example.com/file2.html";
+            mockedFile2.Setup(x => x.Url).Returns(url2);
+            mockedFile2.Setup(x => x.LastModified).Returns(new System.DateTime(2023, 1, 1));
+            mockedFile2.Setup(x => x.Content).Returns("File 2 content");
+            GlobalValues.TestDatabase.InsertOrUpdateHtmlFile(mockedFile2.Object);
+
+            // Act
+            mockedFile1.Setup(x => x.Content).Returns("New text");
+            GlobalValues.TestDatabase.InsertOrUpdateHtmlFile(mockedFile1.Object);
+
+
+            // Assert
+            Assert.AreEqual(2, GlobalValues.TestDatabase.GetHtmlFiles().Count());
+            var file = GlobalValues.TestDatabase.GetHtmlFile(url1);
+            Assert.IsNotNull(file);
+            Assert.AreEqual("New text", file.Content);
         }
     }
 }

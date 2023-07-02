@@ -14,7 +14,7 @@ namespace General.Interfaces.Backend
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        public bool InsertHtmlFile(IHtmlFile file);
+        public bool InsertOrUpdateHtmlFile(IHtmlFile file);
         /// <summary>
         /// Get the html file based on url
         /// </summary>

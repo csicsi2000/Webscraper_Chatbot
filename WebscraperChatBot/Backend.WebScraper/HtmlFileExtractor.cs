@@ -1,71 +1,113 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
+using System.Timers;
 using Backend.WebScraper.Data;
 using General.Interfaces.Backend;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
+using SeleniumExtras.WaitHelpers;
 
 namespace Backend.WebScraper
 {
-    public class HtmlFileExtractor : IWebScraper
+    public class HtmlFileExtractor : IWebScraper, IDisposable
     {
+        ChromeDriver _driver;
+        public HtmlFileExtractor(bool withUi = false)
+        {
+            var options = new ChromeOptions();
+            if (!withUi)
+            {
+                options.AddArgument("--headless");
+            }
+            _driver = new ChromeDriver(options);
+        }
+
+        public void Dispose()
+        {
+            _driver.Close();
+            _driver.Dispose();
+        }
+
         public IEnumerable<IHtmlFile> GetHtmlFiles(string url)
         {
-            var htmlFiles = new List<IHtmlFile>();
             var baseUri = new Uri(url);
             var visitedUrls = new HashSet<string>();
 
-            ExtractHtmlFiles(url, htmlFiles, visitedUrls, baseUri);
-
-            return htmlFiles;
+            foreach (var htmlFile in ExtractHtmlFiles(url, visitedUrls, baseUri))
+            {
+                yield return htmlFile;
+            }
         }
 
-        private void ExtractHtmlFiles(string url, List<IHtmlFile> htmlFiles, HashSet<string> visitedUrls, Uri baseUri)
+        private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
         {
             if (visitedUrls.Contains(url))
-            { 
-                return; 
+            {
+                yield break;
             }
 
             visitedUrls.Add(url);
+            IHtmlFile htmlFile;
 
-            try
+
+            _driver.Navigate().GoToUrl(url);
+            WaitForPageLoad(_driver);
+
+            htmlFile = new HtmlFile
             {
-                var web = new HtmlWeb();
-                var doc = web.Load(url);
+                Url = url,
+                LastModified = DateTime.Now,
+                Content = _driver.PageSource
+            };
 
-                var htmlFile = new HtmlFile
+            yield return htmlFile;
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(htmlFile.Content);
+
+            foreach (var link in doc.DocumentNode.Descendants("a"))
+            {
+                var href = link.GetAttributeValue("href", string.Empty);
+                if (string.IsNullOrEmpty(href))
                 {
-                    Url = url,
-                    LastModified = DateTime.Now,
-                    Content = doc.DocumentNode.OuterHtml
-                };
+                    continue;
+                }
 
-                htmlFiles.Add(htmlFile);
-
-                foreach (var link in doc.DocumentNode.Descendants("a"))
+                var absoluteUri = new Uri(baseUri, href);
+                var absoluteUrl = absoluteUri.ToString();
+                if (absoluteUri.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
                 {
-                    var href = link.GetAttributeValue("href", string.Empty);
-                    if (!string.IsNullOrEmpty(href))
+                    foreach (var subHtmlFile in ExtractHtmlFiles(absoluteUrl, visitedUrls, baseUri))
                     {
-                        var absoluteUri = new Uri(baseUri, href);
-                        var absoluteUrl = absoluteUri.ToString();
-                        if (absoluteUri.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
-                        {
-                            ExtractHtmlFiles(absoluteUrl, htmlFiles, visitedUrls, baseUri);
-                        }
+                        yield return subHtmlFile;
                     }
                 }
             }
-            catch (Exception ex)
+        }
+
+        private void WaitForPageLoad(IWebDriver driver)
+        {
+            var jsExecutor = (IJavaScriptExecutor)driver;
+
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            wait.Until(driver => jsExecutor.ExecuteScript("return document.readyState").Equals("complete"));
+            try
             {
-                // Handle exception if needed
-                Console.WriteLine($"An error occurred while extracting HTML file from {url}: {ex.Message}");
+                wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.ClassName("main-top")));
+            }
+            catch
+            {
+                
             }
 
+            // wait.Until(ExpectedConditions.ElementIsVisible(By.Id("myElement")));
         }
     }
 }
