@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.HtmlParser", "Backe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontend.BlazorWebassembly", "Frontend.BlazorWebassembly\Frontend.BlazorWebassembly.csproj", "{95FD0820-AF19-437C-8B8E-8304FB884720}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.SqLiteDatabaseHandler.Tests", "Backend.SqLiteDatabaseHandler.Tests\Backend.SqLiteDatabaseHandler.Tests.csproj", "{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.SqLiteDatabaseHandler.Tests", "Backend.SqLiteDatabaseHandler.Tests\Backend.SqLiteDatabaseHandler.Tests.csproj", "{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
