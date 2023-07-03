@@ -16,8 +16,12 @@ namespace Backend.DatabaseHandler.Data
 
         public string Text { get; set; }
 
-        public int Rank { get; set; }
+        public HtmlFileEntity? FileEntity { get; set; }
 
+        [NotMapped]
         public string OriginUrl { get; set; }
+
+        [NotMapped]
+        public int Rank { get; set; }
     }
 }

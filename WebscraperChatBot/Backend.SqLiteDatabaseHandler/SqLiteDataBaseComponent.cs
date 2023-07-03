@@ -135,7 +135,9 @@ namespace Backend.DatabaseHandler
         {
             try
             {
-                dbContext.Contexts.Add(Adapters.GetContextEntity(context));
+                var contextEntity = Adapters.GetContextEntity(context);
+                contextEntity.FileEntity = dbContext.Files.FirstOrDefault(x => x.Url == contextEntity.OriginUrl);
+                dbContext.Contexts.Add(contextEntity);
                 dbContext.SaveChanges();
                 _log4.Info("New context added");
 
