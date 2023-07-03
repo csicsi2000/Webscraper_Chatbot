@@ -62,7 +62,7 @@ namespace Backend.WebScraper
 
         private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
         {
-            if (visitedUrls.Contains(url))
+            if (visitedUrls.Contains(url) || !url.StartsWith(baseUri.ToString()))
             {
                 yield break;
             }

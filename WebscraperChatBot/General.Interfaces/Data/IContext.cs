@@ -9,6 +9,7 @@ namespace General.Interfaces.Data
     public interface IContext
     {
         int Rank { get; set; }
+        string DocTitle { get; set; }
         string Text { get; set; }
         string OriginUrl { get; set; }
     }

@@ -13,9 +13,8 @@ namespace Backend.DatabaseHandler.Data
     {
         [Key]
         public int Id { get; set; }
-
         public string Text { get; set; }
-
+        public string DocTitle { get; set; }
         public HtmlFileEntity? FileEntity { get; set; }
 
         [NotMapped]

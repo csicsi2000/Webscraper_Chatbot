@@ -12,4 +12,5 @@ log4.Info("Server started.");
 var contextWorkflow = new ExtractContextWorkflow();
 var excludedUrls = new List<string>() { "https://uni-eszterhazy.hu/api" };
 
-contextWorkflow.ExtraxtContext("https://uni-eszterhazy.hu/", excludedUrls);
+contextWorkflow.ExtraxtContext("https://uni-eszterhazy.hu/matinf", excludedUrls);
+//contextWorkflow.ExtraxtContext("https://uni-eszterhazy.hu/", excludedUrls);
