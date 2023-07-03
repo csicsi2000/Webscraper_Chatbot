@@ -15,7 +15,7 @@ namespace Backend.SqLiteDatabaseHandler.Tests.Utils
                 File.Delete(GlobalValues.TestDBPath);
             }
             SQLiteConnection.CreateFile(GlobalValues.TestDBPath);
-            GlobalValues.TestDatabase = new DataBaseComponent(GlobalValues.TestDBPath);
+            GlobalValues.TestDatabase = new SqLiteDataBaseComponent(GlobalValues.TestDBPath);
         }
 
         [AssemblyCleanup]

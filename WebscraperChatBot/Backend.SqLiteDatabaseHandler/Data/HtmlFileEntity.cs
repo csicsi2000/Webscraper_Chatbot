@@ -19,5 +19,6 @@ namespace Backend.DatabaseHandler.Data
         public DateTime LastModified { get; set; }
 
         public string Content { get; set; }
+        public ICollection<ContextEntity> contextEntities { get; set; }
     }
 }

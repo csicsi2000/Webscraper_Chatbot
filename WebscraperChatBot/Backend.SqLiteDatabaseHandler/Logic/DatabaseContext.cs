@@ -25,6 +25,7 @@ namespace Backend.DatabaseHandler.Logic
             try
             {
                 var databaseCreator = (Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator);
+                databaseCreator.EnsureCreated();
                 databaseCreator.CreateTables();
                 _log4.Info("Tables are created.");
             }
