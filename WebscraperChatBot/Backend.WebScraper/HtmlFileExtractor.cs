@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Timers;
-using Backend.WebScraper.Data;
+﻿using Backend.WebScraper.Data;
 using General.Interfaces.Backend;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
 using log4net;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 

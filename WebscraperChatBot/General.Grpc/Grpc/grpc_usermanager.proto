@@ -36,11 +36,13 @@ message NewInput {
 
 message StringResponse{
 	string text = 1;
+	int progress = 2;
 }
 
 message WebScrapeInfo{
 	string url = 1;
 	WebScrapeMode mode = 2;
+	Result result = 3;
 }
 
 enum WebScrapeMode{
@@ -62,4 +64,5 @@ enum Result{
 	FAIL = 1;
 	IN_PROGRESS = 2;
 }
+
 message EmptyRequest {}
