@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SQLite;
 using General.Interfaces.Backend;
-using Backend.HtmlParser;
+using Backend.Logic.Components;
 
 namespace Backend.Server.Workflows
 {
@@ -23,7 +23,7 @@ namespace Backend.Server.Workflows
 
         public void ExtractHtml(string baseUrl, IList<string> excludedUrls)
         {
-            var htmlFileExtractor = new HtmlFileExtractor("main-top", excludedUrls);
+            var htmlFileExtractor = new HtmlFileExtractorComponent("main-top", excludedUrls);
 
             foreach(var file in htmlFileExtractor.GetHtmlFiles(baseUrl))
             {

@@ -1,7 +1,7 @@
 ﻿using General.Interfaces.Backend;
 using General.Interfaces.Data;
 
-namespace Backend.Retriver
+namespace Backend.Logic.Components
 {
     public class RetrieverComponent : IContextRetriever
     {

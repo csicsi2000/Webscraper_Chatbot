@@ -10,7 +10,7 @@ using SeleniumExtras.WaitHelpers;
 
 namespace Backend.WebScraper
 {
-    public class HtmlFileExtractor : IWebScraper, IDisposable
+    public class HtmlFileExtractorComponent : IWebScraper, IDisposable
     {
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -24,7 +24,7 @@ namespace Backend.WebScraper
         /// <param name="waitedClassName">Name of the class which Selenium will wait to load</param>
         /// <param name="excludedUrls">All url which starts with the excluded url will be ignored</param>
         /// <param name="withUi">Chrome UI visibility</param>
-        public HtmlFileExtractor(string waitedClassName , IList<string> excludedUrls ,bool withUi = false)
+        public HtmlFileExtractorComponent(string waitedClassName , IList<string> excludedUrls ,bool withUi = false)
         {
             _waitedClassName = waitedClassName;
             _excludedUrls = excludedUrls ?? throw new ArgumentNullException(nameof(excludedUrls));

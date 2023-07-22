@@ -5,7 +5,7 @@ using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace Backend.HtmlParser
+namespace Backend.Logic.Components
 {
     public class HtmlParserComponent : IHtmlParser
     {
