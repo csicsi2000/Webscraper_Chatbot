@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.SqLiteDatabaseHandl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Webscraper.Tests", "Backend.Webscraper.Tests\Backend.Webscraper.Tests.csproj", "{4DE7F7BF-D56B-432F-BF0A-A9BE27982694}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.Logic", "Backend.Logic\Backend.Logic.csproj", "{FB571CC5-FBB7-4197-804D-0532348FFA6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Logic", "Backend.Logic\Backend.Logic.csproj", "{FB571CC5-FBB7-4197-804D-0532348FFA6F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.LogicTests", "Backend.LogicTests\Backend.LogicTests.csproj", "{FEA0A2A2-91A0-4184-A63F-16214FE01CC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{FB571CC5-FBB7-4197-804D-0532348FFA6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB571CC5-FBB7-4197-804D-0532348FFA6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB571CC5-FBB7-4197-804D-0532348FFA6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEA0A2A2-91A0-4184-A63F-16214FE01CC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEA0A2A2-91A0-4184-A63F-16214FE01CC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEA0A2A2-91A0-4184-A63F-16214FE01CC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEA0A2A2-91A0-4184-A63F-16214FE01CC8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

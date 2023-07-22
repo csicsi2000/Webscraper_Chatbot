@@ -108,10 +108,12 @@ namespace Backend.Logic.Components
 
         #region Remove base elements
 
-        internal IContext RemoveBaseNodes(IHtmlFile file)
+        public IContext RemoveBaseNodes(IHtmlFile file)
         {
             var doc = new HtmlDocument();
             doc.LoadHtml(file.Content);
+
+            string title = doc.DocumentNode.Descendants("title").FirstOrDefault()?.InnerText ?? "";
 
             // Remove script and style nodes
             doc.DocumentNode.Descendants()
@@ -148,11 +150,6 @@ namespace Backend.Logic.Components
             string extractedText = RemoveTags(body.InnerHtml);
 
             // Remove HTML tags using regular expressions
-            string RemoveTags(string html)
-            {
-                string pattern = @"<[^>]+>|&nbsp;";
-                return Regex.Replace(html, pattern, " ").Trim();
-            }
 
             // Replace series of whitespace with a single space
             extractedText = Regex.Replace(extractedText, @"\s+", " ");
@@ -161,20 +158,32 @@ namespace Backend.Logic.Components
             {
                 return null;
             }
+            
             // Print the extracted text
             var resContext = new Context()
             {
+                DocTitle = title,
+                Text = extractedText,
+                OriginUrl = file.Url
             };
 
             // todo
             return resContext;
         }
 
-        #endregion
-        public string ExtractRelevantContent(string htmlContent)
+        string RemoveTags(string html)
         {
-            string result = htmlContent;
-            result = RemoveCommonElements(htmlContent, _commonElements);
+            string pattern = @"<[^>]+>|&nbsp;";
+            return Regex.Replace(html, pattern, " ").Trim();
+        }
+
+        #endregion
+
+        public IContext ExtractRelevantContent(IHtmlFile htmlContent)
+        {
+            var result = RemoveBaseNodes(htmlContent);
+
+            result.Text = RemoveCommonElements(result.Text, _commonElements);
 
             return result;
         }
