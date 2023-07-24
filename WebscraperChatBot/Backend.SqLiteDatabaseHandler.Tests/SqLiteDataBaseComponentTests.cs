@@ -22,6 +22,7 @@ namespace Backend.SqLiteDatabaseHandler.Tests
             mockedContext.Setup(x => x.Text).Returns(text);
             mockedContext.Setup(x => x.Rank).Returns(2);
             mockedContext.Setup(x => x.OriginUrl).Returns("test.com");
+            mockedContext.Setup(x => x.DocTitle).Returns("test");
 
             GlobalValues.TestDatabase.InsertContext(mockedContext.Object);
 
@@ -54,6 +55,7 @@ namespace Backend.SqLiteDatabaseHandler.Tests
             mockedContext1.Setup(x => x.Text).Returns("context 1");
             mockedContext1.Setup(x => x.Rank).Returns(1);
             mockedContext1.Setup(x => x.OriginUrl).Returns("test.com");
+            mockedContext1.Setup(x => x.DocTitle).Returns("test");
 
             // Act
             var res = GlobalValues.TestDatabase.InsertContext(mockedContext1.Object);
@@ -76,12 +78,14 @@ namespace Backend.SqLiteDatabaseHandler.Tests
             mockedContext1.Setup(x => x.Text).Returns("context 1");
             mockedContext1.Setup(x => x.Rank).Returns(1);
             mockedContext1.Setup(x => x.OriginUrl).Returns("test.com");
+            mockedContext1.Setup(x => x.DocTitle).Returns("test1");
             GlobalValues.TestDatabase.InsertContext(mockedContext1.Object);
 
             var mockedContext2 = new Mock<IContext>();
             mockedContext2.Setup(x => x.Text).Returns("context 2");
             mockedContext2.Setup(x => x.Rank).Returns(2);
             mockedContext2.Setup(x => x.OriginUrl).Returns("test.com");
+            mockedContext2.Setup(x => x.DocTitle).Returns("test2");
             GlobalValues.TestDatabase.InsertContext(mockedContext2.Object);
 
             // Act

@@ -56,27 +56,28 @@ namespace Backend.Logic.Components
 
         private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
         {
-            if (visitedUrls.Contains(url) || !url.StartsWith(baseUri.ToString()))
+            var currentUrl = new Uri(url).AbsoluteUri;
+            if (visitedUrls.Contains(currentUrl) || !currentUrl.StartsWith(baseUri.Host))
             {
                 yield break;
             }
-            var foundExcluded = _excludedUrls.FirstOrDefault(x => url.StartsWith(x));
+            var foundExcluded = _excludedUrls.FirstOrDefault(x => currentUrl.StartsWith(x));
             if (foundExcluded != null)
             {
-                _log4.Info("Skipped url: " + url);
+                _log4.Info("Skipped url: " + currentUrl);
                 yield break;
             }
 
-            visitedUrls.Add(url);
+            visitedUrls.Add(currentUrl);
             IHtmlFile htmlFile;
 
 
-            _driver.Navigate().GoToUrl(url);
+            _driver.Navigate().GoToUrl(currentUrl);
             WaitForPageLoad(_driver);
 
             htmlFile = new HtmlFile
             {
-                Url = url,
+                Url = currentUrl,
                 LastModified = DateTime.Now,
                 Content = _driver.PageSource
             };

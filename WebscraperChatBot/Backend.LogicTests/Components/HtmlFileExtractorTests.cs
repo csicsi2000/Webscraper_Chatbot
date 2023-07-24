@@ -11,7 +11,7 @@ namespace Backend.LogicTests.Components
         {
             // Arrange
             var extractor = new HtmlFileExtractorComponent("test", new List<string>());
-            var url = "file://" + Path.Combine(GlobalVariables.TestLocation, "TestFiles/index.html");
+            var url =  Path.Combine(GlobalVariables.TestLocation, "TestFiles/index.html");
 
             // Act
             var htmlFiles = extractor.GetHtmlFiles(url);

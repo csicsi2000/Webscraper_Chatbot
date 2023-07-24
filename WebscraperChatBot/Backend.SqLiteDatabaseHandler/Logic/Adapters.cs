@@ -16,7 +16,8 @@ namespace Backend.SqLiteDatabaseHandler.Logic
             {
                 OriginUrl = context.OriginUrl,
                 Text = context.Text,
-                Rank = context.Rank
+                Rank = context.Rank,
+                DocTitle = context.DocTitle,
             };
         }
 
