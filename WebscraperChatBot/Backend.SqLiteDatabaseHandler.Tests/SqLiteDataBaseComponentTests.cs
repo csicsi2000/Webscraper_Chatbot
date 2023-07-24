@@ -1,13 +1,8 @@
-using Backend.DatabaseHandler.Data;
-using Backend.DatabaseHandler.Tests.Utils;
+using Backend.SqLiteDatabaseHandler.Tests.Utils;
 using General.Interfaces.Data;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Data.SQLite;
-using System.IO;
-using System.Linq;
 
-namespace Backend.DatabaseHandler.Tests
+namespace Backend.SqLiteDatabaseHandler.Tests
 {
     [TestClass]
     public class SqLiteDataBaseComponentTests
@@ -103,14 +98,14 @@ namespace Backend.DatabaseHandler.Tests
             var mockedFile1 = new Mock<IHtmlFile>();
             string url1 = "http://example.com/file1.html";
             mockedFile1.Setup(x => x.Url).Returns(url1);
-            mockedFile1.Setup(x => x.LastModified).Returns(new System.DateTime(2023, 1, 1));
+            mockedFile1.Setup(x => x.LastModified).Returns(new DateTime(2023, 1, 1));
             mockedFile1.Setup(x => x.Content).Returns("File 1 content");
             var res1 = GlobalValues.TestDatabase.InsertOrUpdateHtmlFile(mockedFile1.Object);
 
             var mockedFile2 = new Mock<IHtmlFile>();
             string url2 = "http://example.com/file2.html";
             mockedFile2.Setup(x => x.Url).Returns(url2);
-            mockedFile2.Setup(x => x.LastModified).Returns(new System.DateTime(2023, 1, 1));
+            mockedFile2.Setup(x => x.LastModified).Returns(new DateTime(2023, 1, 1));
             mockedFile2.Setup(x => x.Content).Returns("File 2 content");
             var res2 = GlobalValues.TestDatabase.InsertOrUpdateHtmlFile(mockedFile2.Object);
 
@@ -131,14 +126,14 @@ namespace Backend.DatabaseHandler.Tests
             var mockedFile1 = new Mock<IHtmlFile>();
             string url1 = "http://example.com/file1.html";
             mockedFile1.Setup(x => x.Url).Returns(url1);
-            mockedFile1.Setup(x => x.LastModified).Returns(new System.DateTime(2023, 1, 1));
+            mockedFile1.Setup(x => x.LastModified).Returns(new DateTime(2023, 1, 1));
             mockedFile1.Setup(x => x.Content).Returns("File 1 content");
             GlobalValues.TestDatabase.InsertOrUpdateHtmlFile(mockedFile1.Object);
 
             var mockedFile2 = new Mock<IHtmlFile>();
             string url2 = "http://example.com/file2.html";
             mockedFile2.Setup(x => x.Url).Returns(url2);
-            mockedFile2.Setup(x => x.LastModified).Returns(new System.DateTime(2023, 1, 1));
+            mockedFile2.Setup(x => x.LastModified).Returns(new DateTime(2023, 1, 1));
             mockedFile2.Setup(x => x.Content).Returns("File 2 content");
             GlobalValues.TestDatabase.InsertOrUpdateHtmlFile(mockedFile2.Object);
 

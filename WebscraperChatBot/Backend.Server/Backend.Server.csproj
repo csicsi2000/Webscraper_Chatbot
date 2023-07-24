@@ -10,7 +10,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Backend.Logic\Backend.Logic.csproj" />
     <ProjectReference Include="..\Backend.SqLiteDatabaseHandler\Backend.SqLiteDatabaseHandler.csproj" />
-    <ProjectReference Include="..\Backend.WebScraper\Backend.WebScraper.csproj" />
   </ItemGroup>
 
   <ItemGroup>

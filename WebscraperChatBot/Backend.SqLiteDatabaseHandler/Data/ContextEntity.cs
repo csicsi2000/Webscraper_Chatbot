@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.DatabaseHandler.Data
+namespace Backend.SqLiteDatabaseHandler.Data
 {
     public class ContextEntity : IContext
     {

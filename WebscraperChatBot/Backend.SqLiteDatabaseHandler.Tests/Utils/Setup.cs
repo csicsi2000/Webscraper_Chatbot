@@ -1,6 +1,4 @@
-﻿using Backend.DatabaseHandler;
-using Backend.DatabaseHandler.Tests.Utils;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
 
 namespace Backend.SqLiteDatabaseHandler.Tests.Utils
 {

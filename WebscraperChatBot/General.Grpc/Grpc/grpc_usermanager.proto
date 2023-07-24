@@ -36,7 +36,7 @@ message NewInput {
 
 message StringResponse{
 	string text = 1;
-	int progress = 2;
+	int32 progress = 2;
 }
 
 message WebScrapeInfo{

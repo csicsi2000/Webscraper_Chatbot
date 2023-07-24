@@ -15,13 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.SqLiteDatabaseHandl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Server", "Backend.Server\Backend.Server.csproj", "{25F6D948-7236-4D39-9CA4-FE10272B9F0F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.WebScraper", "Backend.WebScraper\Backend.WebScraper.csproj", "{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontend.BlazorWebassembly", "Frontend.BlazorWebassembly\Frontend.BlazorWebassembly.csproj", "{95FD0820-AF19-437C-8B8E-8304FB884720}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.SqLiteDatabaseHandler.Tests", "Backend.SqLiteDatabaseHandler.Tests\Backend.SqLiteDatabaseHandler.Tests.csproj", "{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Webscraper.Tests", "Backend.Webscraper.Tests\Backend.Webscraper.Tests.csproj", "{4DE7F7BF-D56B-432F-BF0A-A9BE27982694}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Logic", "Backend.Logic\Backend.Logic.csproj", "{FB571CC5-FBB7-4197-804D-0532348FFA6F}"
 EndProject
@@ -57,10 +53,6 @@ Global
 		{25F6D948-7236-4D39-9CA4-FE10272B9F0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25F6D948-7236-4D39-9CA4-FE10272B9F0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25F6D948-7236-4D39-9CA4-FE10272B9F0F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5E37D2E-4F01-438C-B00D-2ACE98B9E1A6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{95FD0820-AF19-437C-8B8E-8304FB884720}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{95FD0820-AF19-437C-8B8E-8304FB884720}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95FD0820-AF19-437C-8B8E-8304FB884720}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -69,10 +61,6 @@ Global
 		{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05165EF8-64D1-46E0-A2FC-6AC4E192EA17}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4DE7F7BF-D56B-432F-BF0A-A9BE27982694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4DE7F7BF-D56B-432F-BF0A-A9BE27982694}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4DE7F7BF-D56B-432F-BF0A-A9BE27982694}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4DE7F7BF-D56B-432F-BF0A-A9BE27982694}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FB571CC5-FBB7-4197-804D-0532348FFA6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FB571CC5-FBB7-4197-804D-0532348FFA6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB571CC5-FBB7-4197-804D-0532348FFA6F}.Release|Any CPU.ActiveCfg = Release|Any CPU

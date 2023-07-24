@@ -1,14 +1,5 @@
-﻿using Backend.DatabaseHandler;
-using Backend.WebScraper;
-using Microsoft.Data.Sqlite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.SQLite;
+﻿using Backend.Logic.Components;
 using General.Interfaces.Backend;
-using Backend.Logic.Components;
 
 namespace Backend.Server.Workflows
 {
