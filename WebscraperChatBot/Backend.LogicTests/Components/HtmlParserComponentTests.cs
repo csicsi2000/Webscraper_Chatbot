@@ -1,5 +1,6 @@
 ﻿using Backend.Logic.Components;
 using General.Interfaces.Data;
+using General.Interfaces.General;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,64 @@ namespace Backend.LogicTests.Components
 
             // assert
             Assert.AreEqual(expectedText, res.Text);
+        }
+
+        [TestMethod]
+        public void TC02_FindCommonElements_ValidContextGiven_CommonFound()
+        {
+            // arrange
+            var url1 = Path.Combine(GlobalVariables.TestLocation, "TestFiles/samples/test1.html");
+            var url2 = Path.Combine(GlobalVariables.TestLocation, "TestFiles/samples/test2.html");
+
+            var mockedHtmlFile = new Mock<IHtmlFile>();
+            mockedHtmlFile.Setup(x => x.Content).Returns(File.ReadAllText(url1));
+            mockedHtmlFile.Setup(x => x.Url).Returns("test1.com");
+            mockedHtmlFile.Setup(x => x.LastModified).Returns(DateTime.Now);
+
+            var mockedHtmlFile1 = new Mock<IHtmlFile>();
+            mockedHtmlFile1.Setup(x => x.Content).Returns(File.ReadAllText(url2));
+            mockedHtmlFile1.Setup(x => x.Url).Returns("test2.com");
+            mockedHtmlFile1.Setup(x => x.LastModified).Returns(DateTime.Now);
+
+            // act
+            var parser = new HtmlParserComponent(new List<IHtmlFile>()
+            {
+                mockedHtmlFile.Object,
+                mockedHtmlFile1.Object
+            });
+
+            // assert
+            Assert.AreEqual(567, parser._commonElements.Count);
+        }
+
+
+        [TestMethod]
+        public void TC03_FindCommonElements_ValidContextGiven_ParsingFiltersOut()
+        {
+            // arrange
+            var url1 = Path.Combine(GlobalVariables.TestLocation, "TestFiles/samples/test1.html");
+            var url2 = Path.Combine(GlobalVariables.TestLocation, "TestFiles/samples/test2.html");
+
+            var mockedHtmlFile = new Mock<IHtmlFile>();
+            mockedHtmlFile.Setup(x => x.Content).Returns(File.ReadAllText(url1));
+            mockedHtmlFile.Setup(x => x.Url).Returns("test1.com");
+            mockedHtmlFile.Setup(x => x.LastModified).Returns(DateTime.Now);
+
+            var mockedHtmlFile1 = new Mock<IHtmlFile>();
+            mockedHtmlFile1.Setup(x => x.Content).Returns(File.ReadAllText(url2));
+            mockedHtmlFile1.Setup(x => x.Url).Returns("test2.com");
+            mockedHtmlFile1.Setup(x => x.LastModified).Returns(DateTime.Now);
+
+            // act
+            var parser = new HtmlParserComponent(new List<IHtmlFile>()
+            {
+                mockedHtmlFile.Object,
+                mockedHtmlFile1.Object
+            });
+
+            parser.ExtractRelevantContent(mockedHtmlFile.Object);
+            // assert
+            Assert.AreEqual(567, parser._commonElements.Count);
         }
     } 
 }
