@@ -147,15 +147,15 @@ namespace Backend.Logic.Components
                 .ToList()
                 .ForEach(x => x.Remove());
 
-            //string[] classElementsToRemove = { "cookie", "main-menu-bar", "footer", "site-switch" };
+            string[] classElementsToRemove = { "cookie", "main-menu-bar", "footer", "site-switch" };
 
-            //foreach (var classElement in classElementsToRemove)
-            //{
-            //    doc.DocumentNode.Descendants("div")
-            //        .Where(d => d.Attributes["class"]?.Value?.Contains(classElement, StringComparison.OrdinalIgnoreCase) == true)
-            //        .ToList()
-            //        .ForEach(d => d.Remove());
-            //}
+            foreach (var classElement in classElementsToRemove)
+            {
+                doc.DocumentNode.Descendants("div")
+                    .Where(d => d.Attributes["class"]?.Value?.Contains(classElement, StringComparison.OrdinalIgnoreCase) == true)
+                    .ToList()
+                    .ForEach(d => d.Remove());
+            }
 
             string[] elementsToRemove = { "nav", "footer", "a" };
             foreach (var elementName in elementsToRemove)
