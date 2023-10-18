@@ -1,21 +1,46 @@
 ﻿using Backend.Logic.Data;
+using Backend.Logic.Data.Json;
 using General.Interfaces.Backend;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
+using log4net;
+using NHunspell;
 using OpenQA.Selenium.DevTools.V112.Storage;
 using System.IO.IsolatedStorage;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Backend.Logic.Components
 {
     public class HtmlParserComponent : IHtmlParser
     {
+        ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         internal List<HtmlNode> _commonElements;
+        List<string> _stopWords;
+
         public HtmlParserComponent(IList<IHtmlFile> sampleHtmlFiles)
         {
             _commonElements = FindCommonElements(sampleHtmlFiles);
+            ReadInStopwords();
+        }
+
+        void ReadInStopwords()
+        {
+            var files = Directory.GetFiles("Resources/StopWords");
+            _stopWords = new List<string>();
+            foreach (var file in files)
+            {
+                string text = File.ReadAllText(file);
+                var words = JsonSerializer.Deserialize<StopWords>(text);
+                if(words == null)
+                {
+                    _log4.Warn("Stopword File was not parsed. " + file);
+                    continue;
+                }
+                _stopWords.AddRange(words.Words);
+            }
         }
 
         #region Find common elements
@@ -183,7 +208,7 @@ namespace Backend.Logic.Components
             }
 
             // Get code tokens
-            string[] tokens = GetTokens(extractedText);
+            var tokens = GetTokens(extractedText);
             
             // Print the extracted text
             var resContext = new Context()
@@ -197,27 +222,53 @@ namespace Backend.Logic.Components
             // todo
             return resContext;
         }
+        #endregion
 
-        private string[] GetTokens(string text)
+        #region Generate Tokens
+
+        private IList<string> GetTokens(string text)
         {
             string pattern = "[()\\.,;:%\"]";
 
-            string result = Regex.Replace(convertedText, pattern, "");
+            string result = Regex.Replace(text, pattern, "");
             string[] tokens = result.Split(' ');
 
-            Array.ForEach(tokens, x => NormalizeText(x));
+            IList<string> normalizedTokens = new List<string>();
 
-            return tokens;
+            foreach (var token in tokens)
+            {
+                string normalizedText = NormalizeText(token);
+                if (normalizedText != null)
+                {
+                    normalizedTokens.Add(normalizedText);
+                }
+            }
+
+            // Stemming
+            using (var hunspell = new Hunspell("Resources/Hunspell/hu/index.aff", "Resources/Hunspell/hu/index.dic"))
+            {
+                for (int i = 0; i < normalizedTokens.Count; i++)
+                {
+                    var characters = hunspell.Stem(normalizedTokens[i]);
+                    normalizedTokens[i] = string.Join("", characters);
+                }
+            }
+
+            return normalizedTokens;
         }
 
-        private void NormalizeText(string word)
+        private string NormalizeText(string word)
         {
             word = word.Trim();
             word = word.ToLowerInvariant();
 
             // stop words
-            // ['a', 'ahogy', 'ahol', 'aki', 'akik', 'akkor', 'alatt', 'által', 'általában', 'amely', 'amelyek', 'amelyekben', 'amelyeket', 'amelyet', 'amelynek', 'ami', 'amit', 'amolyan', 'amíg', 'amikor', 'át', 'abban', 'ahhoz', 'annak', 'arra', 'arról', 'az', 'azok', 'azon', 'azt', 'azzal', 'azért', 'aztán', 'azután', 'azonban', 'bár', 'be', 'belül', 'benne', 'cikk', 'cikkek', 'cikkeket', 'csak', 'de', 'e', 'eddig', 'egész', 'egy', 'egyes', 'egyetlen', 'egyéb', 'egyik', 'egyre', 'ekkor', 'el', 'elég', 'ellen', 'elő', 'először', 'előtt', 'első', 'én', 'éppen', 'ebben', 'ehhez', 'emilyen', 'ennek', 'erre', 'ez', 'ezt', 'ezek', 'ezen', 'ezzel', 'ezért', 'és', 'fel', 'felé', 'hanem', 'hiszen', 'hogy', 'hogyan', 'igen', 'így', 'illetve', 'ill.', 'ill', 'ilyen', 'ilyenkor', 'ison', 'ismét', 'itt', 'jó', 'jól', 'jobban', 'kell', 'kellett', 'keresztül', 'keressünk', 'ki', 'kívül', 'között', 'közül', 'legalább', 'lehet', 'lehetett', 'legyen', 'lenne', 'lenni', 'lesz', 'lett', 'maga', 'magát', 'majd', 'majd', 'már', 'más', 'másik', 'meg', 'még', 'mellett', 'mert', 'mely', 'melyek', 'mi', 'mit', 'míg', 'miért', 'milyen', 'mikor', 'minden', 'mindent', 'mindenki', 'mindig', 'mint', 'mintha', 'mivel', 'most', 'nagy', 'nagyobb', 'nagyon', 'ne', 'néha', 'nekem', 'neki', 'nem', 'néhány', 'nélkül', 'nincs', 'olyan', 'ott', 'össze', 'ő', 'ők', 'őket', 'pedig', 'persze', 'rá', 's', 'saját', 'sem', 'semmi', 'sok', 'sokat', 'sokkal', 'számára', 'szemben', 'szerint', 'szinte', 'talán', 'tehát', 'teljes', 'tovább', 'továbbá', 'több', 'úgy', 'ugyanis', 'új', 'újabb', 'újra', 'után', 'utána', 'utolsó', 'vagy', 'vagyis', 'valaki', 'valami', 'valamint', 'való', 'vagyok', 'van', 'vannak', 'volt', 'voltam', 'voltak', 'voltunk', 'vissza', 'vele', 'viszont', 'volna']
+            if(_stopWords.Contains(word))
+            {
+                return null;
+            }
 
+            return word;
         }
 
         string RemoveTags(string html)

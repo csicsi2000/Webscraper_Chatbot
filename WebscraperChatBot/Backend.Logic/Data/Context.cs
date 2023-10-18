@@ -14,6 +14,6 @@ namespace Backend.Logic.Data
         public string Text {get;set;}
         public string OriginUrl {get;set;}
         public double Score {get;set;}
-        public string[] Tokens { get; set; }
+        public IList<string> Tokens { get; set; }
     }
 }
