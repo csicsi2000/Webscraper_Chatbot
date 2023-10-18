@@ -7,8 +7,17 @@ using System.Threading.Tasks;
 
 namespace General.Interfaces.Backend
 {
+    /// <summary>
+    /// Get relevant contexts
+    /// </summary>
     public interface IContextRetriever
     {
-        public IList<IContext> GetBestContexts(IEnumerable<IContext> contexts, string text);
+        /// <summary>
+        /// Calculate context scores
+        /// </summary>
+        /// <param name="contexts"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public void CalculateContextScores(IEnumerable<IContext> contexts, string text);
     }
 }

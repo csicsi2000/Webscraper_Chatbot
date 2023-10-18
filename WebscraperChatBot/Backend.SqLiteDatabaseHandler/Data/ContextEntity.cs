@@ -16,11 +16,12 @@ namespace Backend.SqLiteDatabaseHandler.Data
         public string Text { get; set; }
         public string DocTitle { get; set; }
         public HtmlFileEntity? FileEntity { get; set; }
+        public string[] Tokens { get; set; }
 
         [NotMapped]
         public string OriginUrl { get; set; }
 
         [NotMapped]
-        public int Rank { get; set; }
+        public double Score { get; set; }
     }
 }

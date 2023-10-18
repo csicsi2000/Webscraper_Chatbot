@@ -15,3 +15,4 @@ var excludedUrls = new List<string>() { "https://uni-eszterhazy.hu/api" };
 
 contextWorkflow.ExtractHtml("https://uni-eszterhazy.hu/matinf", excludedUrls);
 //contextWorkflow.ExtraxtContext("https://uni-eszterhazy.hu/", excludedUrls);
+

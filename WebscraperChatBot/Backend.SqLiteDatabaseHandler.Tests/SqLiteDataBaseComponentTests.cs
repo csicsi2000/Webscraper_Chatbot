@@ -20,7 +20,7 @@ namespace Backend.SqLiteDatabaseHandler.Tests
             var mockedContext = new Mock<IContext>();
             string text = "test text";
             mockedContext.Setup(x => x.Text).Returns(text);
-            mockedContext.Setup(x => x.Rank).Returns(2);
+            mockedContext.Setup(x => x.Score).Returns(2);
             mockedContext.Setup(x => x.OriginUrl).Returns("test.com");
             mockedContext.Setup(x => x.DocTitle).Returns("test");
 
@@ -53,7 +53,7 @@ namespace Backend.SqLiteDatabaseHandler.Tests
             // Arrange
             var mockedContext1 = new Mock<IContext>();
             mockedContext1.Setup(x => x.Text).Returns("context 1");
-            mockedContext1.Setup(x => x.Rank).Returns(1);
+            mockedContext1.Setup(x => x.Score).Returns(1);
             mockedContext1.Setup(x => x.OriginUrl).Returns("test.com");
             mockedContext1.Setup(x => x.DocTitle).Returns("test");
 
@@ -66,7 +66,7 @@ namespace Backend.SqLiteDatabaseHandler.Tests
             Assert.AreEqual(1, contexts.Count());
             var firstItem = contexts.First();
             Assert.AreEqual("context 1", firstItem.Text);
-            Assert.AreEqual(1, firstItem.Rank);
+            Assert.AreEqual(1, firstItem.Score);
             Assert.AreEqual("test.com", firstItem.OriginUrl);
         }
 
@@ -76,14 +76,14 @@ namespace Backend.SqLiteDatabaseHandler.Tests
             // Arrange
             var mockedContext1 = new Mock<IContext>();
             mockedContext1.Setup(x => x.Text).Returns("context 1");
-            mockedContext1.Setup(x => x.Rank).Returns(1);
+            mockedContext1.Setup(x => x.Score).Returns(1);
             mockedContext1.Setup(x => x.OriginUrl).Returns("test.com");
             mockedContext1.Setup(x => x.DocTitle).Returns("test1");
             GlobalValues.TestDatabase.InsertContext(mockedContext1.Object);
 
             var mockedContext2 = new Mock<IContext>();
             mockedContext2.Setup(x => x.Text).Returns("context 2");
-            mockedContext2.Setup(x => x.Rank).Returns(2);
+            mockedContext2.Setup(x => x.Score).Returns(2);
             mockedContext2.Setup(x => x.OriginUrl).Returns("test.com");
             mockedContext2.Setup(x => x.DocTitle).Returns("test2");
             GlobalValues.TestDatabase.InsertContext(mockedContext2.Object);
