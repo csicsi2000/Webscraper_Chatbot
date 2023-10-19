@@ -1,15 +1,13 @@
-﻿using Backend.Logic.Data;
+﻿using Backend.Logic.Components.Logic;
+using Backend.Logic.Data;
 using Backend.Logic.Data.Json;
 using General.Interfaces.Backend;
+using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
 using log4net;
-using NHunspell;
-using OpenQA.Selenium.DevTools.V112.Storage;
-using System.IO.IsolatedStorage;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Xml;
 
 namespace Backend.Logic.Components
 {
@@ -18,8 +16,7 @@ namespace Backend.Logic.Components
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         internal List<HtmlNode> _commonElements;
-        List<string> _stopWords;
-
+        internal ITokenConverter _tokenConverter;
         public HtmlParserComponent(IList<IHtmlFile> sampleHtmlFiles)
         {
             _commonElements = FindCommonElements(sampleHtmlFiles);
@@ -29,7 +26,7 @@ namespace Backend.Logic.Components
         void ReadInStopwords()
         {
             var files = Directory.GetFiles("Resources/StopWords");
-            _stopWords = new List<string>();
+            var stopWords = new List<string>();
             foreach (var file in files)
             {
                 string text = File.ReadAllText(file);
@@ -39,8 +36,9 @@ namespace Backend.Logic.Components
                     _log4.Warn("Stopword File was not parsed. " + file);
                     continue;
                 }
-                _stopWords.AddRange(words.Words);
+                stopWords.AddRange(words.Words);
             }
+            _tokenConverter = new TokenConverter(stopWords);
         }
 
         #region Find common elements
@@ -208,7 +206,7 @@ namespace Backend.Logic.Components
             }
 
             // Get code tokens
-            var tokens = GetTokens(extractedText);
+            var tokens = _tokenConverter.ConvertToTokens(extractedText);
             
             // Print the extracted text
             var resContext = new Context()
@@ -226,50 +224,6 @@ namespace Backend.Logic.Components
 
         #region Generate Tokens
 
-        private IList<string> GetTokens(string text)
-        {
-            string pattern = "[()\\.,;:%\"]";
-
-            string result = Regex.Replace(text, pattern, "");
-            string[] tokens = result.Split(' ');
-
-            IList<string> normalizedTokens = new List<string>();
-
-            foreach (var token in tokens)
-            {
-                string normalizedText = NormalizeText(token);
-                if (normalizedText != null)
-                {
-                    normalizedTokens.Add(normalizedText);
-                }
-            }
-
-            // Stemming
-            using (var hunspell = new Hunspell("Resources/Hunspell/hu/index.aff", "Resources/Hunspell/hu/index.dic"))
-            {
-                for (int i = 0; i < normalizedTokens.Count; i++)
-                {
-                    var characters = hunspell.Stem(normalizedTokens[i]);
-                    normalizedTokens[i] = string.Join("", characters);
-                }
-            }
-
-            return normalizedTokens;
-        }
-
-        private string NormalizeText(string word)
-        {
-            word = word.Trim();
-            word = word.ToLowerInvariant();
-
-            // stop words
-            if(_stopWords.Contains(word))
-            {
-                return null;
-            }
-
-            return word;
-        }
 
         string RemoveTags(string html)
         {
