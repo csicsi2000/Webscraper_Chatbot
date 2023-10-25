@@ -214,7 +214,7 @@ namespace Backend.Logic.Components
                 DocTitle = title,
                 Text = extractedText,
                 OriginUrl = file.Url,
-                Tokens = tokens
+                Tokens = tokens.ToArray()
             };
 
             // todo
