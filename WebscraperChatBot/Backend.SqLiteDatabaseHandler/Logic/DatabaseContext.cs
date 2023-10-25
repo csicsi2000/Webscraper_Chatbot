@@ -19,6 +19,16 @@ namespace Backend.SqLiteDatabaseHandler.Logic
         public DbSet<HtmlFileEntity> Files { get; set; }
 
         string _dbPath;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ContextEntity>()
+                .Property(e => e.Tokens)
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
+        }
+
         public DatabaseContext(string dbPath)
         {
             _dbPath = dbPath ?? throw new ArgumentNullException(nameof(dbPath));
