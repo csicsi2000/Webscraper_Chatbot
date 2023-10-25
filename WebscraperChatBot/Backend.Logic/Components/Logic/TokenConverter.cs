@@ -45,7 +45,7 @@ namespace Backend.Logic.Components.Logic
             var languages = identifier.Identify(result);
             var mostCertainLanguage = languages.FirstOrDefault();
 
-            IStemmer stemmer = null;
+            IStemmer stemmer;
             if (mostCertainLanguage?.Item1.Iso639_2T == "hu")
             {
                 stemmer = new HungarianStemmer();
