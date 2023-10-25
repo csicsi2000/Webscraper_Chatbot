@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using General.Interfaces.Data;
 
-namespace Backend.DatabaseHandler.Data
+namespace Backend.SqLiteDatabaseHandler.Data
 {
     public class HtmlFileEntity : IHtmlFile
     {

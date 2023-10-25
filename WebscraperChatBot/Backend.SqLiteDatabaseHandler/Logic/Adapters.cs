@@ -1,4 +1,4 @@
-﻿using Backend.DatabaseHandler.Data;
+﻿using Backend.SqLiteDatabaseHandler.Data;
 using General.Interfaces.Data;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,8 @@ namespace Backend.SqLiteDatabaseHandler.Logic
             {
                 OriginUrl = context.OriginUrl,
                 Text = context.Text,
-                Rank = context.Rank
+                Score = context.Score,
+                DocTitle = context.DocTitle,
             };
         }
 

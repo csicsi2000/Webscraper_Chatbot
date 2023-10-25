@@ -7,21 +7,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.DatabaseHandler.Data
+namespace Backend.SqLiteDatabaseHandler.Data
 {
     public class ContextEntity : IContext
     {
         [Key]
         public int Id { get; set; }
-
         public string Text { get; set; }
-
+        public string DocTitle { get; set; }
         public HtmlFileEntity? FileEntity { get; set; }
+        public IList<string> Tokens { get; set; }
 
         [NotMapped]
         public string OriginUrl { get; set; }
 
         [NotMapped]
-        public int Rank { get; set; }
+        public double Score { get; set; }
     }
 }

@@ -1,13 +1,11 @@
-﻿using Backend.DatabaseHandler.Data;
-using Backend.DatabaseHandler.Logic;
-using Backend.SqLiteDatabaseHandler.Logic;
+﻿using Backend.SqLiteDatabaseHandler.Logic;
 using General.Interfaces.Backend;
 using General.Interfaces.Data;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using System.Data.SQLite;
 
-namespace Backend.DatabaseHandler
+namespace Backend.SqLiteDatabaseHandler
 {
     public class SqLiteDataBaseComponent : IDatabaseHandler, IDisposable
     {
@@ -16,7 +14,7 @@ namespace Backend.DatabaseHandler
         DatabaseContext dbContext;
         public SqLiteDataBaseComponent(string connectionString, bool tryCreateFile = false)
         {
-            if (String.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrEmpty(connectionString))
                 throw new ArgumentNullException(nameof(connectionString));
 
             dbContext = new DatabaseContext(connectionString);

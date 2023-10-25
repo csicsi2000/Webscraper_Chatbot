@@ -1,4 +1,4 @@
-﻿using Backend.DatabaseHandler.Data;
+﻿using Backend.SqLiteDatabaseHandler.Data;
 using log4net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.DatabaseHandler.Logic
+namespace Backend.SqLiteDatabaseHandler.Logic
 {
     public class DatabaseContext : DbContext
     {
@@ -24,7 +24,7 @@ namespace Backend.DatabaseHandler.Logic
             _dbPath = dbPath ?? throw new ArgumentNullException(nameof(dbPath));
             try
             {
-                var databaseCreator = (Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator);
+                var databaseCreator = Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
                 databaseCreator.EnsureCreated();
                 databaseCreator.CreateTables();
                 _log4.Info("Tables are created.");
@@ -37,7 +37,7 @@ namespace Backend.DatabaseHandler.Logic
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-             options.UseSqlite($"Data Source={_dbPath}");
+            options.UseSqlite($"Data Source={_dbPath}");
 
         }
     }

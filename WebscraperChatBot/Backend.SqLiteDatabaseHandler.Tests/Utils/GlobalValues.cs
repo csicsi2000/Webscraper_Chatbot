@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Backend.SqLiteDatabaseHandler;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backend.DatabaseHandler.Tests.Utils
+namespace Backend.SqLiteDatabaseHandler.Tests.Utils
 {
     public static class GlobalValues
     {
