@@ -47,7 +47,7 @@ namespace Backend.QuestionAnswerModel
             scope.Exec("res = question_answerer(question=question, context=context)\n");
             scope.Exec("resAnswer = res[\"answer\"]");
 
-            return scope.Get("resAnswer").ToString();
+            return scope.Get("resAnswer")?.ToString()?.Trim() ?? "";
         }
 
         public void Dispose()

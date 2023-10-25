@@ -13,7 +13,7 @@ namespace General.Interfaces.Data
         string Text { get; set; }
         string OriginUrl { get; set; }
         double Score { get; set; }
-        IList<string> Tokens { get; set; }
+        string[] Tokens { get; set; }
 
     }
 }

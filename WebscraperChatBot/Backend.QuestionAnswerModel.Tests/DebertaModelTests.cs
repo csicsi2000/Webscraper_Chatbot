@@ -14,7 +14,8 @@ namespace Backend.QuestionAnswerModel.Tests
         }
 
         [TestMethod]
-        public void TC01_AnswerFromContext_CorrectDataGiven_AnswerReturned()
+        [TestCategory("ApiTest")]
+        public void TC01_EnAnswerFromContext_CorrectDataGiven_AnswerReturned()
         {
             // arrange
             string context = @"
@@ -27,7 +28,21 @@ namespace Backend.QuestionAnswerModel.Tests
             string res = model.AnswerFromContext(context,question);
 
             // assert
-            Assert.AreEqual(" Jax, PyTorch and TensorFlow",res);
+            Assert.AreEqual("Jax, PyTorch and TensorFlow",res);
+        }
+
+        [TestMethod]
+        [TestCategory("ApiTest")]
+        [DataRow("Ki Volt András?", "András egy fizikus votl", "fizikus")]
+        public void TC02_EnAnswerFromContext_CorrectDataGiven_AnswerReturned(string question, string context, string answer)
+        {
+            // arrange
+
+            // act
+            string res = model.AnswerFromContext(context, question);
+
+            // assert
+            Assert.AreEqual(answer, res);
         }
     }
 }
