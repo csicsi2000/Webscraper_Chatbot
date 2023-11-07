@@ -9,6 +9,7 @@ namespace General.Interfaces.Backend
 {
     public interface IHtmlParser
     {
+        // Extracts relevant context from an html file
         public IContext ExtractRelevantContent(IHtmlFile htmlContent);
     }
 }

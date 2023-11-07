@@ -1,6 +1,8 @@
 ﻿using Backend.Logic.Components;
 using Backend.Logic.Data;
+using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +18,9 @@ namespace Backend.Logic.Tests.Components
         public void TC01_GetBestContexts_MultipleContexts_ReturnsCorrectOrder()
         {
             // arrange
-            var retriever = new RetrieverComponent();
+            var mockedTokenConverter = new Mock<ITokenConverter>();
+            mockedTokenConverter.Setup(x => x.ConvertToTokens(It.IsAny<string>())).Returns((string x) => x);
+            var retriever = new RetrieverComponent(mockedTokenConverter.Object);
             IList<IContext> retrievedContexts = new List<IContext>()
             {
                 new Context()

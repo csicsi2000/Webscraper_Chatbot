@@ -6,6 +6,7 @@ using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
 using log4net;
+using Newtonsoft.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -15,33 +16,23 @@ namespace Backend.Logic.Components
     {
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        const string commonFile = "CommonElements.json";
+
         internal List<HtmlNode> _commonElements;
         internal ITokenConverter _tokenConverter;
-        public HtmlParserComponent(IList<IHtmlFile> sampleHtmlFiles)
+        public HtmlParserComponent(IEnumerable<IHtmlFile> sampleHtmlFiles, ITokenConverter tokenConverter)
         {
-            _commonElements = FindCommonElements(sampleHtmlFiles);
-            ReadInStopwords();
-        }
+            _commonElements = FindCommonElements(sampleHtmlFiles.ToList());
+            _tokenConverter = tokenConverter;
 
-        void ReadInStopwords()
-        {
-            var files = Directory.GetFiles("Resources/StopWords");
-            var stopWords = new List<string>();
-            foreach (var file in files)
-            {
-                string text = File.ReadAllText(file);
-                var words = JsonSerializer.Deserialize<StopWords>(text);
-                if(words == null)
-                {
-                    _log4.Warn("Stopword File was not parsed. " + file);
-                    continue;
-                }
-                stopWords.AddRange(words.Words);
-            }
-            _tokenConverter = new TokenConverter(stopWords);
         }
 
         #region Find common elements
+
+        IList<string> GetCommonElements()
+        {
+            return new List<string>();
+        }
 
         List<HtmlNode> FindCommonElements(IList<IHtmlFile> htmlFiles)
         {
@@ -90,8 +81,14 @@ namespace Backend.Logic.Components
                     }
                 }
             }
+            var commonObject = new CommonElements()
+            {
+                Elements = commonElements.Select(x => x.InnerHtml).ToList()
+            };
 
-            return commonElements;
+            var allElement = JsonConvert.SerializeObject(commonObject);
+
+             return commonElements;
         }
 
         string RemoveCommonElements(string htmlContent, List<HtmlNode> commonElements)
@@ -154,10 +151,15 @@ namespace Backend.Logic.Components
 
         #region Remove base elements
 
-        IContext RemoveBaseNodes(IHtmlFile file)
+        /// <summary>
+        /// Gets the context from an html file content
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        IContext RemoveBaseNodes(string fileContent, string url)
         {
             var doc = new HtmlDocument();
-            doc.LoadHtml(file.Content);
+            doc.LoadHtml(fileContent);
 
             string title = doc.DocumentNode.Descendants("title").FirstOrDefault()?.InnerText ?? "";
 
@@ -213,7 +215,7 @@ namespace Backend.Logic.Components
             {
                 DocTitle = title,
                 Text = extractedText,
-                OriginUrl = file.Url,
+                OriginUrl = url,
                 Tokens = tokens.ToArray()
             };
 
@@ -235,8 +237,12 @@ namespace Backend.Logic.Components
 
         public IContext ExtractRelevantContent(IHtmlFile htmlContent)
         {
-            var result = RemoveBaseNodes(htmlContent);
+            var result = RemoveBaseNodes(htmlContent.Content, htmlContent.Url);
 
+            if (result == null) 
+            {
+                return result;
+            }
             result.Text = RemoveCommonElements(result.Text, _commonElements);
 
             return result;

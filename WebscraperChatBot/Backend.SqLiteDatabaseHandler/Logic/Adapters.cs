@@ -18,6 +18,7 @@ namespace Backend.SqLiteDatabaseHandler.Logic
                 Text = context.Text,
                 Score = context.Score,
                 DocTitle = context.DocTitle,
+                Tokens = context.Tokens
             };
         }
 

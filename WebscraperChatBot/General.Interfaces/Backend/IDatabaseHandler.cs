@@ -37,7 +37,7 @@ namespace General.Interfaces.Backend
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public bool InsertContext(IContext context);
+        public bool InsertOrUpdateContext(IContext context);
         /// <summary>
         /// Delete context with the specified text
         /// </summary>

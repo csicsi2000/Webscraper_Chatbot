@@ -1,4 +1,5 @@
 ﻿using Backend.Logic.Components;
+using Backend.Logic.Components.Logic;
 using General.Interfaces.Backend;
 
 namespace Backend.Server.Workflows
@@ -24,7 +25,8 @@ namespace Backend.Server.Workflows
 
         public void ExtractContext()
         {
-            var htmlParser = new HtmlParserComponent(_databaseHandler.GetHtmlFiles().Take(10).ToList());
+            var tokenConverter = new TokenConverter(new StopWordReader().GetStopwords());
+            var htmlParser = new HtmlParserComponent(_databaseHandler.GetHtmlFiles().Take(10).ToList(),tokenConverter);
         }
     }
 }

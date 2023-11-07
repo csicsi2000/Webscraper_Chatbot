@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Backend.Logic.Data.Json
 {
-    public class StopWords
+    public class CommonElements
     {
-        public IList<string> Words { get; set; } = new List<string>();
+        public IList<string> Elements { get; set; } = new List<string>();
     }
 }

@@ -32,7 +32,26 @@ namespace Backend.SqLiteDatabaseHandler
             dbContext.Contexts.ExecuteDelete();
             dbContext.Files.ExecuteDelete();
         }
+        public void Dispose()
+        {
+            dbContext.Dispose();
+        }
 
+        #region Context
+        public IEnumerable<IContext> GetContexts()
+        {
+            try
+            {
+                var contexts = dbContext.Contexts.ToList();
+                _log4.Info("All context read");
+                return contexts;
+            }
+            catch (Exception ex)
+            {
+                _log4.Error(ex);
+                return Enumerable.Empty<IContext>();
+            }
+        }
         public bool DeleteContext(string text)
         {
             try
@@ -54,7 +73,38 @@ namespace Backend.SqLiteDatabaseHandler
             }
             return true;
         }
+        public bool InsertOrUpdateContext(IContext context)
+        {
+            try
+            {
+                var samePage = dbContext.Contexts.FirstOrDefault(x => x.OriginUrl == context.OriginUrl);
+                 if (samePage != null)
+                {
+                    samePage.Text = context.Text;
+                    samePage.Tokens = context.Tokens;
+                    _log4.Info("Exisitng context updated");
+                }
+                else
+                {
+                    var contextEntity = Adapters.GetContextEntity(context);
+                    contextEntity.FileEntity = dbContext.Files.FirstOrDefault(x => x.Url == contextEntity.OriginUrl);
+                    dbContext.Contexts.Add(contextEntity);
+                     _log4.Info("New context added");
+                }
+                dbContext.SaveChanges();
 
+            }
+            catch (Exception ex)
+            {
+                _log4.Error(ex);
+                return false;
+            }
+            return true;
+        }
+
+        #endregion
+
+        #region HtmlFiles
         public bool DeleteHtmlFile(string url)
         {
             try
@@ -77,25 +127,7 @@ namespace Backend.SqLiteDatabaseHandler
             return true;
         }
 
-        public void Dispose()
-        {
-            dbContext.Dispose();
-        }
 
-        public IEnumerable<IContext> GetContexts()
-        {
-            try
-            {
-                var contexts = dbContext.Contexts.ToList();
-                _log4.Info("All context read");
-                return contexts;
-            }
-            catch (Exception ex)
-            {
-                _log4.Error(ex);
-                return Enumerable.Empty<IContext>();
-            }
-        }
 
         public IHtmlFile GetHtmlFile(string url)
         {
@@ -129,24 +161,6 @@ namespace Backend.SqLiteDatabaseHandler
             }
         }
 
-        public bool InsertContext(IContext context)
-        {
-            try
-            {
-                var contextEntity = Adapters.GetContextEntity(context);
-                contextEntity.FileEntity = dbContext.Files.FirstOrDefault(x => x.Url == contextEntity.OriginUrl);
-                dbContext.Contexts.Add(contextEntity);
-                dbContext.SaveChanges();
-                _log4.Info("New context added");
-
-            }
-            catch (Exception ex)
-            {
-                _log4.Error(ex);
-                return false;
-            }
-            return true;
-        }
 
         public bool InsertOrUpdateHtmlFile(IHtmlFile file)
         {
@@ -174,5 +188,7 @@ namespace Backend.SqLiteDatabaseHandler
             }
             return true;
         }
+
+        #endregion
     }
 }
