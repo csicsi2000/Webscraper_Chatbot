@@ -26,7 +26,7 @@ namespace Backend.Server.Workflows
         public void ExtractContext()
         {
             var tokenConverter = new TokenConverter(new StopWordReader().GetStopwords());
-            var htmlParser = new HtmlParserComponent(_databaseHandler.GetHtmlFiles().Take(10).ToList(),tokenConverter);
+            var htmlParser = new HtmlParserComponent(tokenConverter); // common elements
         }
     }
 }

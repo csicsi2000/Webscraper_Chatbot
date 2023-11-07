@@ -23,8 +23,8 @@ var excludedUrls = new List<string>() { "https://uni-eszterhazy.hu/api" };
 var stopWordReader = new StopWordReader();
 var tokenConverter = new TokenConverter(stopWordReader.GetStopwords());
 
-var htmlParser = new HtmlParserComponent(databaseHandler.GetHtmlFiles().Take(10),tokenConverter);
-
+var htmlParser = new HtmlParserComponent(tokenConverter);
+htmlParser.FindCommonElements(databaseHandler.GetHtmlFiles().Take(10).ToList());
 
 
 var retriever = new RetrieverComponent(tokenConverter);

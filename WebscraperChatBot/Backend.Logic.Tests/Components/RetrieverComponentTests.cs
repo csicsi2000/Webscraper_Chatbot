@@ -19,7 +19,7 @@ namespace Backend.Logic.Tests.Components
         {
             // arrange
             var mockedTokenConverter = new Mock<ITokenConverter>();
-            mockedTokenConverter.Setup(x => x.ConvertToTokens(It.IsAny<string>())).Returns((string x) => x);
+            mockedTokenConverter.Setup(x => x.ConvertToTokens(It.IsAny<string>())).Returns((string x) => x.Split(' ').ToList());
             var retriever = new RetrieverComponent(mockedTokenConverter.Object);
             IList<IContext> retrievedContexts = new List<IContext>()
             {
@@ -36,8 +36,7 @@ namespace Backend.Logic.Tests.Components
             };
             // act
             retriever.CalculateContextScores(retrievedContexts, "Dolgozat");
-            var bestContexts = retrievedContexts.OrderByDescending(x => x.Score)
-                                .ToList();
+            var bestContexts = retrievedContexts.OrderByDescending(x => x.Score).ToList();
             // assert
             Assert.AreEqual(2, bestContexts.Count);
             Assert.AreEqual(0.34657359027997264, bestContexts.First().Score);
