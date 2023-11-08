@@ -1,6 +1,7 @@
 ﻿using Backend.Logic;
 using Backend.SqLiteDatabaseHandler;
 using Grpc.Core;
+using GrpcService.Data;
 
 namespace GrpcService.Services
 {
@@ -9,48 +10,103 @@ namespace GrpcService.Services
         private readonly object _lockCE = new object();
         private bool _isContentExtractionRunning = false;
 
+        private readonly object _lockHE = new object();
+        private bool _isHtmlExtractionRunning = false;
+
+        private readonly object _lockQuestion = new object();
+        private bool _isAnsweringRunning = false;
+
         IChatbotServices _chatbotServices;
-        public MessageService() 
+        public MessageService() :base()
         {
-            const string dbPath = "database.sqlite";
+            const string dbPath = "../database.sqlite";
             var databaseHandler = new SqLiteDataBaseComponent(dbPath, true);
 
-
+            _chatbotServices = new ChatbotServices(databaseHandler);
         }
 
         // TODO
-        public override Task<Message> GetStatus(EmptyRequest request, ServerCallContext context)
+        public override Task<ServiceStatus> GetStatus(EmptyRequest request, ServerCallContext context)
         {
-            return base.GetStatus(request, context);
+            return Task.FromResult(new ServiceStatus()
+            {
+                ContextExtraction = _isContentExtractionRunning ? StatusEnum.Running.ToString() : StatusEnum.Available.ToString(),
+                HtmlExtraction = _isHtmlExtractionRunning ? StatusEnum.Running.ToString() : StatusEnum.Available.ToString(),
+                QuestionAnswer = _isAnsweringRunning ? StatusEnum.Running.ToString() : StatusEnum.Available.ToString(),
+                HtmlFileCount = _chatbotServices.GetHtmlCount(),
+                ContextCount = _chatbotServices.GetContextCount(),
+            }) ; 
         }
 
         // TODO
-        public override Task<Message> SendMessage(Message request, ServerCallContext context)
+        public override Task<Message> SendQuestion(Message request, ServerCallContext context)
         {
-            return base.SendMessage(request, context);
+            lock (_lockQuestion)
+            {
+                if (_isAnsweringRunning)
+                {
+                    throw new RpcException(new Status(StatusCode.Unavailable, "Answer service is busy."));
+                }
+                _isAnsweringRunning = true;
+            }
+
+            var answer = _chatbotServices.GetAnswer(request.Text);
+            lock (_lockCE)
+            {
+                _isAnsweringRunning = false;
+            }
+            return Task.FromResult(new Message()
+            {
+                Text = answer
+            });
         }
 
-        //
-        public override Task<AdvancedMessages> SendMessageAdvanced(Message request, ServerCallContext context)
+        /// <summary>
+        /// Send a request for multiple top answers with more detail
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        /// <exception cref="RpcException"></exception>
+        public override Task<AdvancedMessages> SendQuestionAdvanced(Message request, ServerCallContext context)
         {
-            return base.SendMessageAdvanced(request, context);
+            lock (_lockQuestion)
+            {
+                if (_isAnsweringRunning)
+                {
+                    throw new RpcException(new Status(StatusCode.Unavailable, "Answer service is busy."));
+                }
+                _isAnsweringRunning = true;
+            }
+
+            var answers = _chatbotServices.GetAdvanceAnswer(request.Text);
+            lock (_lockCE)
+            {
+                _isAnsweringRunning = false;
+            }
+
+            var advancedAnswers = answers.Select(x => new AdvancedMessage() { Text = x.Text, Score = x.Score, SourceUrl = x.OriginUrl });
+
+            var allAnswers = new AdvancedMessages();
+            allAnswers.TopAnswers.AddRange(advancedAnswers);
+            return Task.FromResult(allAnswers);
         }
 
-        // TODO 
+
         public override Task<Message> StartContextExtraction(EmptyRequest request, ServerCallContext context)
         {
             lock(_lockCE)
             {
                 if (_isContentExtractionRunning)
                 {
-                    throw new RpcException(new Status(StatusCode.ResourceExhausted, "Method is already running."));
+                    throw new RpcException(new Status(StatusCode.ResourceExhausted, "Service is already running."));
                 }
                 _isContentExtractionRunning=true;
             }
 
             try
             {
-                // run content extraction
+                _chatbotServices.ExtractContexts();
                 return Task.FromResult(new Message { Text = "Method completed successfully." });
             }
             finally
@@ -65,7 +121,27 @@ namespace GrpcService.Services
         // 
         public override Task<Message> StartHtmlExtraction(EmptyRequest request, ServerCallContext context)
         {
-            return base.StartHtmlExtraction(request, context);
+            lock (_lockHE)
+            {
+                if (_isHtmlExtractionRunning)
+                {
+                    throw new RpcException(new Status(StatusCode.ResourceExhausted, "Service is already running."));
+                }
+                _isHtmlExtractionRunning = true;
+            }
+
+            try
+            {
+                _chatbotServices.ExtractHtmls();
+                return Task.FromResult(new Message { Text = "Method completed successfully." });
+            }
+            finally
+            {
+                lock (_lockHE)
+                {
+                    _isHtmlExtractionRunning = false;
+                }
+            }
         }
     }
 }

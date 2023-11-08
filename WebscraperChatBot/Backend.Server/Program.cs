@@ -13,7 +13,7 @@ ILog log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()
 XmlConfigurator.Configure(new FileInfo("log4net.config"));
 log4.Info("Server started.");
 
-const string dbPath = "database.sqlite";
+const string dbPath = "../database.sqlite";
 var databaseHandler = new SqLiteDataBaseComponent(dbPath, true);
 var contextWorkflow = new ChatbotServices(databaseHandler);
 var excludedUrls = new List<string>() { "https://uni-eszterhazy.hu/api" };

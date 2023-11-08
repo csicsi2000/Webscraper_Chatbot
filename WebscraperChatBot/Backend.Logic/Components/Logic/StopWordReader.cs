@@ -1,4 +1,5 @@
-﻿using Backend.Logic.Data.Json;
+﻿using Backend.Logic.Data;
+using Backend.Logic.Data.Json;
 using General.Interfaces.Backend.Logic;
 using log4net;
 using System;
@@ -16,7 +17,7 @@ namespace Backend.Logic.Components.Logic
 
         public IList<string> GetStopwords()
         {
-            var files = Directory.GetFiles("Resources/StopWords");
+            var files = Directory.GetFiles(Path.Combine(CommonValues.folderLoc,"Resources/StopWords"));
             var stopWords = new List<string>();
             foreach (var file in files)
             {

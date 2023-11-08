@@ -116,5 +116,15 @@ namespace Backend.Logic
 
             return bestContexts.ToList();
         }
+
+        public int GetHtmlCount()
+        {
+            return _databaseHandler.GetHtmlFiles().Count();
+        }
+
+        public int GetContextCount()
+        {
+            return _databaseHandler.GetContexts().Count();
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace Backend.Logic.Components
     {
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        const string commonFile = "CommonElements.json";
+        string commonFile = Path.Combine(CommonValues.folderLoc, "CommonElements.json");
 
         internal IList<string> _commonElements;
         internal ITokenConverter _tokenConverter;

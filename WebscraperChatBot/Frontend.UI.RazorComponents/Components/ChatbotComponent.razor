@@ -9,55 +9,68 @@
     {
         AllMessages.Add("sadfasd");
         AllMessages.Add("sadsd");
+        AllMessages.Add("sadsewqd");
+        AllMessages.Add("sadsd");
+        AllMessages.Add("sadsrewd");
+        AllMessages.Add("sadsd");
         AllMessages.Add("helló");
         AllMessages.Add("sadfafsdafsddf");
     }
 }
 
+<div class="position-relative min-vh-100">
+    <h3>ChatbotUI</h3>
 
-<h3>ChatbotUI</h3>
-
-        @foreach (var (message, index) in AllMessages.Select((m, i) => (m, i)))
-{
-    @if (index % 2 == 0)
-    {
-        <p style="padding: .25em; text-align: left; overflow-wrap: normal">
-            <span @key="index" class="tag is-large is-success is-light">
-                @message
-            </span>
-        </p>
-    }
-    else
-    {
-        <p style="padding: .25em; text-align: right; overflow-wrap: normal">
-            <span @key="index" class="tag is-large is-info is-light">
-                @message
-            </span>
-        </p>
-    }
-}
-<ul>
     @foreach (var (message, index) in AllMessages.Select((m, i) => (m, i)))
     {
         @if (index % 2 == 0)
         {
-            <li>
-                <article class="message is-info">
-                    <div class="message-body">
-                        @message
-                    </div>
-                </article>
-            </li>
+            <p style="padding: .25em; text-align: left; overflow-wrap: normal">
+                <span @key="index" class="tag is-large is-success is-light">
+                    @message
+                </span>
+            </p>
         }
         else
         {
-            <li>
-                <article class="message is-primary">
-                    <div class="message-body">
-                        @message
-                    </div>
-                </article>
-            </li>
+            <p style="padding: .25em; text-align: right; overflow-wrap: normal">
+                <span @key="index" class="tag is-large is-info is-light">
+                    @message
+                </span>
+            </p>
         }
     }
-</ul>
+    <ul>
+        @foreach (var (message, index) in AllMessages.Select((m, i) => (m, i)))
+        {
+            @if (index % 2 == 0)
+            {
+                <li>
+                    <article class="message is-info">
+                        <div class="message-body">
+                            @message
+                        </div>
+                    </article>
+                </li>
+            }
+            else
+            {
+                <li>
+                    <article class="message is-primary">
+                        <div class="message-body">
+                            @message
+                        </div>
+                    </article>
+                </li>
+            }
+        }
+    </ul>
+    <div class="fixed-bottom bg-light p-5" style="position: sticky">
+        <div class="form-group">
+            <label for="question">Kérdés</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <small id="emailHelp" class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
+        </div>
+        <button class="btn btn-primary ">Küldés</button>
+    </div>
+</div>

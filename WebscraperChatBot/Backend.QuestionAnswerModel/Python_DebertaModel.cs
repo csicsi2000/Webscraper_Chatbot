@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Backend.QuestionAnswerModel
 {
-    public class Python_DebertaModel : IQuestionAnswerModel,IDisposable
+    public class Python_DebertaModel : IQuestionAnswerModel
     {
         Py.GILState _gil;
         dynamic tokenizer;
@@ -25,7 +25,8 @@ namespace Backend.QuestionAnswerModel
             PythonEngine.Initialize();
             _gil = Py.GIL();
 
-            string code = File.ReadAllText("ModelInterference.py");
+            string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string code = File.ReadAllText(Path.Combine(folder,"ModelInterference.py"));
 
             scope = Py.CreateScope();
             try
@@ -37,7 +38,7 @@ namespace Backend.QuestionAnswerModel
                 _log4.Error(ex);
                 _log4.Info("Python environment initialization failed. Hint: Check missing packages: torch, transformers");
             }
-               
+
         }
 
         public string AnswerFromContext(string context, string question)
@@ -46,13 +47,11 @@ namespace Backend.QuestionAnswerModel
             scope.Set("context", context);
             scope.Exec("res = question_answerer(question=question, context=context)\n");
             scope.Exec("resAnswer = res[\"answer\"]");
-
-            return scope.Get("resAnswer")?.ToString()?.Trim() ?? "";
-        }
-
-        public void Dispose()
-        {
+            
+            var answer = scope.Get("resAnswer")?.ToString()?.Trim() ?? "";
             _gil.Dispose();
+
+            return answer;
         }
 
         /*
