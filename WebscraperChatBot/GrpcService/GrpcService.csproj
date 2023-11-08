@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Protos\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Backend.Logic\Backend.Logic.csproj" />
+    <ProjectReference Include="..\Backend.SqLiteDatabaseHandler\Backend.SqLiteDatabaseHandler.csproj" />
+    <ProjectReference Include="..\General.Interfaces\General.Interfaces.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="..\General.Grpc\Grpc\grpc_chatbot.proto">
+      <Link>Protos\grpc_chatbot.proto</Link>
+    </Protobuf>
+    <Protobuf Include="..\General.Grpc\Grpc\grpc_usermanager.proto">
+      <Link>Protos\grpc_usermanager.proto</Link>
+    </Protobuf>
+  </ItemGroup>
+
+</Project>

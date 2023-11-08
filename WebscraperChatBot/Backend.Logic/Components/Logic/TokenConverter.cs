@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Backend.Logic.Components.Logic
 {
-    public class TokenConverter :ITokenConverter
+    public class TokenConverter : ITokenConverter
     {
         IList<string> _stopWords;
 
@@ -16,7 +16,7 @@ namespace Backend.Logic.Components.Logic
 
         public IList<string> ConvertToTokens(string text)
         {
-            string pattern = "[()\\.,;:%\"]";
+            string pattern = "[()\\.,;:%\"?!+]";
 
             string result = Regex.Replace(text, pattern, "");
             string[] tokens = result.Split(' ');

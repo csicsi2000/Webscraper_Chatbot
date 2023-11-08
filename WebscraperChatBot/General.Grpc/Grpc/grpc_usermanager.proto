@@ -3,10 +3,10 @@
 service UserManagerService {
   rpc Register(NewUser) returns (StringResponse) ;
   rpc Login(UserInfo) returns (StringResponse) ;
-  rpc GetUserInputs(EmptyRequest) returns (UserData) ;
+  rpc GetUserInputs(EmptyRequestUser) returns (UserData) ;
   rpc NewUserInput(NewInput) returns (StringResponse) ;
   rpc DeleteInput(UserInput) returns (StringResponse) ;
-  rpc StartWebscrape(WebScrapeInfo) returns (EmptyRequest);
+  rpc StartWebscrape(WebScrapeInfo) returns (EmptyRequestUser);
 }
 
 message UserInfo {
@@ -65,4 +65,4 @@ enum Result{
 	IN_PROGRESS = 2;
 }
 
-message EmptyRequest {}
+message EmptyRequestUser {}

@@ -8,7 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Program.cs~RF1a7b7041.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ObjectDumper.NET" Version="4.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Backend.Logic\Backend.Logic.csproj" />
+    <ProjectReference Include="..\Backend.QuestionAnswerModel\Backend.QuestionAnswerModel.csproj" />
     <ProjectReference Include="..\Backend.SqLiteDatabaseHandler\Backend.SqLiteDatabaseHandler.csproj" />
   </ItemGroup>
 

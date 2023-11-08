@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace General.Interfaces.Backend
+namespace General.Interfaces.Backend.Components
 {
     public interface IDatabaseHandler
     {
@@ -37,7 +37,7 @@ namespace General.Interfaces.Backend
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public bool InsertContext(IContext context);
+        public bool InsertOrUpdateContext(IContext context);
         /// <summary>
         /// Delete context with the specified text
         /// </summary>

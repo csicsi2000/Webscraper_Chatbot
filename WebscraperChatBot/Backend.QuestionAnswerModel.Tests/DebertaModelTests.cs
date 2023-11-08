@@ -1,4 +1,4 @@
-﻿using General.Interfaces.Backend;
+﻿using General.Interfaces.Backend.Components;
 
 namespace Backend.QuestionAnswerModel.Tests
 {

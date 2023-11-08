@@ -17,8 +17,6 @@ namespace Backend.SqLiteDatabaseHandler.Data
         public string DocTitle { get; set; }
         public HtmlFileEntity? FileEntity { get; set; }
         public string[] Tokens { get; set; } = new string[0];
-
-        [NotMapped]
         public string OriginUrl { get; set; }
 
         [NotMapped]
