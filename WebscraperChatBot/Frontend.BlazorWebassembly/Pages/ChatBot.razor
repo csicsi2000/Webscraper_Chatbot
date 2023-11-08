@@ -2,18 +2,15 @@
 @inject ChatbotService.ChatbotServiceClient ChatbotClient
 
 @code {
-    [Parameter]
-    //public IList<IMessage> AllMessages { get; set; } = new List<IMessage>();
     public IList<string> AllMessages { get; set; } = new List<string>();
 
     string inputText { get; set; } = "";
-    protected override void OnInitialized()
-    {
-        
-    }
+
+    bool isInProgress = false;
 
     async Task SendQuestion()
     {
+        isInProgress = true;
         AllMessages.Add(inputText);
         try
         {
@@ -25,6 +22,7 @@
         {
             AllMessages.Add(ex.Message);
         }
+        isInProgress = false;
     }
 
 }
@@ -51,38 +49,14 @@
             </p>
         }
     }
-    <ul>
-        @foreach (var (message, index) in AllMessages.Select((m, i) => (m, i)))
-        {
-            @if (index % 2 == 0)
-            {
-                <li>
-                    <article class="message is-info">
-                        <div class="message-body">
-                            @message
-                        </div>
-                    </article>
-                </li>
-            }
-            else
-            {
-                <li>
-                    <article class="message is-primary">
-                        <div class="message-body">
-                            @message
-                        </div>
-                    </article>
-                </li>
-            }
-        }
-    </ul>
+
 
     <div class="fixed-bottom bg-light p-5" style="position: sticky">
         <div class="form-group">
             <label for="question">Kérdés</label>
-            <input @bind="inputText"  type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-            <small id="emailHelp" class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
+            <input @bind="inputText"  type="text" class="form-control" aria-describedby="inputText">
+            <small class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
         </div>
-        <button @onclick="SendQuestion" disabled="@string.IsNullOrWhiteSpace(inputText)" class="btn btn-primary ">Küldés</button>
+        <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) && isInProgress)" class="btn btn-primary ">Küldés</button>
     </div>
 </div>

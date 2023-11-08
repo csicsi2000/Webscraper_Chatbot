@@ -1,7 +1,88 @@
 ﻿@page "/advanced"
+@inject ChatbotService.ChatbotServiceClient ChatbotClient
+@using Frontend.BlazorWebassembly.Data;
+@using General.Interfaces.Data;
 
-<h3>AdvancesMessages</h3>
 
 @code {
+    IDictionary<string, List<IContext>> QuestionAnswers { get; set; } = new Dictionary<string, List<IContext>>();
 
+    string inputText { get; set; } = "";
+    bool isInProgress = false;
+
+    async Task SendQuestion()
+    {
+        isInProgress = true;
+
+        QuestionAnswers.Add(inputText, new List<IContext>());
+        try
+        {
+            var res = await ChatbotClient.SendQuestionAdvancedAsync(new Message() { Text = inputText });
+            var answers = res.TopAnswers.Select(x => new AnswerContext()
+                {
+                    Text = x.Text,
+                    Score = x.Score,
+                    OriginUrl = x.SourceUrl
+                });
+            QuestionAnswers[inputText].AddRange(answers);
+            inputText = String.Empty;
+        }
+        catch (Exception ex)
+        {
+            QuestionAnswers[inputText].Add(new AnswerContext() { OriginUrl = ex.Message });
+        }
+        isInProgress = false;
+    }
 }
+<div class="position-relative min-vh-100">
+    <h3>AdvancesMessages</h3>
+    <ul>
+        @foreach (var (message, index) in QuestionAnswers.Select((m, i) => (m, i)))
+        {
+
+            <li>
+                <article class="message is-info">
+                    <div class="message-body">
+                        @message.Key
+                    </div>
+                </article>
+            </li>
+
+            <li>
+                <article class="message is-primary">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Score</th>
+                                <th scope="col">SourceUrl</th>
+                                <th scope="col">Text</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var (answer, y) in message.Value.Select((m, i) => (m, i))){
+                            <tr>
+                                <th scope="row">@y</th>
+                                <td>@answer.Score</td>
+                                <td>@answer.OriginUrl</td>
+                                    <td style="max-height: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ">
+                                        @answer.Text
+                                    </td>
+                            </tr>}
+                        </tbody>
+                    </table>
+                </article>
+            </li>
+
+        }
+    </ul>
+
+    <div class="fixed-bottom bg-light p-5" style="position: sticky">
+        <div class="form-group">
+            <label for="question">Kérdés</label>
+            <input @bind="inputText" type="text" class="form-control" aria-describedby="inputText">
+            <small class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
+        </div>
+        <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) && isInProgress)" class="btn btn-primary ">Küldés</button>
+    </div>
+</div>
