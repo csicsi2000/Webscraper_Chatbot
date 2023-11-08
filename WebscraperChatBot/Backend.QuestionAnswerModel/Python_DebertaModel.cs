@@ -1,5 +1,5 @@
 ﻿using Backend.QuestionAnswerModel.Data;
-using General.Interfaces.Backend;
+using General.Interfaces.Backend.Components;
 using log4net;
 using Python.Runtime;
 using System.ComponentModel.DataAnnotations;

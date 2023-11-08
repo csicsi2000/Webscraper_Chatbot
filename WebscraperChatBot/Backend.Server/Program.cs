@@ -1,8 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Backend.Logic;
 using Backend.Logic.Components;
 using Backend.Logic.Components.Logic;
 using Backend.QuestionAnswerModel;
-using Backend.Server.Workflows;
 using Backend.SqLiteDatabaseHandler;
 using General.Interfaces.Data;
 using log4net;
@@ -15,22 +15,22 @@ log4.Info("Server started.");
 
 const string dbPath = "database.sqlite";
 var databaseHandler = new SqLiteDataBaseComponent(dbPath, true);
-var contextWorkflow = new ExtractContextWorkflow(databaseHandler);
+var contextWorkflow = new ChatbotServices(databaseHandler);
 var excludedUrls = new List<string>() { "https://uni-eszterhazy.hu/api" };
 
-//contextWorkflow.ExtractHtml("https://uni-eszterhazy.hu/matinf", excludedUrls);
+//contextWorkflow.ExtractHtmls("https://uni-eszterhazy.hu/matinf", excludedUrls);
 //contextWorkflow.ExtraxtContext("https://uni-eszterhazy.hu/", excludedUrls);
 var stopWordReader = new StopWordReader();
 var tokenConverter = new TokenConverter(stopWordReader.GetStopwords());
 
 var htmlParser = new HtmlParserComponent(tokenConverter);
-htmlParser.FindCommonElements(databaseHandler.GetHtmlFiles().Take(10).ToList());
+//htmlParser.FindCommonElements(databaseHandler.GetHtmlFiles().Take(10).ToList());
 
 
 var retriever = new RetrieverComponent(tokenConverter);
-IEnumerable<IContext> contexts = databaseHandler.GetContexts();
 
 var questionAnswer = new Python_DebertaModel("C:\\Users\\csics\\AppData\\Local\\Programs\\Python\\Python310\\python310.dll");
+IEnumerable<IContext> contexts = databaseHandler.GetContexts();
 while (true)
 {
     Console.WriteLine("Mi a kérdésed?");

@@ -1,5 +1,5 @@
 ﻿using Backend.SqLiteDatabaseHandler.Logic;
-using General.Interfaces.Backend;
+using General.Interfaces.Backend.Components;
 using General.Interfaces.Data;
 using log4net;
 using Microsoft.EntityFrameworkCore;

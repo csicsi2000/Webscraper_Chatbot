@@ -20,11 +20,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Backend.QuestionAnswerModel\Backend.QuestionAnswerModel.csproj" />
     <ProjectReference Include="..\General.Interfaces\General.Interfaces.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Hunspellx64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Hunspell\hu\index.aff">
@@ -42,10 +46,6 @@
     <None Update="Resources\TextCat\Wiki82.profile.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Support\" />
   </ItemGroup>
 
 </Project>

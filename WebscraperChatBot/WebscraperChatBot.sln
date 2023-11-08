@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Logic.Tests", "Back
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.QuestionAnswerModel", "Backend.QuestionAnswerModel\Backend.QuestionAnswerModel.csproj", "{67140DD2-B7D3-405F-A575-897343F64D69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.QuestionAnswerModel.Tests", "Backend.QuestionAnswerModel.Tests\Backend.QuestionAnswerModel.Tests.csproj", "{87EF0AE6-BEFE-463C-B254-A0BEA1CF98EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.QuestionAnswerModel.Tests", "Backend.QuestionAnswerModel.Tests\Backend.QuestionAnswerModel.Tests.csproj", "{87EF0AE6-BEFE-463C-B254-A0BEA1CF98EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcService", "GrpcService\GrpcService.csproj", "{6B91A24E-216E-46FE-8C67-758FA14C4438}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{87EF0AE6-BEFE-463C-B254-A0BEA1CF98EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87EF0AE6-BEFE-463C-B254-A0BEA1CF98EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87EF0AE6-BEFE-463C-B254-A0BEA1CF98EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B91A24E-216E-46FE-8C67-758FA14C4438}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B91A24E-216E-46FE-8C67-758FA14C4438}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B91A24E-216E-46FE-8C67-758FA14C4438}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B91A24E-216E-46FE-8C67-758FA14C4438}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

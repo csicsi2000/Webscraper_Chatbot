@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace General.Interfaces.Backend
+namespace General.Interfaces.Backend.Components
 {
     public interface IDatabaseHandler
     {

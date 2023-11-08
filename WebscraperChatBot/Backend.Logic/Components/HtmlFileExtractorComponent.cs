@@ -1,5 +1,5 @@
 ﻿using Backend.Logic.Data;
-using General.Interfaces.Backend;
+using General.Interfaces.Backend.Components;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
 using log4net;

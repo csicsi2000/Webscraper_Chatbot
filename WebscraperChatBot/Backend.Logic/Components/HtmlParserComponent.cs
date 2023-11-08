@@ -1,7 +1,7 @@
 ﻿using Backend.Logic.Components.Logic;
 using Backend.Logic.Data;
 using Backend.Logic.Data.Json;
-using General.Interfaces.Backend;
+using General.Interfaces.Backend.Components;
 using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
@@ -33,7 +33,7 @@ namespace Backend.Logic.Components
         {
             if (!File.Exists(commonFile))
             {
-                return new List<string>();  
+                return new List<string>();
             }
             string text = File.ReadAllText(commonFile);
 

@@ -1,4 +1,4 @@
-﻿using General.Interfaces.Backend;
+﻿using General.Interfaces.Backend.Components;
 using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
 
@@ -14,8 +14,8 @@ namespace Backend.Logic.Components
         public void CalculateContextScores(IEnumerable<IContext> contexts, string question)
         {
             // Step 1: Preprocess the input text to obtain the query terms
-            var queryTerms = question.Split(' ');
-            //var queryTerms = _tokenConverter.ConvertToTokens(question);
+            //var queryTerms = question.Split(' ');
+            var queryTerms = _tokenConverter.ConvertToTokens(question);
 
             // Step 2: Calculate the TF-IDF scores for the query terms
             var tfidfScores = CalculateTFIDF(contexts);
@@ -70,8 +70,8 @@ namespace Backend.Logic.Components
             // Step 1: Calculate term frequency (TF) and document frequency (DF) for each term in each document
             foreach (var context in contexts)
             {
-                var terms = context.Text.Split(' ').Distinct(); // Remove duplicate terms in the document // TODO
-                //var terms = context.Tokens.Distinct(); // Remove duplicate terms in the document // TODO
+                //var terms = context.Text.Split(' ').Distinct(); // Remove duplicate terms in the document // TODO
+                var terms = context.Tokens.Distinct(); // Remove duplicate terms in the document // TODO
                 var docTitle = context.DocTitle;
 
                 foreach (var term in terms)
