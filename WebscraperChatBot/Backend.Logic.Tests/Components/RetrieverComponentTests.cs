@@ -34,6 +34,11 @@ namespace Backend.Logic.Tests.Components
                     Text = "Rakéta kilővés"
                 }
             };
+
+            foreach (var context in retrievedContexts)
+            {
+                context.Tokens = context.Text.Split(' ');
+            }
             // act
             retriever.CalculateContextScores(retrievedContexts, "Dolgozat");
             var bestContexts = retrievedContexts.OrderByDescending(x => x.Score).ToList();
