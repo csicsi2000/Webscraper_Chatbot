@@ -21,7 +21,7 @@ namespace Backend.Logic
         /// </summary>
         /// <param name="question"></param>
         /// <returns></returns>
-        IList<IContext> GetAdvanceAnswer(string question);
+        IList<IContext> GetAdvancedAnswer(string question);
         /// <summary>
         /// Get answer to a question
         /// </summary>

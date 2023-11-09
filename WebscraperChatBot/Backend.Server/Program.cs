@@ -2,6 +2,7 @@
 using Backend.Logic;
 using Backend.Logic.Components;
 using Backend.Logic.Components.Logic;
+using Backend.Logic.Data.Json;
 using Backend.QuestionAnswerModel;
 using Backend.SqLiteDatabaseHandler;
 using General.Interfaces.Data;
@@ -13,13 +14,18 @@ ILog log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()
 XmlConfigurator.Configure(new FileInfo("log4net.config"));
 log4.Info("Server started.");
 
-const string dbPath = "../database.sqlite";
-var databaseHandler = new SqLiteDataBaseComponent(dbPath, true);
-var contextWorkflow = new ChatbotServices(databaseHandler);
+var contextWorkflow = new ChatbotServices( new ServerSettings()
+{
+    RootUrl = "https://aries.ektf.hu/~hz/wiki7",
+    DbName = "../wiki7.sqlite",
+    WaitedClassName = "main-content"
+});
 var excludedUrls = new List<string>() { "https://uni-eszterhazy.hu/api" };
 
 //contextWorkflow.ExtractHtmls("https://uni-eszterhazy.hu/matinf", excludedUrls);
-//contextWorkflow.ExtraxtContext("https://uni-eszterhazy.hu/", excludedUrls);
+contextWorkflow.ExtractHtmls();
+Console.WriteLine("Finished");
+/*
 var stopWordReader = new StopWordReader();
 var tokenConverter = new TokenConverter(stopWordReader.GetStopwords());
 
@@ -30,7 +36,7 @@ var htmlParser = new HtmlParserComponent(tokenConverter);
 var retriever = new RetrieverComponent(tokenConverter);
 
 var questionAnswer = new Python_DebertaModel("C:\\Users\\csics\\AppData\\Local\\Programs\\Python\\Python310\\python310.dll");
-IEnumerable<IContext> contexts = databaseHandler.GetContexts();
+IEnumerable<IContext> contexts = contextWorkflow.DatabaseHandler.GetContexts();
 while (true)
 {
     Console.WriteLine("Mi a kérdésed?");
@@ -57,7 +63,7 @@ while (true)
     }
     Console.WriteLine();
 }
-
+*/
 
 
 

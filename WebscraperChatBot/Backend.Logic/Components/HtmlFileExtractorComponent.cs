@@ -3,6 +3,7 @@ using General.Interfaces.Backend.Components;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
 using log4net;
+using NTextCat.Commons;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -54,10 +55,19 @@ namespace Backend.Logic.Components
             }
         }
 
+        string ProcessUrl(string url)
+        {
+            return url.Replace("https", "").Replace("http", "");
+        }
+
         private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
         {
             var currentUrl = new Uri(url).AbsoluteUri;
-            if (visitedUrls.Contains(currentUrl) || !currentUrl.StartsWith(baseUri.Host))
+            if (visitedUrls.Contains(currentUrl))
+            {
+                yield break;
+            }
+            if (!ProcessUrl(currentUrl).StartsWith(ProcessUrl(baseUri.AbsoluteUri)))
             {
                 yield break;
             }
@@ -114,13 +124,17 @@ namespace Backend.Logic.Components
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
             wait.Until(driver => jsExecutor.ExecuteScript("return document.readyState").Equals("complete"));
-            try
+            if (!_waitedClassName.IsNullOrEmpty())
             {
-                wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.ClassName(_waitedClassName)));
-            }
-            catch
-            {
-                _log4.Warn("Page did not have the element.");
+
+                try
+                {
+                    wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.ClassName(_waitedClassName)));
+                }
+                catch
+                {
+                    _log4.Warn("Page did not have the element.");
+                }
             }
 
             // wait.Until(ExpectedConditions.ElementIsVisible(By.Id("myElement")));

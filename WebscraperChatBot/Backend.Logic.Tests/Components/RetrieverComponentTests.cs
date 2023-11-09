@@ -25,11 +25,13 @@ namespace Backend.Logic.Tests.Components
             {
                 new Context()
                 {
+                    Id=0,
                     DocTitle = "Dolgozat",
                     Text = "Dolgozat 15.-én",
                 },
                 new Context()
                 {
+                    Id=1,
                     DocTitle = "Kilövés",
                     Text = "Rakéta kilővés"
                 }

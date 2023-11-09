@@ -13,42 +13,26 @@ namespace Backend.Logic.Components
         }
         public void CalculateContextScores(IEnumerable<IContext> contexts, string question)
         {
-            // Step 1: Preprocess the input text to obtain the query terms
+            // Token konverzió
             //var queryTerms = question.Split(' ');
             var queryTerms = _tokenConverter.ConvertToTokens(question);
 
-            // Step 2: Calculate the TF-IDF scores for the query terms
             var tfidfScores = CalculateTFIDF(contexts);
-
-            // Step 3: Calculate the relevance score for each context
-            /*
-            foreach (var context in contexts)
-            {
-                var contextTerms = context.Text.Split(' ');
-                double score = 0.0;
-
-                foreach (var term in queryTerms)
-                {
-                    if (tfidfScores.ContainsKey(term) && tfidfScores[term].ContainsKey(context.DocTitle))
-                    {
-                        score += tfidfScores[term][context.DocTitle];
-                    }
-                }
-
-               context.Score = score;
-            }
-            */
 
             Parallel.ForEach(contexts, context =>
             {
-                var contextTerms = context.Text.Split(' ');
+                //var contextTerms = context?.Text?.Split(' ');
+                //if(contextTerms == null)
+                //{
+                //    return;
+                //}
                 double score = 0.0;
 
                 foreach (var term in queryTerms)
                 {
-                    if (tfidfScores.ContainsKey(term) && tfidfScores[term].ContainsKey(context.DocTitle))
+                    if (tfidfScores.ContainsKey(term) && tfidfScores[term].ContainsKey(context.Id))
                     {
-                        score += tfidfScores[term][context.DocTitle];
+                        score += tfidfScores[term][context.Id];
                     }
                 }
 
@@ -61,52 +45,52 @@ namespace Backend.Logic.Components
         /// </summary>
         /// <param name="contexts"></param>
         /// <returns>Dictionary with the term as the key, and inside of it the each document score</returns>
-        Dictionary<string, Dictionary<string, double>> CalculateTFIDF(IEnumerable<IContext> contexts)
+        Dictionary<string, Dictionary<int, double>> CalculateTFIDF(IEnumerable<IContext> contexts)
         {
-            var termFrequency = new Dictionary<string, Dictionary<string, double>>();
+            var termFrequency = new Dictionary<string, Dictionary<int, double>>();
             var documentFrequency = new Dictionary<string, int>();
             var totalDocuments = contexts.Count();
 
             // Step 1: Calculate term frequency (TF) and document frequency (DF) for each term in each document
             foreach (var context in contexts)
             {
-                //var terms = context.Text.Split(' ').Distinct(); // Remove duplicate terms in the document // TODO
+                // var terms = context.Text.Split(' ').Distinct(); // Remove duplicate terms in the document // TODO
                 var terms = context.Tokens.Distinct(); // Remove duplicate terms in the document // TODO
-                var docTitle = context.DocTitle;
+                var docId = context.Id;
 
                 foreach (var term in terms)
                 {
                     if (!termFrequency.ContainsKey(term))
                     {
-                        termFrequency[term] = new Dictionary<string, double>();
+                        termFrequency[term] = new Dictionary<int, double>();
                         documentFrequency[term] = 0;
                     }
 
-                    if (!termFrequency[term].ContainsKey(docTitle))
+                    if (!termFrequency[term].ContainsKey(docId))
                     {
-                        termFrequency[term][docTitle] = 0;
+                        termFrequency[term][docId] = 0;
                         documentFrequency[term]++;
                     }
 
-                    termFrequency[term][docTitle]++;
+                    termFrequency[term][docId]++;
                 }
             }
 
             // Step 2: Calculate inverse document frequency (IDF) for each term
-            var tfidf = new Dictionary<string, Dictionary<string, double>>();
+            var tfidf = new Dictionary<string, Dictionary<int, double>>();
 
             foreach (var term in termFrequency.Keys)
             {
-                tfidf[term] = new Dictionary<string, double>();
+                tfidf[term] = new Dictionary<int, double>();
 
                 var termDocumentFrequency = documentFrequency[term];
                 var inverseDocumentFrequency = Math.Log(totalDocuments / (double)termDocumentFrequency);
 
-                foreach (var document in termFrequency[term].Keys)
+                foreach (var documentId in termFrequency[term].Keys)
                 {
-                    var termFreq = termFrequency[term][document];
+                    var termFreq = termFrequency[term][documentId];
                     var normalizedTermFreq = termFreq / contexts.Count();
-                    tfidf[term][document] = normalizedTermFreq * inverseDocumentFrequency;
+                    tfidf[term][documentId] = normalizedTermFreq * inverseDocumentFrequency;
                 }
             }
 

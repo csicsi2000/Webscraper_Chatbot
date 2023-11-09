@@ -1,7 +1,7 @@
 using Backend.Logic.Components;
 using General.Interfaces.General;
 
-namespace Backend.LogicTests.Components
+namespace Backend.Logic.Tests.Components
 {
     [TestClass]
     public class HtmlFileExtractorTests

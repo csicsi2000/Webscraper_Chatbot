@@ -5,7 +5,7 @@
 
 
 @code {
-    IDictionary<string, List<IContext>> QuestionAnswers { get; set; } = new Dictionary<string, List<IContext>>();
+    IList<KeyValuePair<string, List<IContext>>> QuestionAnswers { get; set; } = new List<KeyValuePair<string, List<IContext>>>();
 
     string inputText { get; set; } = "";
     bool isInProgress = false;
@@ -14,7 +14,8 @@
     {
         isInProgress = true;
 
-        QuestionAnswers.Add(inputText, new List<IContext>());
+        QuestionAnswers.Add(new KeyValuePair<string, List<IContext>>(inputText, new List<IContext>()));
+        int lastElement = QuestionAnswers.Count -1;
         try
         {
             var res = await ChatbotClient.SendQuestionAdvancedAsync(new Message() { Text = inputText });
@@ -24,18 +25,33 @@
                     Score = x.Score,
                     OriginUrl = x.SourceUrl
                 });
-            QuestionAnswers[inputText].AddRange(answers);
-            inputText = String.Empty;
+            QuestionAnswers[lastElement].Value.AddRange(answers);
+            inputText = "";
         }
         catch (Exception ex)
         {
-            QuestionAnswers[inputText].Add(new AnswerContext() { OriginUrl = ex.Message });
+            QuestionAnswers[lastElement].Value.Add(new AnswerContext() { OriginUrl = ex.Message });
         }
         isInProgress = false;
+        StateHasChanged();
+    }
+
+    private async void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e is null)
+        {
+            throw new ArgumentNullException(nameof(e));
+        }
+
+        if (e.Key == "Enter")
+        {
+            await SendQuestion();
+        }
     }
 }
 <div class="position-relative min-vh-100">
-    <h3>AdvancesMessages</h3>
+    <h3>Advanced Messages</h3>
+    <p>Count: @QuestionAnswers.Count</p>
     <ul>
         @foreach (var (message, index) in QuestionAnswers.Select((m, i) => (m, i)))
         {
@@ -80,9 +96,15 @@
     <div class="fixed-bottom bg-light p-5" style="position: sticky">
         <div class="form-group">
             <label for="question">Kérdés</label>
-            <input @bind="inputText" type="text" class="form-control" aria-describedby="inputText">
+            <input @bind="inputText" type="text" class="form-control" aria-describedby="inputText" @onkeyup="HandleKeyPress">
             <small class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
         </div>
-        <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) && isInProgress)" class="btn btn-primary ">Küldés</button>
+        @if (isInProgress)
+        {
+            <div class="spinner-border" role="status">
+            </div>
+        }else{
+            <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) || isInProgress)" class="btn btn-primary ">Küldés</button>
+        }
     </div>
 </div>

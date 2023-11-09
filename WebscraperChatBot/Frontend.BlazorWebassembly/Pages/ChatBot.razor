@@ -23,8 +23,21 @@
             AllMessages.Add(ex.Message);
         }
         isInProgress = false;
+        StateHasChanged();
     }
 
+    private async void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e is null)
+        {
+            throw new ArgumentNullException(nameof(e));
+        }
+
+        if (e.Key == "Enter")
+        {
+            await SendQuestion();
+        }
+    }
 }
 
 <div class="position-relative min-vh-100">
@@ -54,9 +67,17 @@
     <div class="fixed-bottom bg-light p-5" style="position: sticky">
         <div class="form-group">
             <label for="question">Kérdés</label>
-            <input @bind="inputText"  type="text" class="form-control" aria-describedby="inputText">
+            <input @bind="inputText" type="text" class="form-control" aria-describedby="inputText" @onkeyup="HandleKeyPress">
             <small class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
         </div>
-        <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) && isInProgress)" class="btn btn-primary ">Küldés</button>
+        @if (isInProgress)
+        {
+            <div class="spinner-border" role="status">
+            </div>
+        }
+        else
+        {
+            <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) || isInProgress)" class="btn btn-primary ">Küldés</button>
+        }
     </div>
 </div>

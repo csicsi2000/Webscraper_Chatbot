@@ -2,6 +2,9 @@
 using Backend.SqLiteDatabaseHandler;
 using Grpc.Core;
 using GrpcService.Data;
+using log4net.Config;
+using log4net;
+using Backend.Logic.Data.Json;
 
 namespace GrpcService.Services
 {
@@ -19,10 +22,12 @@ namespace GrpcService.Services
         IChatbotServices _chatbotServices;
         public MessageService() :base()
         {
-            const string dbPath = "../database.sqlite";
-            var databaseHandler = new SqLiteDataBaseComponent(dbPath, true);
+            ILog log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-            _chatbotServices = new ChatbotServices(databaseHandler);
+            XmlConfigurator.Configure(new FileInfo("log4net.config"));
+            const string dbPath = "../database.sqlite";
+
+            _chatbotServices = new ChatbotServices(log4,new ServerSettings());
         }
 
         // TODO
@@ -79,10 +84,15 @@ namespace GrpcService.Services
                 _isAnsweringRunning = true;
             }
 
-            var answers = _chatbotServices.GetAdvanceAnswer(request.Text);
+            var answers = _chatbotServices.GetAdvancedAnswer(request.Text);
             lock (_lockCE)
             {
                 _isAnsweringRunning = false;
+            }
+
+            if(answers?.Count == 0)
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, "No Answer found."));
             }
 
             var advancedAnswers = answers.Select(x => new AdvancedMessage() { Text = x.Text, Score = x.Score, SourceUrl = x.OriginUrl });

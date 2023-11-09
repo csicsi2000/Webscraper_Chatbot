@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Backend.QuestionAnswerModel\Backend.QuestionAnswerModel.csproj" />
+    <ProjectReference Include="..\Backend.SqLiteDatabaseHandler\Backend.SqLiteDatabaseHandler.csproj" />
     <ProjectReference Include="..\General.Interfaces\General.Interfaces.csproj" />
   </ItemGroup>
 
