@@ -1,11 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Backend.Logic;
-using Backend.Logic.Components;
-using Backend.Logic.Components.Logic;
 using Backend.Logic.Data.Json;
-using Backend.QuestionAnswerModel;
-using Backend.SqLiteDatabaseHandler;
-using General.Interfaces.Data;
 using log4net;
 using log4net.Config;
 

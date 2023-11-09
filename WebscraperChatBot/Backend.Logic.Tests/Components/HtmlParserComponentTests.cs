@@ -4,11 +4,6 @@ using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
 using General.Interfaces.General;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Backend.LogicTests.Components
 {

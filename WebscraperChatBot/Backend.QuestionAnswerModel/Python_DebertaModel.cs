@@ -1,8 +1,6 @@
-﻿using Backend.QuestionAnswerModel.Data;
-using General.Interfaces.Backend.Components;
+﻿using General.Interfaces.Backend.Components;
 using log4net;
 using Python.Runtime;
-using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace Backend.QuestionAnswerModel

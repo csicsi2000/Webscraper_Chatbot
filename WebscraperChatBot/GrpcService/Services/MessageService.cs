@@ -1,5 +1,4 @@
 ﻿using Backend.Logic;
-using Backend.SqLiteDatabaseHandler;
 using Grpc.Core;
 using GrpcService.Data;
 using log4net.Config;

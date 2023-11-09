@@ -1,10 +1,8 @@
 using Frontend.BlazorWebassembly;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Web;
-using Frontend.BlazorWebassembly.Shared;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using static ChatbotService;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
