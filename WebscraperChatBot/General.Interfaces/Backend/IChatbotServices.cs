@@ -38,6 +38,10 @@ namespace Backend.Logic
         /// </summary>
         /// <returns></returns>
         public int GetContextCount();
-        
+        /// <summary>
+        /// Get the current settings of the server
+        /// </summary>
+        /// <returns></returns>
+        IServerSettings GetSettings();
     }
 }

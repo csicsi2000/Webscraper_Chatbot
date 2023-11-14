@@ -10,13 +10,13 @@ namespace GrpcService.Services
     public class MessageService : ChatbotService.ChatbotServiceBase
     {
         private readonly object _lockCE = new object();
-        private bool _isContentExtractionRunning = false;
+        private static bool _isContentExtractionRunning = false;
 
         private readonly object _lockHE = new object();
-        private bool _isHtmlExtractionRunning = false;
+        private static bool _isHtmlExtractionRunning = false;
 
         private readonly object _lockQuestion = new object();
-        private bool _isAnsweringRunning = false;
+        private static bool _isAnsweringRunning = false;
 
         IChatbotServices _chatbotServices;
         public MessageService() :base()
@@ -24,9 +24,13 @@ namespace GrpcService.Services
             ILog log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
-            const string dbPath = "../database.sqlite";
 
-            _chatbotServices = new ChatbotServices(log4,new ServerSettings());
+            _chatbotServices = new ChatbotServices(new ServerSettings()
+            {
+                RootUrl = "https://aries.ektf.hu/~hz/wiki7",
+                DbPath = "../wiki7.sqlite",
+                WaitedClassName = "main-content"
+            });
         }
 
         // TODO
@@ -42,22 +46,39 @@ namespace GrpcService.Services
             }) ; 
         }
 
+        public override Task<CurrentSettings> GetServerSettings(EmptyRequest request, ServerCallContext context)
+        {
+            var settings = _chatbotServices.GetSettings();
+            var curSettings = new CurrentSettings()
+            {
+                DbPath = settings.DbPath,
+                RootUrl = settings.RootUrl,
+                WaitedClassName = settings.WaitedClassName,
+            };
+            curSettings.IgnoredUrls.AddRange(settings.ExcludedUrls);
+
+            return Task.FromResult(curSettings);
+        }
         // TODO
         public override Task<Message> SendQuestion(Message request, ServerCallContext context)
         {
-            lock (_lockQuestion)
-            {
-                if (_isAnsweringRunning)
-                {
-                    throw new RpcException(new Status(StatusCode.Unavailable, "Answer service is busy."));
-                }
-                _isAnsweringRunning = true;
-            }
+            //lock (_lockQuestion)
+            //{
+            //    if (_isAnsweringRunning)
+            //    {
+            //        throw new RpcException(new Status(StatusCode.Unavailable, "Answer service is busy."));
+            //    }
+            //    _isAnsweringRunning = true;
+            //}
 
             var answer = _chatbotServices.GetAnswer(request.Text);
             lock (_lockCE)
             {
                 _isAnsweringRunning = false;
+            }
+            if(answer == null) 
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, "Answer is not found."));
             }
             return Task.FromResult(new Message()
             {
@@ -89,7 +110,7 @@ namespace GrpcService.Services
                 _isAnsweringRunning = false;
             }
 
-            if(answers?.Count == 0)
+            if(answers == null || answers?.Count == 0 )
             {
                 throw new RpcException(new Status(StatusCode.NotFound, "No Answer found."));
             }
@@ -115,7 +136,7 @@ namespace GrpcService.Services
 
             try
             {
-                _chatbotServices.ExtractContexts();
+                _chatbotServices.ExtractContexts(true);
                 return Task.FromResult(new Message { Text = "Method completed successfully." });
             }
             finally
@@ -152,5 +173,6 @@ namespace GrpcService.Services
                 }
             }
         }
+
     }
 }

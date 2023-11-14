@@ -1,6 +1,7 @@
 ﻿using Backend.Logic.Components;
 using Backend.Logic.Components.Logic;
 using Backend.Logic.Data.Json;
+using Backend.QuestionAnswerModel;
 using Backend.SqLiteDatabaseHandler;
 using General.Interfaces.Backend.Components;
 using General.Interfaces.Backend.Logic;
@@ -25,7 +26,7 @@ namespace Backend.Logic
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-            DatabaseHandler = new SqLiteDataBaseComponent(_settings.DbName,  true);
+            DatabaseHandler = new SqLiteDataBaseComponent(_settings.DbPath,  true);
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
 
             var stopWordReader = new StopWordReader();
@@ -37,7 +38,16 @@ namespace Backend.Logic
 
             _retriever = new RetrieverComponent(_tokenConverter);
 
-            _questionAnswerModel = _settings.QAModel;
+            _questionAnswerModel = new Python_DebertaModel("C:\\Users\\csics\\AppData\\Local\\Programs\\Python\\Python310\\python310.dll");
+        }
+
+        /// <summary>
+        /// Get current settings
+        /// </summary>
+        /// <returns></returns>
+        public IServerSettings GetSettings()
+        {
+            return _settings;
         }
 
         /// <summary>

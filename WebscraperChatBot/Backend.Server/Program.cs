@@ -12,7 +12,7 @@ log4.Info("Server started.");
 var contextWorkflow = new ChatbotServices( new ServerSettings()
 {
     RootUrl = "https://aries.ektf.hu/~hz/wiki7",
-    DbName = "../wiki7.sqlite",
+    DbPath = "../wiki7.sqlite",
     WaitedClassName = "main-content"
 });
 var excludedUrls = new List<string>() { "https://uni-eszterhazy.hu/api" };

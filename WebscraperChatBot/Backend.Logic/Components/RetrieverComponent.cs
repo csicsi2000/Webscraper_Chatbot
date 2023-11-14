@@ -13,7 +13,6 @@ namespace Backend.Logic.Components
         }
         public void CalculateContextScores(IEnumerable<IContext> contexts, string question)
         {
-            // Token konverzió
             //var queryTerms = question.Split(' ');
             var queryTerms = _tokenConverter.ConvertToTokens(question);
 
@@ -54,7 +53,7 @@ namespace Backend.Logic.Components
             // Step 1: Calculate term frequency (TF) and document frequency (DF) for each term in each document
             foreach (var context in contexts)
             {
-                // var terms = context.Text.Split(' ').Distinct(); // Remove duplicate terms in the document // TODO
+                // var terms = context.Text.Split(' ').Distinct(); 
                 var terms = context.Tokens.Distinct(); // Remove duplicate terms in the document // TODO
                 var docId = context.Id;
 

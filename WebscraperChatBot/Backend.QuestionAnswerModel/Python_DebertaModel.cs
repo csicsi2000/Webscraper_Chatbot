@@ -24,7 +24,7 @@ namespace Backend.QuestionAnswerModel
             PythonEngine.Initialize();
 
             _folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            _pythonCode = File.ReadAllText(Path.Combine(_folder, "ModelInterference.py"));
+            _pythonCode = File.ReadAllText(Path.Combine(_folder, "Model_timpal01.py"));
 
         }
 
@@ -46,8 +46,11 @@ namespace Backend.QuestionAnswerModel
                 scope.Set("context", context);
                 scope.Exec("res = question_answerer(question=question, context=context)\n");
                 scope.Exec("resAnswer = res[\"answer\"]");
+                scope.Exec("resScore = res[\"score\"]");
 
                 var answer = scope.Get("resAnswer")?.ToString()?.Trim() ?? "";
+                var score = scope.Get("resScore")?.ToString()?.Trim() ?? "";
+                _log4.Info($"Answer: {answer}, Score: {score}");
                 return answer;
             }
         }

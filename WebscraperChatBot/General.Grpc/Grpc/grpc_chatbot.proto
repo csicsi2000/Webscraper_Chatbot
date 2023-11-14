@@ -9,6 +9,8 @@ service ChatbotService {
   // Server manager
   rpc GetStatus (EmptyRequest) returns (ServiceStatus);
 
+  rpc GetServerSettings(EmptyRequest) returns (CurrentSettings);
+
   rpc StartHtmlExtraction (EmptyRequest) returns (Message);
 
   rpc StartContextExtraction (EmptyRequest) returns (Message);
@@ -16,6 +18,13 @@ service ChatbotService {
 
 message Message {
   string text = 1;
+}
+
+message CurrentSettings{
+    string dbPath =1;
+    string rootUrl =2;
+    string waitedClassName = 3;
+    repeated string ignoredUrls = 4;
 }
 
 message ServiceStatus{
