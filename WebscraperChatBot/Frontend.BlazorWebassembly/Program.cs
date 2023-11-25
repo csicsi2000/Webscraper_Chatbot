@@ -1,4 +1,5 @@
 using Frontend.BlazorWebassembly;
+using Frontend.BlazorWebassembly.Services;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Web;
 using Microsoft.AspNetCore.Components.Web;
@@ -9,19 +10,8 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-//builder.Services.AddScoped(provide =>
-//{
-//    var channel = GrpcChannel.ForAddress("https://localhost:7253");
-//    return new ChatbotService.ChatbotServiceClient(channel);
-//});
-
-//builder.Services.AddSingleton(services =>
-//{
-//    var httpClient = new HttpClient(new GrpcWebHandler(GrpcWebMode.GrpcWeb, new HttpClientHandler()));
-//    var baseUri = services.GetRequiredService<NavigationManager>().BaseUri;
-//    var channel = GrpcChannel.ForAddress(baseUri, new GrpcChannelOptions { HttpClient = httpClient });
-//    return new ChatbotService.ChatbotServiceClient(channel);
-//});
+// Persistent data
+builder.Services.AddSingleton<AppStateService>();
 builder.Services
     .AddGrpcClient<ChatbotService.ChatbotServiceClient>(options =>
     {

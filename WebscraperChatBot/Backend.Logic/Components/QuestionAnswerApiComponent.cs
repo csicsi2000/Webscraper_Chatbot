@@ -27,7 +27,7 @@ namespace Backend.Logic.Components
         public IAnswer AnswerFromContext(string context, string question)
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri(URL);
+            client.BaseAddress = new Uri(URL + "/interference");
 
             var requestModel = new ModelPythonApi.FlaskRequest()
             {
@@ -44,7 +44,10 @@ namespace Backend.Logic.Components
             {
                 var responseContent = response.Content.ReadAsStringAsync().Result;
                 // Parse the JSON response if needed
-                var answerObj = JsonSerializer.Deserialize<ModelPythonApi.FlaskAnswer>(responseContent);
+                var answerObj = JsonSerializer.Deserialize<ModelPythonApi.FlaskAnswer>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
 
                 return answerObj;
             }
