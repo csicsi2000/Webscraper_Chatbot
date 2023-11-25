@@ -60,6 +60,13 @@ namespace Backend.Logic.Components
             return url.Replace("https", "").Replace("http", "");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url">Currently searched URL</param>
+        /// <param name="visitedUrls">Already extracted URLs</param>
+        /// <param name="baseUri">The base of the url where we search</param>
+        /// <returns></returns>
         private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
         {
             var currentUrl = new Uri(url).AbsoluteUri;
