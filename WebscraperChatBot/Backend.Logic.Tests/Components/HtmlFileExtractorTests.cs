@@ -18,7 +18,7 @@ namespace Backend.Logic.Tests.Components
 
             // Assert
             Assert.IsNotNull(htmlFiles);
-            Assert.AreEqual(2, htmlFiles.Count());
+            Assert.AreEqual(1, htmlFiles.Count());
             var firstFile = htmlFiles.First();
             Assert.AreEqual("<html><head>\r\n    <title>Our Funky HTML Page</title>\r\n    <meta name=\"description\" content=\"Our first page\">\r\n    <meta name=\"keywords\" content=\"html tutorial template\">\r\n</head>\r\n<body>\r\n    <p class=\"test\">Test text inside</p>\r\n    <a href=\"/test.html\">Test link</a>\r\n\r\n</body></html>", firstFile.Content);
             Assert.IsTrue(firstFile.Url.EndsWith("index.html"));
@@ -39,10 +39,32 @@ namespace Backend.Logic.Tests.Components
 
             // Assert
             Assert.IsNotNull(htmlFiles);
-            Assert.AreEqual(2, htmlFiles.Count());
+            Assert.AreEqual(1, htmlFiles.Count());
             var firstFile = htmlFiles.First();
             Assert.AreEqual("<html><head>\r\n    <title>Our Funky HTML Page</title>\r\n    <meta name=\"description\" content=\"Our first page\">\r\n    <meta name=\"keywords\" content=\"html tutorial template\">\r\n</head>\r\n<body>\r\n    <p class=\"test\">Test text inside</p>\r\n    <a href=\"/test.html\">Test link</a>\r\n\r\n</body></html>", firstFile.Content);
             Assert.IsTrue(firstFile.Url.EndsWith("index.html"));
+        }
+
+        /// <summary>
+        /// Free website for testing webscrape
+        /// </summary>
+        [TestMethod]
+        public void TC03_GetHtmlFiles_ValidUrlWithRealSite_ReturnsHtmlFiles()
+        {
+            // Arrange
+            var extractor = new HtmlFileExtractorComponent("test-site", new List<string>()
+            {
+                Path.Combine("https://webscraper.io/test-sites/tables/tables-semantically-correct")
+            });
+            var url = "https://webscraper.io/test-sites/tables";
+
+            // Act
+            var htmlFiles = extractor.GetHtmlFiles(url);
+
+            // Assert
+            Assert.IsNotNull(htmlFiles);
+            Assert.AreEqual(4, htmlFiles.Count());
+            var urls = htmlFiles.Select(x=> x.Url).ToList();
         }
     }
 }

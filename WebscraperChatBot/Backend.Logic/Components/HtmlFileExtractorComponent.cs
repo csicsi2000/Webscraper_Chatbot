@@ -49,6 +49,16 @@ namespace Backend.Logic.Components
             var baseUri = new Uri(url);
             var visitedUrls = new HashSet<string>();
 
+            if (baseUri.Host == "")
+            {
+                int lastSlashIndex = baseUri.AbsoluteUri.LastIndexOf('/');
+                if (lastSlashIndex != -1)
+                {
+                    // Remove everything after the last '/'
+                    string result = baseUri.AbsoluteUri.Substring(0, lastSlashIndex);
+                    baseUri = new Uri(result);
+                }
+            }
             foreach (var htmlFile in ExtractHtmlFiles(url, visitedUrls, baseUri))
             {
                 yield return htmlFile;

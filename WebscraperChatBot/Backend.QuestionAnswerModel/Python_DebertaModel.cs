@@ -53,7 +53,7 @@ namespace Backend.QuestionAnswerModel
                 var answer = scope.Get("resAnswer")?.ToString()?.Trim() ?? "";
                 var score = scope.Get("resScore")?.ToString()?.Trim() ?? "";
                 _log4.Info($"Answer: {answer}, Score: {score}");
-                return new ModelAnswer() {Answer = answer, Score = Convert.ToDouble(score) };
+                return new ModelAnswer() {Answer = answer, Score = Convert.ToDouble(score.Replace('.', ',')) };
             }
         }
     }
