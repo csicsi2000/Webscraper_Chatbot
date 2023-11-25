@@ -1,7 +1,10 @@
 ﻿@page "/advanced"
 @inject ChatbotService.ChatbotServiceClient ChatbotClient
 @using Frontend.BlazorWebassembly.Data;
+@using Frontend.BlazorWebassembly.Services
 @using General.Interfaces.Data;
+@implements IDisposable
+@inject AppStateService state
 
 
 @code {
@@ -9,6 +12,20 @@
 
     string inputText { get; set; } = "";
     bool isInProgress = false;
+
+    protected async override void OnInitialized()
+    {
+        QuestionAnswers = state.QuestionAnswers;
+    }
+
+    void IDisposable.Dispose()
+    {
+        if (QuestionAnswers.Count % 2 == 1)
+        {
+            QuestionAnswers.Remove(QuestionAnswers.Last());
+        }
+        state.QuestionAnswers = QuestionAnswers;
+    } 
 
     async Task SendQuestion()
     {
