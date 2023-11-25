@@ -16,6 +16,7 @@
         {
             var res = await ChatbotClient.SendQuestionAsync(new Message() { Text = inputText });
             AllMessages.Add(res.Text);
+            Console.WriteLine("Score: " + res.Score);
             inputText = String.Empty;
         }
         catch(Exception ex)

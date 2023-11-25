@@ -29,6 +29,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.QuestionAnswerModel
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcService", "GrpcService\GrpcService.csproj", "{6B91A24E-216E-46FE-8C67-758FA14C4438}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Backend.FlaskQuestionAnswer", "Backend.FlaskQuestionAnswer\Backend.FlaskQuestionAnswer.pyproj", "{4960C593-5368-4F3F-B144-CF03A1ECEAE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.ApiQuestionAnswer", "Backend.ApiQuestionAnswer\Backend.ApiQuestionAnswer.csproj", "{A1FB524E-D5AD-4616-A39F-457B2F29A7DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +91,14 @@ Global
 		{6B91A24E-216E-46FE-8C67-758FA14C4438}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B91A24E-216E-46FE-8C67-758FA14C4438}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B91A24E-216E-46FE-8C67-758FA14C4438}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4960C593-5368-4F3F-B144-CF03A1ECEAE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4960C593-5368-4F3F-B144-CF03A1ECEAE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4960C593-5368-4F3F-B144-CF03A1ECEAE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4960C593-5368-4F3F-B144-CF03A1ECEAE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1FB524E-D5AD-4616-A39F-457B2F29A7DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1FB524E-D5AD-4616-A39F-457B2F29A7DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1FB524E-D5AD-4616-A39F-457B2F29A7DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1FB524E-D5AD-4616-A39F-457B2F29A7DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

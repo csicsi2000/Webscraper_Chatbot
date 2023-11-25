@@ -25,10 +25,10 @@ namespace Backend.QuestionAnswerModel.Tests
             string question = "Which deep learning libraries back 🤗 Transformers?";
 
             // act
-            string res = model.AnswerFromContext(context,question);
+            var res = model.AnswerFromContext(context,question);
 
             // assert
-            Assert.AreEqual("Jax, PyTorch and TensorFlow",res);
+            Assert.AreEqual("Jax, PyTorch and TensorFlow",res.Answer);
         }
 
         [TestMethod]
@@ -39,10 +39,10 @@ namespace Backend.QuestionAnswerModel.Tests
             // arrange
 
             // act
-            string res = model.AnswerFromContext(context, question);
+            var res = model.AnswerFromContext(context, question);
 
             // assert
-            Assert.AreEqual(answer, res);
+            Assert.AreEqual(answer, res.Answer);
         }
     }
 }

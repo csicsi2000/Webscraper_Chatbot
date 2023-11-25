@@ -1,4 +1,6 @@
-﻿using General.Interfaces.Backend.Components;
+﻿using Backend.QuestionAnswerModel.Data;
+using General.Interfaces.Backend.Components;
+using General.Interfaces.Data;
 using log4net;
 using Python.Runtime;
 using System.Reflection;
@@ -28,7 +30,7 @@ namespace Backend.QuestionAnswerModel
 
         }
 
-        public string AnswerFromContext(string context, string question)
+        public IAnswer AnswerFromContext(string context, string question)
         {
             using (var gil = Py.GIL())
             {
@@ -51,7 +53,7 @@ namespace Backend.QuestionAnswerModel
                 var answer = scope.Get("resAnswer")?.ToString()?.Trim() ?? "";
                 var score = scope.Get("resScore")?.ToString()?.Trim() ?? "";
                 _log4.Info($"Answer: {answer}, Score: {score}");
-                return answer;
+                return new ModelAnswer() {Answer = answer, Score = Convert.ToDouble(score) };
             }
         }
     }

@@ -28,7 +28,7 @@ namespace GrpcService.Services
             _chatbotServices = new ChatbotServices(new ServerSettings()
             {
                 RootUrl = "https://aries.ektf.hu/~hz/wiki7",
-                DbPath = "../wiki7.sqlite",
+                DbPath = "../database.sqlite",
                 WaitedClassName = "main-content"
             });
         }
@@ -82,7 +82,8 @@ namespace GrpcService.Services
             }
             return Task.FromResult(new Message()
             {
-                Text = answer
+                Text = answer.Answer,
+                Score = answer.Score
             });
         }
 

@@ -18,6 +18,7 @@ service ChatbotService {
 
 message Message {
   string text = 1;
+  double score = 2;
 }
 
 message CurrentSettings{

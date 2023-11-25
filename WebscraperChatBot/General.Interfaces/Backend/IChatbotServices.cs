@@ -27,7 +27,7 @@ namespace Backend.Logic
         /// </summary>
         /// <param name="question"></param>
         /// <returns></returns>
-        string GetAnswer(string question);
+        IAnswer GetAnswer(string question);
         /// <summary>
         /// Get all extracted html file count
         /// </summary>

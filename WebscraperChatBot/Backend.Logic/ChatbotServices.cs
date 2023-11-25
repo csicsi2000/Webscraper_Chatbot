@@ -26,7 +26,7 @@ namespace Backend.Logic
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-            DatabaseHandler = new SqLiteDataBaseComponent(_settings.DbPath,  true);
+            DatabaseHandler = new SqLiteDataBaseComponent(Path.GetFullPath(_settings.DbPath),  true);
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
 
             var stopWordReader = new StopWordReader();
@@ -38,7 +38,8 @@ namespace Backend.Logic
 
             _retriever = new RetrieverComponent(_tokenConverter);
 
-            _questionAnswerModel = new Python_DebertaModel("C:\\Users\\csics\\AppData\\Local\\Programs\\Python\\Python310\\python310.dll");
+            //_questionAnswerModel = new Python_DebertaModel("C:\\Users\\csics\\AppData\\Local\\Programs\\Python\\Python310\\python310.dll");
+            _questionAnswerModel = new QuestionAnswerApiComponent("http://localhost:54311");
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace Backend.Logic
         /// </summary>
         /// <param name="question"></param>
         /// <returns>null if no answer found</returns>
-        public string GetAnswer(string question)
+        public IAnswer GetAnswer(string question)
         {
             IEnumerable<IContext> contexts = DatabaseHandler.GetContexts();
 

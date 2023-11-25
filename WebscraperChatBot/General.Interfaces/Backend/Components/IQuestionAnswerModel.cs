@@ -1,7 +1,9 @@
-﻿namespace General.Interfaces.Backend.Components
+﻿using General.Interfaces.Data;
+
+namespace General.Interfaces.Backend.Components
 {
     public interface IQuestionAnswerModel
     {
-        string AnswerFromContext(string context, string question);
+        IAnswer AnswerFromContext(string context, string question);
     }
 }
