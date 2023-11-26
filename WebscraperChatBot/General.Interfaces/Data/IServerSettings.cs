@@ -1,6 +1,4 @@
-﻿using General.Interfaces.Backend.Components;
-
-namespace General.Interfaces.Data
+﻿namespace General.Interfaces.Data
 {
     public interface IServerSettings
     {

@@ -1,7 +1,5 @@
 using Backend.Logic.Components;
 using Backend.Logic.Tests.Support;
-using General.Interfaces.General;
-using System.Diagnostics;
 
 namespace Backend.Logic.Tests.Components
 {

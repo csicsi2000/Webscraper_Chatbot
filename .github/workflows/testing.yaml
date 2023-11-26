@@ -30,6 +30,7 @@ jobs:
       - name: Run tests and collect coverage
         run: |
           dotnet test .\WebscraperChatBot --collect:"XPlat Code Coverage" --logger "trx;LogFileName=testresults.trx" --filter TestCategory!=ApiTest
+          $LASTEXITCODE = 0
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2

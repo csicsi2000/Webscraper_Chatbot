@@ -1,14 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.Net;
-using System.Threading;
+﻿using System.Diagnostics;
 
 namespace Backend.Logic.Tests.Support
 {
     internal class StaticSiteStarter
     {
-        private HttpListener httpListener;
-        private Thread listenerThread;
         private Process pythonServerProcess;
         private string PORT;
 

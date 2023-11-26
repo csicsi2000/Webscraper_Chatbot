@@ -1,7 +1,6 @@
 ﻿using Backend.Logic.Components;
 using Backend.Logic.Components.Logic;
 using Backend.Logic.Data.Json;
-using Backend.QuestionAnswerModel;
 using Backend.SqLiteDatabaseHandler;
 using General.Interfaces.Backend.Components;
 using General.Interfaces.Backend.Logic;

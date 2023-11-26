@@ -2,15 +2,8 @@
 using General.Interfaces.Backend.Components;
 using General.Interfaces.Data;
 using log4net;
-using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Backend.Logic.Components
 {

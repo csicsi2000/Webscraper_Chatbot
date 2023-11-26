@@ -1,6 +1,4 @@
-﻿using Backend.QuestionAnswerModel;
-using General.Interfaces.Backend.Components;
-using General.Interfaces.Data;
+﻿using General.Interfaces.Data;
 
 namespace Backend.Logic.Data.Json
 {
