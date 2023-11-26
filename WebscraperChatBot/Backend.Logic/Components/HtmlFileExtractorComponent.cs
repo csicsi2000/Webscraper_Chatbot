@@ -46,19 +46,18 @@ namespace Backend.Logic.Components
 
         public IEnumerable<IHtmlFile> GetHtmlFiles(string url)
         {
-            var baseUri = new Uri(url);
-            var visitedUrls = new HashSet<string>();
-
-            if (baseUri.Host == "")
+            string baseUriText = url;
+            if (baseUriText.EndsWith(".html"))
             {
-                int lastSlashIndex = baseUri.AbsoluteUri.LastIndexOf('/');
-                if (lastSlashIndex != -1)
+                int lastSlash = baseUriText.LastIndexOf('/');
+                if(lastSlash != -1)
                 {
-                    // Remove everything after the last '/'
-                    string result = baseUri.AbsoluteUri.Substring(0, lastSlashIndex);
-                    baseUri = new Uri(result);
+                    baseUriText = baseUriText.Substring(0, lastSlash);
                 }
             }
+            var baseUri = new Uri(RemoveLastSlash(baseUriText));
+            var visitedUrls = new HashSet<string>();
+
             foreach (var htmlFile in ExtractHtmlFiles(url, visitedUrls, baseUri))
             {
                 yield return htmlFile;
@@ -68,6 +67,15 @@ namespace Backend.Logic.Components
         string ProcessUrl(string url)
         {
             return url.Replace("https", "").Replace("http", "");
+        }
+
+        string RemoveLastSlash(string url)
+        {
+            if (url.EndsWith("/"))
+            {
+                return url.Substring(0, url.Length - 1);
+            }
+            return url;
         }
 
         /// <summary>
@@ -80,6 +88,7 @@ namespace Backend.Logic.Components
         private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
         {
             var currentUrl = new Uri(url).AbsoluteUri;
+
             if (visitedUrls.Contains(currentUrl))
             {
                 yield break;
@@ -99,9 +108,10 @@ namespace Backend.Logic.Components
             IHtmlFile htmlFile;
 
 
-            _driver.Navigate().GoToUrl(currentUrl);
+            _driver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
             WaitForPageLoad(_driver);
 
+            
             htmlFile = new HtmlFile
             {
                 Url = currentUrl,
