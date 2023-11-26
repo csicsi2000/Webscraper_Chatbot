@@ -1,4 +1,5 @@
-﻿from transformers import AutoTokenizer
+﻿# Multiple languages
+from transformers import AutoTokenizer
 from transformers import pipeline
 
 model_checkpoint = "timpal0l/mdeberta-v3-base-squad2"

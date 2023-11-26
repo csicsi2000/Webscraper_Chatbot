@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.25.0" />
+    <PackageReference Include="Grpc" Version="2.46.6" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.59.0" />
+    <PackageReference Include="Grpc.Net.Client.Web" Version="2.59.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.59.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.59.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.16" PrivateAssets="all" />
   </ItemGroup>
@@ -14,6 +23,20 @@
   <ItemGroup>
     <ProjectReference Include="..\Frontend.UI.RazorComponents\Frontend.UI.RazorComponents.csproj" />
     <ProjectReference Include="..\General.Interfaces\General.Interfaces.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Grpc\" />
+    <Folder Include="wwwroot\icons\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="..\General.Grpc\Grpc\grpc_chatbot.proto" GrpcServices="Client">
+      <Link>Grpc\grpc_chatbot.proto</Link>
+    </Protobuf>
+    <Protobuf Include="..\General.Grpc\Grpc\grpc_usermanager.proto" GrpcServices="Client">
+      <Link>Grpc\grpc_usermanager.proto</Link>
+    </Protobuf>
   </ItemGroup>
 
 </Project>

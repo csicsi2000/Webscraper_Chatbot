@@ -3,6 +3,7 @@ using General.Interfaces.Backend.Components;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
 using log4net;
+using NTextCat.Commons;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -45,7 +46,16 @@ namespace Backend.Logic.Components
 
         public IEnumerable<IHtmlFile> GetHtmlFiles(string url)
         {
-            var baseUri = new Uri(url);
+            string baseUriText = url;
+            if (baseUriText.EndsWith(".html"))
+            {
+                int lastSlash = baseUriText.LastIndexOf('/');
+                if(lastSlash != -1)
+                {
+                    baseUriText = baseUriText.Substring(0, lastSlash);
+                }
+            }
+            var baseUri = new Uri(RemoveLastSlash(baseUriText));
             var visitedUrls = new HashSet<string>();
 
             foreach (var htmlFile in ExtractHtmlFiles(url, visitedUrls, baseUri))
@@ -54,10 +64,36 @@ namespace Backend.Logic.Components
             }
         }
 
+        string ProcessUrl(string url)
+        {
+            return url.Replace("https", "").Replace("http", "");
+        }
+
+        string RemoveLastSlash(string url)
+        {
+            if (url.EndsWith("/"))
+            {
+                return url.Substring(0, url.Length - 1);
+            }
+            return url;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url">Currently searched URL</param>
+        /// <param name="visitedUrls">Already extracted URLs</param>
+        /// <param name="baseUri">The base of the url where we search</param>
+        /// <returns></returns>
         private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
         {
             var currentUrl = new Uri(url).AbsoluteUri;
-            if (visitedUrls.Contains(currentUrl) || !currentUrl.StartsWith(baseUri.Host))
+
+            if (visitedUrls.Contains(currentUrl))
+            {
+                yield break;
+            }
+            if (!ProcessUrl(currentUrl).StartsWith(ProcessUrl(baseUri.AbsoluteUri)))
             {
                 yield break;
             }
@@ -72,9 +108,10 @@ namespace Backend.Logic.Components
             IHtmlFile htmlFile;
 
 
-            _driver.Navigate().GoToUrl(currentUrl);
+            _driver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
             WaitForPageLoad(_driver);
 
+            
             htmlFile = new HtmlFile
             {
                 Url = currentUrl,
@@ -114,13 +151,17 @@ namespace Backend.Logic.Components
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
             wait.Until(driver => jsExecutor.ExecuteScript("return document.readyState").Equals("complete"));
-            try
+            if (!_waitedClassName.IsNullOrEmpty())
             {
-                wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.ClassName(_waitedClassName)));
-            }
-            catch
-            {
-                _log4.Warn("Page did not have the element.");
+
+                try
+                {
+                    wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.ClassName(_waitedClassName)));
+                }
+                catch
+                {
+                    _log4.Warn("Page did not have the element.");
+                }
             }
 
             // wait.Until(ExpectedConditions.ElementIsVisible(By.Id("myElement")));

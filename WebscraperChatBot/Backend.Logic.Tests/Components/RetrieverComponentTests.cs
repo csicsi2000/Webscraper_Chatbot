@@ -3,11 +3,6 @@ using Backend.Logic.Data;
 using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Backend.Logic.Tests.Components
 {
@@ -25,11 +20,13 @@ namespace Backend.Logic.Tests.Components
             {
                 new Context()
                 {
+                    Id=0,
                     DocTitle = "Dolgozat",
                     Text = "Dolgozat 15.-én",
                 },
                 new Context()
                 {
+                    Id=1,
                     DocTitle = "Kilövés",
                     Text = "Rakéta kilővés"
                 }

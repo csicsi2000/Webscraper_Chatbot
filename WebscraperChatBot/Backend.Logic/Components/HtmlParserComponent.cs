@@ -1,5 +1,4 @@
-﻿using Backend.Logic.Components.Logic;
-using Backend.Logic.Data;
+﻿using Backend.Logic.Data;
 using Backend.Logic.Data.Json;
 using General.Interfaces.Backend.Components;
 using General.Interfaces.Backend.Logic;
@@ -7,7 +6,6 @@ using General.Interfaces.Data;
 using HtmlAgilityPack;
 using log4net;
 using Newtonsoft.Json;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Backend.Logic.Components
@@ -16,7 +14,7 @@ namespace Backend.Logic.Components
     {
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        const string commonFile = "CommonElements.json";
+        string commonFile = Path.Combine(CommonValues.folderLoc, "CommonElements.json");
 
         internal IList<string> _commonElements;
         internal ITokenConverter _tokenConverter;

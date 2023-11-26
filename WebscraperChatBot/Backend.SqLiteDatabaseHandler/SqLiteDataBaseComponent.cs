@@ -9,7 +9,7 @@ namespace Backend.SqLiteDatabaseHandler
 {
     public class SqLiteDataBaseComponent : IDatabaseHandler, IDisposable
     {
-        private static readonly ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         DatabaseContext dbContext;
         public SqLiteDataBaseComponent(string connectionString, bool tryCreateFile = false)

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using General.Interfaces.Data;
 
 namespace General.Interfaces.Backend.Components
 {
     public interface IQuestionAnswerModel
     {
-        string AnswerFromContext(string context, string question);
+        IAnswer AnswerFromContext(string context, string question);
     }
 }

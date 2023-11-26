@@ -1,6 +1,100 @@
 ﻿@page "/ChatBot"
+@using Frontend.BlazorWebassembly.Services
+@implements IDisposable
+@inject ChatbotService.ChatbotServiceClient ChatbotClient
+@inject AppStateService state
 
-<ChatbotComponent/>
 @code {
+    public IList<string> AllMessages { get; set; } = new List<string>();
 
+    string inputText { get; set; } = "";
+
+    bool isInProgress = false;
+    protected async override void OnInitialized()
+    {
+        AllMessages = state.AllMessages;
+    }
+
+    void IDisposable.Dispose()
+    {
+        if(AllMessages.Count %2 == 1)
+        {
+            AllMessages.Remove(AllMessages.Last());
+        }
+        state.AllMessages = AllMessages;
+    } 
+
+    async Task SendQuestion()
+    {
+        isInProgress = true;
+        AllMessages.Add(inputText);
+        try
+        {
+            var res = await ChatbotClient.SendQuestionAsync(new Message() { Text = inputText });
+            AllMessages.Add(res.Text);
+            Console.WriteLine("Score: " + res.Score);
+            inputText = String.Empty;
+        }
+        catch(Exception ex)
+        {
+            AllMessages.Add(ex.Message);
+        }
+        isInProgress = false;
+        StateHasChanged();
+    }
+
+    private async void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e is null)
+        {
+            throw new ArgumentNullException(nameof(e));
+        }
+
+        if (e.Key == "Enter")
+        {
+            await SendQuestion();
+        }
+    }
 }
+
+<div class="position-relative min-vh-100">
+    <h3>ChatbotUI</h3>
+
+    @foreach (var (message, index) in AllMessages.Select((m, i) => (m, i)))
+    {
+        @if (index % 2 == 0)
+        {
+            <p style="padding: .25em; text-align: left; overflow-wrap: normal">
+                <span @key="index" class="tag is-large is-success is-light">
+                    @message
+                </span>
+            </p>
+        }
+        else
+        {
+            <p style="padding: .25em; text-align: right; overflow-wrap: normal">
+                <span @key="index" class="tag is-large is-info is-light">
+                    @message
+                </span>
+            </p>
+        }
+    }
+
+
+    <div class="fixed-bottom bg-light p-5" style="position: sticky">
+        <div class="form-group">
+            <label for="question">Kérdés</label>
+            <input @bind="inputText" type="text" class="form-control" aria-describedby="inputText" @onkeyup="HandleKeyPress">
+            <small class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
+        </div>
+        @if (isInProgress)
+        {
+            <div class="spinner-border" role="status">
+            </div>
+        }
+        else
+        {
+            <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) || isInProgress)" class="btn btn-primary ">Küldés</button>
+        }
+    </div>
+</div>

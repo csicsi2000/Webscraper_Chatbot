@@ -1,17 +1,34 @@
 using Backend.Logic.Components;
-using General.Interfaces.General;
+using Backend.Logic.Tests.Support;
 
-namespace Backend.LogicTests.Components
+namespace Backend.Logic.Tests.Components
 {
     [TestClass]
     public class HtmlFileExtractorTests
     {
+        private static string PORT = "8021";
+        private static StaticSiteStarter testSite = new StaticSiteStarter(PORT);
+
+        private string RootUrl = $"http://localhost:{PORT}";
+
+        [ClassInitialize]
+        public static void Initialize(TestContext context)
+        {
+            testSite.StartHttpServer("TestFiles");
+        }
+
+        [ClassCleanup]
+        public static void Cleanup()
+        {
+            testSite.StopHttpServer();
+        }
+
         [TestMethod]
         public void TC01_GetHtmlFiles_ValidUrl_ReturnsHtmlFiles()
         {
             // Arrange
             var extractor = new HtmlFileExtractorComponent("test", new List<string>());
-            var url =  Path.Combine(GlobalVariables.TestLocation, "TestFiles/index.html");
+            var url =  RootUrl+"/main.html";
 
             // Act
             var htmlFiles = extractor.GetHtmlFiles(url);
@@ -21,7 +38,7 @@ namespace Backend.LogicTests.Components
             Assert.AreEqual(2, htmlFiles.Count());
             var firstFile = htmlFiles.First();
             Assert.AreEqual("<html><head>\r\n    <title>Our Funky HTML Page</title>\r\n    <meta name=\"description\" content=\"Our first page\">\r\n    <meta name=\"keywords\" content=\"html tutorial template\">\r\n</head>\r\n<body>\r\n    <p class=\"test\">Test text inside</p>\r\n    <a href=\"/test.html\">Test link</a>\r\n\r\n</body></html>", firstFile.Content);
-            Assert.IsTrue(firstFile.Url.EndsWith("index.html"));
+            Assert.IsTrue(firstFile.Url.EndsWith("/main.html"));
         }
 
         [TestMethod]
@@ -30,19 +47,41 @@ namespace Backend.LogicTests.Components
             // Arrange
             var extractor = new HtmlFileExtractorComponent("test", new List<string>()
             {
-                Path.Combine("file://", GlobalVariables.TestLocation, "TestFiles/test.html")
+                $"{RootUrl}/test.html"
             });
-            var url = Path.Combine("file://", GlobalVariables.TestLocation, "TestFiles/index.html");
+            var url = RootUrl + "/main.html";
 
             // Act
             var htmlFiles = extractor.GetHtmlFiles(url);
 
             // Assert
             Assert.IsNotNull(htmlFiles);
-            Assert.AreEqual(2, htmlFiles.Count());
+            Assert.AreEqual(1, htmlFiles.Count());
             var firstFile = htmlFiles.First();
             Assert.AreEqual("<html><head>\r\n    <title>Our Funky HTML Page</title>\r\n    <meta name=\"description\" content=\"Our first page\">\r\n    <meta name=\"keywords\" content=\"html tutorial template\">\r\n</head>\r\n<body>\r\n    <p class=\"test\">Test text inside</p>\r\n    <a href=\"/test.html\">Test link</a>\r\n\r\n</body></html>", firstFile.Content);
-            Assert.IsTrue(firstFile.Url.EndsWith("index.html"));
+            Assert.IsTrue(firstFile.Url.EndsWith("/main.html"));
+        }
+
+        /// <summary>
+        /// Free website for testing webscrape
+        /// </summary>
+        [TestMethod, TestCategory("ApiTest")]
+        public void TC03_GetHtmlFiles_ValidUrlWithRealSite_ReturnsHtmlFiles()
+        {
+            // Arrange
+            var extractor = new HtmlFileExtractorComponent("test-site", new List<string>()
+            {
+                "https://webscraper.io/test-sites/tables/tables-semantically-correct"
+            });
+            var url = "https://webscraper.io/test-sites/tables";
+
+            // Act
+            var htmlFiles = extractor.GetHtmlFiles(url);
+
+            // Assert
+            Assert.IsNotNull(htmlFiles);
+            Assert.AreEqual(4, htmlFiles.Count());
+            var urls = htmlFiles.Select(x=> x.Url).ToList();
         }
     }
 }

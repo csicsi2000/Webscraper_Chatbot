@@ -21,7 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="ModelInterference.py">
+    <None Update="Model_mcsabai.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Model_timpal01.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Model\mdeberta-v3-base-squad2.onnx">

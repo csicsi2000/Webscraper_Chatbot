@@ -2,12 +2,14 @@ syntax = "proto3";
 
 service ChatbotService {
   // User
-  rpc SendMessage (Message) returns (Message);
+  rpc SendQuestion (Message) returns (Message);
 
-  rpc SendMessageAdvanced (Message) returns (AdvancedMessages);
+  rpc SendQuestionAdvanced (Message) returns (AdvancedMessages);
 
   // Server manager
-  rpc GetStatus (EmptyRequest) returns (Message);
+  rpc GetStatus (EmptyRequest) returns (ServiceStatus);
+
+  rpc GetServerSettings(EmptyRequest) returns (CurrentSettings);
 
   rpc StartHtmlExtraction (EmptyRequest) returns (Message);
 
@@ -16,16 +18,32 @@ service ChatbotService {
 
 message Message {
   string text = 1;
+  double score = 2;
+}
+
+message CurrentSettings{
+    string dbPath =1;
+    string rootUrl =2;
+    string waitedClassName = 3;
+    repeated string ignoredUrls = 4;
+}
+
+message ServiceStatus{
+  string htmlExtraction = 1;
+  string contextExtraction = 2;
+  string questionAnswer = 3;
+
+  int32 htmlFileCount = 4;
+  int32 contextCount = 5;
 }
 
 message AdvancedMessages{
-  repeated AdvancedMessage otherMessages = 5;
+  repeated AdvancedMessage topAnswers = 5;
 }
 message AdvancedMessage{
   string text = 1;
   string sourceUrl = 2;
-  string context = 3;
-  int32 relevancy = 4;
+  double score = 3;
 }
 
 message EmptyRequest {}

@@ -1,0 +1,127 @@
+﻿@page "/advanced"
+@inject ChatbotService.ChatbotServiceClient ChatbotClient
+@using Frontend.BlazorWebassembly.Data;
+@using Frontend.BlazorWebassembly.Services
+@using General.Interfaces.Data;
+@implements IDisposable
+@inject AppStateService state
+
+
+@code {
+    IList<KeyValuePair<string, List<IContext>>> QuestionAnswers { get; set; } = new List<KeyValuePair<string, List<IContext>>>();
+
+    string inputText { get; set; } = "";
+    bool isInProgress = false;
+
+    protected async override void OnInitialized()
+    {
+        QuestionAnswers = state.QuestionAnswers;
+    }
+
+    void IDisposable.Dispose()
+    {
+        if (QuestionAnswers.Count % 2 == 1)
+        {
+            QuestionAnswers.Remove(QuestionAnswers.Last());
+        }
+        state.QuestionAnswers = QuestionAnswers;
+    } 
+
+    async Task SendQuestion()
+    {
+        isInProgress = true;
+
+        QuestionAnswers.Add(new KeyValuePair<string, List<IContext>>(inputText, new List<IContext>()));
+        int lastElement = QuestionAnswers.Count -1;
+        try
+        {
+            var res = await ChatbotClient.SendQuestionAdvancedAsync(new Message() { Text = inputText });
+            var answers = res.TopAnswers.Select(x => new AnswerContext()
+                {
+                    Text = x.Text,
+                    Score = x.Score,
+                    OriginUrl = x.SourceUrl
+                });
+            QuestionAnswers[lastElement].Value.AddRange(answers);
+            inputText = "";
+        }
+        catch (Exception ex)
+        {
+            QuestionAnswers[lastElement].Value.Add(new AnswerContext() { OriginUrl = ex.Message });
+        }
+        isInProgress = false;
+        StateHasChanged();
+    }
+
+    private async void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e is null)
+        {
+            throw new ArgumentNullException(nameof(e));
+        }
+
+        if (e.Key == "Enter")
+        {
+            await SendQuestion();
+        }
+    }
+}
+<div class="position-relative min-vh-100">
+    <h3>Advanced Messages</h3>
+    <p>Count: @QuestionAnswers.Count</p>
+    <ul>
+        @foreach (var (message, index) in QuestionAnswers.Select((m, i) => (m, i)))
+        {
+
+            <li>
+                <article class="message is-info">
+                    <div class="message-body">
+                        @message.Key
+                    </div>
+                </article>
+            </li>
+
+            <li>
+                <article class="message is-primary">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Score</th>
+                                <th scope="col">SourceUrl</th>
+                                <th scope="col">Text</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var (answer, y) in message.Value.Select((m, i) => (m, i))){
+                            <tr>
+                                <th scope="row">@y</th>
+                                <td>@answer.Score</td>
+                                <td>@answer.OriginUrl</td>
+                                    <td style="max-height: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ">
+                                        @answer.Text
+                                    </td>
+                            </tr>}
+                        </tbody>
+                    </table>
+                </article>
+            </li>
+
+        }
+    </ul>
+
+    <div class="fixed-bottom bg-light p-5" style="position: sticky">
+        <div class="form-group">
+            <label for="question">Kérdés</label>
+            <input @bind="inputText" type="text" class="form-control" aria-describedby="inputText" @onkeyup="HandleKeyPress">
+            <small class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
+        </div>
+        @if (isInProgress)
+        {
+            <div class="spinner-border" role="status">
+            </div>
+        }else{
+            <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) || isInProgress)" class="btn btn-primary ">Küldés</button>
+        }
+    </div>
+</div>

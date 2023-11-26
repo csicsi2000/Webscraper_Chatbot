@@ -2,11 +2,46 @@
 
 namespace Backend.Logic
 {
+    /// <summary>
+    /// Services provided by the chatbot
+    /// </summary>
     public interface IChatbotServices
     {
+        /// <summary>
+        /// Start extraction of the contexts
+        /// </summary>
+        /// <param name="isSetup">if true, it will extract base nodes to filter out same part of each file</param>
         void ExtractContexts(bool isSetup = false);
+        /// <summary>
+        /// Read all html files recursively
+        /// </summary>
         void ExtractHtmls();
-        IList<IContext> GetAdvanceAnswer(string question);
-        string GetAnswer(string question);
+        /// <summary>
+        /// Get top answers with more details
+        /// </summary>
+        /// <param name="question"></param>
+        /// <returns></returns>
+        IList<IContext> GetAdvancedAnswer(string question);
+        /// <summary>
+        /// Get answer to a question
+        /// </summary>
+        /// <param name="question"></param>
+        /// <returns></returns>
+        IAnswer GetAnswer(string question);
+        /// <summary>
+        /// Get all extracted html file count
+        /// </summary>
+        /// <returns></returns>
+        public int GetHtmlCount();
+        /// <summary>
+        /// Get all extracted context count
+        /// </summary>
+        /// <returns></returns>
+        public int GetContextCount();
+        /// <summary>
+        /// Get the current settings of the server
+        /// </summary>
+        /// <returns></returns>
+        IServerSettings GetSettings();
     }
 }

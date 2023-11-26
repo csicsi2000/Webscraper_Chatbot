@@ -1,0 +1,142 @@
+﻿@page "/servermanagement"
+
+@inject ChatbotService.ChatbotServiceClient ChatbotClient
+@using Frontend.BlazorWebassembly.Data;
+@using General.Interfaces.Data;
+
+@code {
+    string toastText = "";
+
+    IServerSettings settings = null;
+
+    IChatbotServiceStatus serviceStatus = null;
+
+    protected async override void OnInitialized()
+    {
+        base.OnInitialized();
+        var serverSettings = await ChatbotClient.GetServerSettingsAsync(new EmptyRequest());
+        settings = new BackendSettings()
+            {
+                DbPath = serverSettings.DbPath,
+                RootUrl = serverSettings.RootUrl,
+                ExcludedUrls = serverSettings.IgnoredUrls,
+                WaitedClassName = serverSettings.WaitedClassName
+            };
+
+        var availability = await ChatbotClient.GetStatusAsync(new EmptyRequest());
+        serviceStatus = new ServiceStatus()
+            {
+                ContextCount = availability.ContextCount,
+                HtmlFileCount = availability.HtmlFileCount,
+                ContextExtraction = availability.ContextExtraction,
+                HtmlExtraction = availability.HtmlExtraction
+            };
+        StateHasChanged();
+    }
+
+    async void RunHtmlExtraction()
+    {
+        try
+        {
+            var res = ChatbotClient.StartHtmlExtractionAsync(new EmptyRequest());
+            toastText = "Html Extraction started";
+            toastText = (await res).Text;
+        }
+        catch(Exception ex )
+        {
+            toastText = ex.Message;
+        }
+        StateHasChanged();
+
+    }
+
+    async void RunContextExtraction()
+    {
+        try
+        {
+            var res = ChatbotClient.StartContextExtractionAsync(new EmptyRequest());
+
+            toastText = "Context Extraction started";
+            toastText = (await res).Text;
+        }
+        catch (Exception ex)
+        {
+            toastText = ex.Message;
+        }
+        StateHasChanged();
+
+    }
+}
+<h3>ServerManagement</h3>
+<div class="container">
+    <div class="row">
+        <!-- Settings Column -->
+        <div class="col-md-6 alert alert-primary">
+            <h4>Server Settings</h4>
+            @if(settings == null)
+            {
+                <div class="spinner-border text-info" role="status"/>
+            }else{
+            <dl class="row">
+                <dt class="col-sm-5">Database Path:</dt>
+                <dd class="col-sm-9">@settings?.DbPath</dd>
+
+                <dt class="col-sm-5">Root URL:</dt>
+                <dd class="col-sm-9">@settings?.RootUrl</dd>
+
+                <dt class="col-sm-5">Waited class name:</dt>
+                <dd class="col-sm-9">@settings?.WaitedClassName</dd>
+
+                <dt class="col-sm-5">Ignored Urls:</dt>
+
+                @foreach(var ignored in settings?.ExcludedUrls)
+                {
+                    <dd class="col-sm-9">@ignored</dd>
+                }
+                <!-- Add more properties as needed -->
+            </dl>
+            }
+        </div>
+
+        <!-- Service Status Column -->
+        <div class="col-md-6 alert alert-secondary">
+            <h4>Service Status</h4>
+            @if(serviceStatus == null)
+            {
+                <div class="spinner-border text-secondary" role="status" />
+            }else{
+            <dl class="row">
+                <dt class="col-sm-5">Context Count:</dt>
+                <dd class="col-sm-9">@serviceStatus?.ContextCount</dd>
+
+                <dt class="col-sm-5">HTML File Count:</dt>
+                <dd class="col-sm-9">@serviceStatus?.HtmlFileCount</dd>
+
+                <dt class="col-sm-5">HTML Extraction:</dt>
+                <dd class="col-sm-9">@serviceStatus?.HtmlExtraction</dd>
+
+                <dt class="col-sm-5">Context Extraction:</dt>
+                <dd class="col-sm-9">@serviceStatus?.ContextExtraction</dd>
+                <!-- Add more properties as needed -->
+            </dl>}
+        </div>
+
+
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <button class="btn btn-primary btn-block" @onclick="RunHtmlExtraction">Start HTML Extraction</button>
+        </div>
+        <div class="col-md-6 mb-3">
+            <button class="btn btn-primary btn-block" @onclick="RunContextExtraction">Start Context Extraction</button>
+        </div>
+    </div>
+    @if (toastText != "")
+    {
+        <div class="row">
+            <div class="alert alert-info" role="alert">
+            @toastText
+            </div>
+        </div>
+    }
+</div>

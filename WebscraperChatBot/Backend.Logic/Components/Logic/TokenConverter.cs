@@ -1,4 +1,5 @@
-﻿using General.Interfaces.Backend.Logic;
+﻿using Backend.Logic.Data;
+using General.Interfaces.Backend.Logic;
 using Iveonik.Stemmers;
 using NTextCat;
 using System.Text.RegularExpressions;
@@ -41,7 +42,7 @@ namespace Backend.Logic.Components.Logic
             //    }
             //}
             var factory = new RankedLanguageIdentifierFactory();
-            var identifier = factory.Load("Resources/TextCat/Wiki82.profile.xml"); // can be an absolute or relative path. Beware of 260 chars limitation of the path length in Windows. Linux allows 4096 chars.
+            var identifier = factory.Load(Path.Combine(CommonValues.folderLoc,"Resources/TextCat/Wiki82.profile.xml")); // can be an absolute or relative path. Beware of 260 chars limitation of the path length in Windows. Linux allows 4096 chars.
             var languages = identifier.Identify(result);
             var mostCertainLanguage = languages.FirstOrDefault();
 
