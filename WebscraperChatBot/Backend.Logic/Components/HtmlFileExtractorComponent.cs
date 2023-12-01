@@ -8,6 +8,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
+using System.Collections.Concurrent;
 
 namespace Backend.Logic.Components
 {
@@ -86,9 +87,9 @@ namespace Backend.Logic.Components
         /// <param name="visitedUrls">Already extracted URLs</param>
         /// <param name="baseUri">The base of the url where we search</param>
         /// <returns></returns>
-        private IList<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
+        private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
         {
-            IList<IHtmlFile> resultFiles = new List<IHtmlFile>();
+            ConcurrentBag<IHtmlFile> resultFiles = new ConcurrentBag<IHtmlFile>();
 
             var currentUrl = new Uri(url).AbsoluteUri;
 
