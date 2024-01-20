@@ -21,6 +21,8 @@ namespace Backend.Logic.Components.Logic
 
             string result = Regex.Replace(text, pattern, "");
             string[] tokens = result.Split(' ');
+            tokens = tokens.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+
             IList<string> normalizedTokens = new List<string>();
 
             foreach (var token in tokens)
