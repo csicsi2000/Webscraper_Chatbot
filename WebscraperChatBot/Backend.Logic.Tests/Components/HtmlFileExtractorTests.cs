@@ -14,7 +14,11 @@ namespace Backend.Logic.Tests.Components
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
-            testSite.StartHttpServer("TestFiles");
+            bool res = testSite.StartHttpServer("TestFiles");
+            if (!res)
+            {
+                Assert.Fail("Failed to start test server.");
+            }
         }
 
         [ClassCleanup]
@@ -36,9 +40,9 @@ namespace Backend.Logic.Tests.Components
             // Assert
             Assert.IsNotNull(htmlFiles);
             Assert.AreEqual(2, htmlFiles.Count());
-            var firstFile = htmlFiles.First();
-            Assert.AreEqual("<html><head>\r\n    <title>Our Funky HTML Page</title>\r\n    <meta name=\"description\" content=\"Our first page\">\r\n    <meta name=\"keywords\" content=\"html tutorial template\">\r\n</head>\r\n<body>\r\n    <p class=\"test\">Test text inside</p>\r\n    <a href=\"/test.html\">Test link</a>\r\n\r\n</body></html>", firstFile.Content);
-            Assert.IsTrue(firstFile.Url.EndsWith("/main.html"));
+            var firstFile = htmlFiles.First(x => x.Url.EndsWith("/test.html"));
+            Assert.IsNotNull(firstFile);
+            Assert.AreEqual("<html><head>\r\n    <title>Our Funky HTML Page</title>\r\n    <meta name=\"description\" content=\"Our first page\">\r\n    <meta name=\"keywords\" content=\"html tutorial template\">\r\n</head>\r\n<body>\r\n    <p>Test link found page</p>\r\n\r\n</body></html>", firstFile.Content);
         }
 
         [TestMethod]
