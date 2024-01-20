@@ -27,7 +27,7 @@ namespace Backend.Logic.Tests.Components
             testSite.StopHttpServer();
         }
 
-        [TestMethod]
+        [TestMethod,TestCategory("ApiTest")]
         public void TC01_GetHtmlFiles_ValidUrl_ReturnsHtmlFiles()
         {
             // Arrange
@@ -45,7 +45,7 @@ namespace Backend.Logic.Tests.Components
             Assert.AreEqual("<html><head>\r\n    <title>Our Funky HTML Page</title>\r\n    <meta name=\"description\" content=\"Our first page\">\r\n    <meta name=\"keywords\" content=\"html tutorial template\">\r\n</head>\r\n<body>\r\n    <p>Test link found page</p>\r\n\r\n</body></html>", firstFile.Content);
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("ApiTest")]
         public void TC02_GetHtmlFiles_ValidUrlWithExclude_ReturnsHtmlFiles()
         {
             // Arrange
