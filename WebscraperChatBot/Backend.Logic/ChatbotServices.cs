@@ -38,7 +38,7 @@ namespace Backend.Logic
             _retriever = new RetrieverComponent(_tokenConverter);
 
             //_questionAnswerModel = new Python_DebertaModel("C:\\Users\\csics\\AppData\\Local\\Programs\\Python\\Python310\\python310.dll");
-            _questionAnswerModel = new QuestionAnswerApiComponent("http://localhost:54311");
+            _questionAnswerModel = new QuestionAnswerApiComponent(settings.ModelURL);
         }
 
         /// <summary>

@@ -29,7 +29,8 @@ namespace GrpcService.Services
             {
                 RootUrl = "https://aries.ektf.hu/~hz/wiki7",
                 DbPath = "../database.sqlite",
-                WaitedClassName = "main-content"
+                WaitedClassName = "main-content",
+                ModelURL = "http://localhost:5555"
             });
             Console.WriteLine(_chatbotServices.GetContextCount());
         }

@@ -1,0 +1,18 @@
+﻿# Use the official .NET SDK image as a base image
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+
+WORKDIR /app
+
+COPY . .
+WORKDIR /app/Frontend.BlazorWebassembly
+RUN dotnet publish -c Release -o out
+
+FROM nginx:alpine
+
+WORKDIR /usr/share/nginx/html
+
+COPY --from=build /app/Frontend.BlazorWebassembly/out/wwwroot .
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

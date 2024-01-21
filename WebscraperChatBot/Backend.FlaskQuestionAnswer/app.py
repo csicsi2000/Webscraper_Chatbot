@@ -27,10 +27,10 @@ def AnswerQuestion():
     question = data["question"]
     context = data["context"]
     res = question_answerer(question=question, context=context)
-    print(res);
+    print(res)
     return json.dumps(res)
     
-    
+print("Flask server starting up.")
 if __name__ == '__main__':
     import os
     HOST = os.environ.get('SERVER_HOST', 'localhost')
@@ -40,4 +40,4 @@ if __name__ == '__main__':
         PORT = 5555
     app.run(HOST, PORT)
  
-print("Flask server running.")
+print("Flask server stopped.")
