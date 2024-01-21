@@ -8,6 +8,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
+using System.Collections.Concurrent;
 
 namespace Backend.Logic.Components
 {
@@ -50,13 +51,14 @@ namespace Backend.Logic.Components
             if (baseUriText.EndsWith(".html"))
             {
                 int lastSlash = baseUriText.LastIndexOf('/');
-                if(lastSlash != -1)
+                if (lastSlash != -1)
                 {
                     baseUriText = baseUriText.Substring(0, lastSlash);
                 }
             }
             var baseUri = new Uri(RemoveLastSlash(baseUriText));
             var visitedUrls = new HashSet<string>();
+
 
             foreach (var htmlFile in ExtractHtmlFiles(url, visitedUrls, baseUri))
             {
@@ -87,21 +89,25 @@ namespace Backend.Logic.Components
         /// <returns></returns>
         private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
         {
+            ConcurrentBag<IHtmlFile> resultFiles = new ConcurrentBag<IHtmlFile>();
+
             var currentUrl = new Uri(url).AbsoluteUri;
 
             if (visitedUrls.Contains(currentUrl))
             {
-                yield break;
+                return resultFiles;
             }
             if (!ProcessUrl(currentUrl).StartsWith(ProcessUrl(baseUri.AbsoluteUri)))
             {
-                yield break;
+                return resultFiles;
+
             }
             var foundExcluded = _excludedUrls.FirstOrDefault(x => currentUrl.StartsWith(x));
             if (foundExcluded != null)
             {
                 _log4.Info("Skipped url: " + currentUrl);
-                yield break;
+                return resultFiles;
+
             }
 
             visitedUrls.Add(currentUrl);
@@ -111,7 +117,7 @@ namespace Backend.Logic.Components
             _driver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
             WaitForPageLoad(_driver);
 
-            
+
             htmlFile = new HtmlFile
             {
                 Url = currentUrl,
@@ -119,29 +125,35 @@ namespace Backend.Logic.Components
                 Content = _driver.PageSource
             };
 
-            yield return htmlFile;
+            resultFiles.Add(htmlFile);
 
             var doc = new HtmlDocument();
             doc.LoadHtml(htmlFile.Content);
 
-            foreach (var link in doc.DocumentNode.Descendants("a"))
-            {
-                var href = link.GetAttributeValue("href", string.Empty);
-                if (string.IsNullOrEmpty(href))
-                {
-                    continue;
-                }
 
-                var absoluteUri = new Uri(baseUri, href);
-                var absoluteUrl = absoluteUri.ToString();
-                if (absoluteUri.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
-                {
-                    foreach (var subHtmlFile in ExtractHtmlFiles(absoluteUrl, visitedUrls, baseUri))
+            Parallel.ForEach(
+                doc.DocumentNode.Descendants("a"),
+                new ParallelOptions { MaxDegreeOfParallelism = 4 },
+                link => {
+                    var href = link.GetAttributeValue("href", string.Empty);
+                    if (string.IsNullOrEmpty(href))
                     {
-                        yield return subHtmlFile;
+                        return;
+                    }
+
+                    var absoluteUri = new Uri(baseUri, href);
+                    var absoluteUrl = absoluteUri.ToString();
+                    if (absoluteUri.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
+                    {
+                        foreach (var subHtmlFile in ExtractHtmlFiles(absoluteUrl, visitedUrls, baseUri))
+                        {
+                            resultFiles.Add(subHtmlFile);
+                        }
                     }
                 }
-            }
+            );
+
+            return resultFiles;
         }
 
         private void WaitForPageLoad(IWebDriver driver)

@@ -31,6 +31,7 @@ namespace GrpcService.Services
                 DbPath = "../database.sqlite",
                 WaitedClassName = "main-content"
             });
+            Console.WriteLine(_chatbotServices.GetContextCount());
         }
 
         // TODO
