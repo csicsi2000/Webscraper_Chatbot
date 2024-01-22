@@ -3,12 +3,13 @@ using Grpc.Core;
 using GrpcService.Data;
 using log4net.Config;
 using log4net;
-using Backend.Logic.Data.Json;
 
 namespace GrpcService.Services
 {
     public class MessageService : ChatbotService.ChatbotServiceBase
     {
+        ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private readonly object _lockCE = new object();
         private static bool _isContentExtractionRunning = false;
 
@@ -24,14 +25,7 @@ namespace GrpcService.Services
             ILog log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
-
-            _chatbotServices = new ChatbotServices(new ServerSettings()
-            {
-                RootUrl = "https://aries.ektf.hu/~hz/wiki7",
-                DbPath = "../database.sqlite",
-                WaitedClassName = "main-content",
-                ModelURL = "http://localhost:5555"
-            });
+            _chatbotServices = new ChatbotServices();
             Console.WriteLine(_chatbotServices.GetContextCount());
         }
 
@@ -61,18 +55,21 @@ namespace GrpcService.Services
 
             return Task.FromResult(curSettings);
         }
+
+        public override Task<EmptyRequest> SetServerSettings(CurrentSettings request, ServerCallContext context)
+        {
+            var settings = _chatbotServices.GetSettings();
+            settings.DbPath = request.DbPath;
+            settings.RootUrl = request.RootUrl;
+            settings.WaitedClassName = request.WaitedClassName;
+            settings.ExcludedUrls = request.IgnoredUrls;
+            _chatbotServices.SetSettings(settings);
+
+            return Task.FromResult(new EmptyRequest());
+        }
         // TODO
         public override Task<Message> SendQuestion(Message request, ServerCallContext context)
         {
-            //lock (_lockQuestion)
-            //{
-            //    if (_isAnsweringRunning)
-            //    {
-            //        throw new RpcException(new Status(StatusCode.Unavailable, "Answer service is busy."));
-            //    }
-            //    _isAnsweringRunning = true;
-            //}
-
             var answer = _chatbotServices.GetAnswer(request.Text);
             lock (_lockCE)
             {

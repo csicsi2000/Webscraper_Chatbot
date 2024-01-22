@@ -11,6 +11,8 @@ service ChatbotService {
 
   rpc GetServerSettings(EmptyRequest) returns (CurrentSettings);
 
+  rpc SetServerSettings(CurrentSettings) returns (EmptyRequest);
+
   rpc StartHtmlExtraction (EmptyRequest) returns (Message);
 
   rpc StartContextExtraction (EmptyRequest) returns (Message);

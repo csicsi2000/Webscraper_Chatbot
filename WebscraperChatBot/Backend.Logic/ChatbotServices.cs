@@ -1,6 +1,6 @@
 ﻿using Backend.Logic.Components;
 using Backend.Logic.Components.Logic;
-using Backend.Logic.Data.Json;
+using Backend.Logic.Utils;
 using Backend.SqLiteDatabaseHandler;
 using General.Interfaces.Backend.Components;
 using General.Interfaces.Backend.Logic;
@@ -20,12 +20,20 @@ namespace Backend.Logic
         IHtmlParser _htmlParser;
         IQuestionAnswerModel _questionAnswerModel;
 
-        ServerSettings _settings;
-        public ChatbotServices(ServerSettings settings)
+        SettingsManager _settingsManager = new SettingsManager();
+        public ChatbotServices()
         {
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            InitializeService();
+        }
+        public ChatbotServices(IServerSettings settings)
+        {
+            _ = settings ?? throw new ArgumentNullException(nameof(settings));
+            _settingsManager.SetServerSettings(settings);
+        }
 
-            DatabaseHandler = new SqLiteDataBaseComponent(Path.GetFullPath(_settings.DbPath),  true);
+        private void InitializeService()
+        {
+            DatabaseHandler = new SqLiteDataBaseComponent(Path.GetFullPath(_settingsManager.GetServerSettings().DbPath), true);
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
 
             var stopWordReader = new StopWordReader();
@@ -33,12 +41,9 @@ namespace Backend.Logic
 
             _htmlParser = new HtmlParserComponent(_tokenConverter);
             //htmlParser.FindCommonElements(databaseHandler.GetHtmlFiles().Take(10).ToList());
-
+            _questionAnswerModel = new QuestionAnswerApiComponent(_settingsManager.GetServerSettings().ModelApiURL);
 
             _retriever = new RetrieverComponent(_tokenConverter);
-
-            //_questionAnswerModel = new Python_DebertaModel("C:\\Users\\csics\\AppData\\Local\\Programs\\Python\\Python310\\python310.dll");
-            _questionAnswerModel = new QuestionAnswerApiComponent(settings.ModelURL);
         }
 
         /// <summary>
@@ -47,17 +52,23 @@ namespace Backend.Logic
         /// <returns></returns>
         public IServerSettings GetSettings()
         {
-            return _settings;
+            return _settingsManager.GetServerSettings();
         }
 
+        public void SetSettings(IServerSettings settings)
+        {
+            _ = settings ?? throw new ArgumentNullException(nameof(settings));
+            _settingsManager.SetServerSettings(settings);
+        }
         /// <summary>
         /// Extracts all html files from an url
         /// </summary>
         public void ExtractHtmls()
         {
-            var htmlFileExtractor = new HtmlFileExtractorComponent(_settings.WaitedClassName, _settings.ExcludedUrls);
+            var settings = _settingsManager.GetServerSettings();
+            var htmlFileExtractor = new HtmlFileExtractorComponent(settings.WaitedClassName, settings.ExcludedUrls);
 
-            foreach (var file in htmlFileExtractor.GetHtmlFiles(_settings.RootUrl))
+            foreach (var file in htmlFileExtractor.GetHtmlFiles(settings.RootUrl))
             {
                 DatabaseHandler.InsertOrUpdateHtmlFile(file);
             }
@@ -149,5 +160,7 @@ namespace Backend.Logic
         {
             return DatabaseHandler.GetContexts().Count();
         }
+
+
     }
 }

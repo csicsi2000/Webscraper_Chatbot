@@ -66,40 +66,110 @@
         StateHasChanged();
 
     }
+
+    void SaveSettings()
+    {
+        if(settings == null)
+        {
+            return;
+        }
+
+        var curSettings = new CurrentSettings()
+        {
+            DbPath = settings.DbPath,
+            RootUrl = settings.RootUrl,
+            WaitedClassName = settings.WaitedClassName,
+        };
+        curSettings.IgnoredUrls.AddRange(settings.ExcludedUrls);
+        ChatbotClient.SetServerSettingsAsync(curSettings);
+
+        var availability = ChatbotClient.GetStatus(new EmptyRequest());
+        serviceStatus = new ServiceStatus()
+            {
+                ContextCount = availability.ContextCount,
+                HtmlFileCount = availability.HtmlFileCount,
+                ContextExtraction = availability.ContextExtraction,
+                HtmlExtraction = availability.HtmlExtraction
+            };
+    }
+
+    // Add a new ignored URL to the list
+    void AddIgnoredUrl()
+    {
+        settings.ExcludedUrls.Add("");
+    }
+
+    // Remove an ignored URL from the list
+    void RemoveIgnoredUrl(int index)
+    {
+        settings.ExcludedUrls.RemoveAt(index);
+    }
 }
 <h3>ServerManagement</h3>
 <div class="container">
     <div class="row">
-        <!-- Settings Column -->
-        <div class="col-md-6 alert alert-primary">
+        <div class="p-2 col-md-6 ">
+        <div class="alert alert-primary">
             <h4>Server Settings</h4>
-            @if(settings == null)
+            @if (settings == null)
             {
-                <div class="spinner-border text-info" role="status"/>
-            }else{
-            <dl class="row">
-                <dt class="col-sm-5">Database Path:</dt>
-                <dd class="col-sm-9">@settings?.DbPath</dd>
-
-                <dt class="col-sm-5">Root URL:</dt>
-                <dd class="col-sm-9">@settings?.RootUrl</dd>
-
-                <dt class="col-sm-5">Waited class name:</dt>
-                <dd class="col-sm-9">@settings?.WaitedClassName</dd>
-
-                <dt class="col-sm-5">Ignored Urls:</dt>
-
-                @foreach(var ignored in settings?.ExcludedUrls)
-                {
-                    <dd class="col-sm-9">@ignored</dd>
-                }
-                <!-- Add more properties as needed -->
-            </dl>
+                <div class="spinner-border text-info" role="status" />
             }
+            else
+            {
+                    <div class="row m-2">
+                        <div class="col-sm-5">
+                            <label for="dbPath">Database Path:</label>
+                        </div>
+                        <div class="col-sm-7">
+                            <input id="dbPath" @bind="@settings.DbPath" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row m-2">
+                        <div class="col-sm-5">
+                            <label for="rootUrl">Root URL:</label>
+                        </div>
+                        <div class="col-sm-7">
+                            <input id="rootUrl" @bind="@settings.RootUrl" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row m-2">
+                        <div class="col-sm-5">
+                            <label for="waitedClassName">Waited class name:</label>
+                        </div>
+                        <div class="col-sm-7">
+                            <input id="waitedClassName" @bind="@settings.WaitedClassName" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row m-2">
+                        <div class="col-sm-5">
+                            <label for="ignoredUrls">Ignored Urls:</label>
+                        </div>
+                        <div class="col-sm-7">
+                            @foreach (var (ignored, index) in settings.ExcludedUrls.Select((value, index) => (value, index)))
+                            {
+                                <div class="input-group mb-2">
+                                    <input id="ignoredUrls" @bind="@settings.ExcludedUrls[index]" class="form-control" />
+                                    <div class="input-group-append">
+                                        <button class="btn btn-danger" @onclick="(() => RemoveIgnoredUrl(index))">Remove</button>
+                                    </div>
+                                </div>
+                            }
+                            <button class="btn btn-success" @onclick="AddIgnoredUrl">Add URL</button>
+                        </div>
+                    </div>
+                <button class="btn btn-primary w-100 m-3" @onclick="SaveSettings">Save settings</button>
+            }
+            </div>
         </div>
 
+
         <!-- Service Status Column -->
-        <div class="col-md-6 alert alert-secondary">
+        <div class="p-2 col-md-6 ">
+        <div class="alert alert-secondary">
             <h4>Service Status</h4>
             @if(serviceStatus == null)
             {
@@ -119,6 +189,7 @@
                 <dd class="col-sm-9">@serviceStatus?.ContextExtraction</dd>
                 <!-- Add more properties as needed -->
             </dl>}
+            </div>
         </div>
 
 

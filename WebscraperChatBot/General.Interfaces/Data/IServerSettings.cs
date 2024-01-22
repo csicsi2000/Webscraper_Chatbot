@@ -6,5 +6,6 @@
         IList<string> ExcludedUrls { get; set; }
         string RootUrl { get; set; }
         string WaitedClassName { get; set; }
+        string ModelApiURL { get; set; }
     }
 }

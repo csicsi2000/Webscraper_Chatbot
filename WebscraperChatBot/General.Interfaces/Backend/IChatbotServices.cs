@@ -43,5 +43,10 @@ namespace Backend.Logic
         /// </summary>
         /// <returns></returns>
         IServerSettings GetSettings();
+        /// <summary>
+        /// Sets the extractor settings
+        /// </summary>
+        /// <returns></returns>
+        void SetSettings(IServerSettings settings);
     }
 }
