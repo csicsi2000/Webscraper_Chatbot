@@ -43,7 +43,7 @@ namespace Backend.Logic
             //htmlParser.FindCommonElements(databaseHandler.GetHtmlFiles().Take(10).ToList());
             _questionAnswerModel = new QuestionAnswerApiComponent(_settingsManager.GetServerSettings().ModelApiURL);
 
-            _retriever = new RetrieverComponent(_tokenConverter);
+            _retriever = new TFIDFRetrieverComponent(_tokenConverter);
         }
 
         /// <summary>

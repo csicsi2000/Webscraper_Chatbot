@@ -5,6 +5,7 @@ It contains the definition of routes and views for the application.
 
 from flask import Flask, request, json
 from transformers import AutoTokenizer, pipeline
+from simplemma import text_lemmatizer, lang_detector
 
 print("Flask starting. If it the first time, then it will last a while to download the model.")
 app = Flask(__name__)
@@ -29,7 +30,18 @@ def AnswerQuestion():
     res = question_answerer(question=question, context=context)
     print(res)
     return json.dumps(res)
+
+@app.route('/text-processing', methods=['POST'])
+def Lemmatize():
+    data = request.get_json(force=True)
+    text = data["text"]
+    langRes = lang_detector(text, lang=("hu", "en"))
+    foundLang, score = langRes[0]
+    lemmatizedRes = text_lemmatizer(text, lang=foundLang)
+    res["tokens"] = lemmatizedRes
+    return json.dumps(res)
     
+
 print("Flask server starting up.")
 if __name__ == '__main__':
     import os

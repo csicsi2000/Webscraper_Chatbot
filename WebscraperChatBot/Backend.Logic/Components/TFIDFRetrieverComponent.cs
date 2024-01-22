@@ -4,10 +4,10 @@ using General.Interfaces.Data;
 
 namespace Backend.Logic.Components
 {
-    public class RetrieverComponent : IContextRetriever
+    public class TFIDFRetrieverComponent : IContextRetriever
     {
         ITokenConverter _tokenConverter;
-        public RetrieverComponent(ITokenConverter tokenConverter) 
+        public TFIDFRetrieverComponent(ITokenConverter tokenConverter) 
         {
             _tokenConverter = tokenConverter;
         }

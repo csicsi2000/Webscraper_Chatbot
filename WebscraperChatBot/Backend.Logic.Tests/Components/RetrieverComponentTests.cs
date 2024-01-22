@@ -15,7 +15,7 @@ namespace Backend.Logic.Tests.Components
             // arrange
             var mockedTokenConverter = new Mock<ITokenConverter>();
             mockedTokenConverter.Setup(x => x.ConvertToTokens(It.IsAny<string>())).Returns((string x) => x.Split(' ').ToList());
-            var retriever = new RetrieverComponent(mockedTokenConverter.Object);
+            var retriever = new TFIDFRetrieverComponent(mockedTokenConverter.Object);
             IList<IContext> retrievedContexts = new List<IContext>()
             {
                 new Context()
