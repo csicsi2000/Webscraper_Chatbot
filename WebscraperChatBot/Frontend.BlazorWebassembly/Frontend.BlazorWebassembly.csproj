@@ -34,9 +34,6 @@
     <Protobuf Include="..\General.Grpc\Grpc\grpc_chatbot.proto" GrpcServices="Client">
       <Link>Grpc\grpc_chatbot.proto</Link>
     </Protobuf>
-    <Protobuf Include="..\General.Grpc\Grpc\grpc_usermanager.proto" GrpcServices="Client">
-      <Link>Grpc\grpc_usermanager.proto</Link>
-    </Protobuf>
   </ItemGroup>
 
 </Project>

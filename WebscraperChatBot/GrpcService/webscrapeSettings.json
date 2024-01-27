@@ -1,1 +1,1 @@
-{"DbPath":"../wiki7.sqlite","ExcludedUrls":["https://uni-eszterhazy.hu/api"],"RootUrl":"https://uni-eszterhazy.hu","WaitedClassName":"main-top","ModelApiURL":null}
+{"DbPath":"database.sqlite","ExcludedUrls":["https://uni-eszterhazy.hu/api"],"RootUrl":"https://uni-eszterhazy.hu/","WaitedClassName":"main-top","ModelApiURL":"http://localhost:5555"}

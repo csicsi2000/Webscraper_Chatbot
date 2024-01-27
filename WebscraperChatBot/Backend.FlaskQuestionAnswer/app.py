@@ -37,7 +37,13 @@ def Lemmatize():
     text = data["text"]
     langRes = lang_detector(text, lang=("hu", "en"))
     foundLang, score = langRes[0]
+
+    if(foundLang == "unk"):
+        foundLang = "en"
+    
+    print("Found language: " + foundLang)
     lemmatizedRes = text_lemmatizer(text, lang=foundLang)
+    res = {}
     res["tokens"] = lemmatizedRes
     return json.dumps(res)
     

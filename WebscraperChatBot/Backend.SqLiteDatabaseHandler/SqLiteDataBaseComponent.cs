@@ -12,11 +12,13 @@ namespace Backend.SqLiteDatabaseHandler
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         DatabaseContext dbContext;
+        string _connectionString;
         public SqLiteDataBaseComponent(string connectionString, bool tryCreateFile = false)
         {
             if (string.IsNullOrEmpty(connectionString))
                 throw new ArgumentNullException(nameof(connectionString));
 
+            _connectionString = connectionString;
             dbContext = new DatabaseContext(connectionString);
             if (tryCreateFile)
             {
@@ -42,9 +44,8 @@ namespace Backend.SqLiteDatabaseHandler
         {
             try
             {
-                var contexts = dbContext.Contexts.ToList();
                 _log4.Info("All context read");
-                return contexts;
+                return dbContext.Contexts;
             }
             catch (Exception ex)
             {
@@ -77,22 +78,24 @@ namespace Backend.SqLiteDatabaseHandler
         {
             try
             {
-                var samePage = dbContext.Contexts.FirstOrDefault(x => x.OriginUrl == context.OriginUrl);
-                 if (samePage != null)
+                using (var tempContext = new DatabaseContext(_connectionString))
                 {
-                    samePage.Text = context.Text;
-                    samePage.Tokens = context.Tokens;
-                    _log4.Info("Exisitng context updated");
+                    var samePage = tempContext.Contexts.FirstOrDefault(x => x.OriginUrl == context.OriginUrl);
+                    if (samePage != null)
+                    {
+                        samePage.Text = context.Text;
+                        samePage.Tokens = context.Tokens;
+                        _log4.Info("Existing context updated");
+                    }
+                    else
+                    {
+                        var contextEntity = Adapters.GetContextEntity(context);
+                        contextEntity.FileEntity = tempContext.Files.FirstOrDefault(x => x.Url == contextEntity.OriginUrl);
+                        tempContext.Contexts.Add(contextEntity);
+                        _log4.Info("New context added");
+                    }
+                    tempContext.SaveChanges();
                 }
-                else
-                {
-                    var contextEntity = Adapters.GetContextEntity(context);
-                    contextEntity.FileEntity = dbContext.Files.FirstOrDefault(x => x.Url == contextEntity.OriginUrl);
-                    dbContext.Contexts.Add(contextEntity);
-                     _log4.Info("New context added");
-                }
-                dbContext.SaveChanges();
-
             }
             catch (Exception ex)
             {
@@ -149,10 +152,8 @@ namespace Backend.SqLiteDatabaseHandler
         {
             try
             {
-                var files = dbContext.Files.ToList();
                 _log4.Info("All Html files red");
-
-                return files;
+                return dbContext.Files;
             }
             catch (Exception ex)
             {
@@ -166,20 +167,23 @@ namespace Backend.SqLiteDatabaseHandler
         {
             try
             {
-                var existingFile = dbContext.Files.FirstOrDefault(x => x.Url == file.Url);
-                if (existingFile != null)
+                using (var tempContext = new DatabaseContext(_connectionString))
                 {
-                    existingFile.Content = file.Content;
-                    existingFile.LastModified = file.LastModified;
-                    _log4.Info("Existing html modified: " + existingFile.Url);
+                    var existingFile = tempContext.Files.FirstOrDefault(x => x.Url == file.Url);
+                    if (existingFile != null)
+                    {
+                        existingFile.Content = file.Content;
+                        existingFile.LastModified = file.LastModified;
+                        _log4.Info("Existing html modified: " + existingFile.Url);
 
+                    }
+                    else
+                    {
+                        tempContext.Files.Add(Adapters.GetHtmlFileEntity(file));
+                        _log4.Info("New html added: " + file.Url);
+                    }
+                    tempContext.SaveChanges();
                 }
-                else
-                {
-                    dbContext.Files.Add(Adapters.GetHtmlFileEntity(file));
-                    _log4.Info("New html added: " + file.Url);
-                }
-                dbContext.SaveChanges();
             }
             catch (Exception ex)
             {

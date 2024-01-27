@@ -10,7 +10,7 @@ namespace Backend.SqLiteDatabaseHandler.Data
         public int Id { get; set; }
         public string Text { get; set; }
         public string DocTitle { get; set; }
-        public HtmlFileEntity? FileEntity { get; set; }
+        public virtual HtmlFileEntity FileEntity { get; set; }
         public string[] Tokens { get; set; } = new string[0];
         public string OriginUrl { get; set; }
 

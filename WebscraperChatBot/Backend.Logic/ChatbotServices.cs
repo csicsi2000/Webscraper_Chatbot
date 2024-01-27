@@ -1,5 +1,6 @@
 ﻿using Backend.Logic.Components;
 using Backend.Logic.Components.Logic;
+using Backend.Logic.Data;
 using Backend.Logic.Utils;
 using Backend.SqLiteDatabaseHandler;
 using General.Interfaces.Backend.Components;
@@ -20,12 +21,17 @@ namespace Backend.Logic
         IHtmlParser _htmlParser;
         IQuestionAnswerModel _questionAnswerModel;
 
+        private Object _exractLock = new Object();
+
+        private static Object _startServiceLock = new Object();
+        private static IServiceState _serviceState = new ServiceState();
+
         SettingsManager _settingsManager = new SettingsManager();
         public ChatbotServices()
         {
             InitializeService();
         }
-        public ChatbotServices(IServerSettings settings)
+        public ChatbotServices(IServerSettings settings):this()
         {
             _ = settings ?? throw new ArgumentNullException(nameof(settings));
             _settingsManager.SetServerSettings(settings);
@@ -37,7 +43,8 @@ namespace Backend.Logic
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
 
             var stopWordReader = new StopWordReader();
-            _tokenConverter = new TokenConverter(stopWordReader.GetStopwords());
+            //_tokenConverter = new TokenConverter(stopWordReader.GetStopwords());
+            _tokenConverter = new SimplemmaTokenConverter(stopWordReader.GetStopwords(), _settingsManager.GetServerSettings().ModelApiURL);
 
             _htmlParser = new HtmlParserComponent(_tokenConverter);
             //htmlParser.FindCommonElements(databaseHandler.GetHtmlFiles().Take(10).ToList());
@@ -65,12 +72,24 @@ namespace Backend.Logic
         /// </summary>
         public void ExtractHtmls()
         {
+            if (_serviceState.IsHtmlExtractionRunning)
+            {
+                return;
+            }
+            lock (_startServiceLock)
+            {
+                _serviceState.IsHtmlExtractionRunning = true;
+            }
             var settings = _settingsManager.GetServerSettings();
             var htmlFileExtractor = new HtmlFileExtractorComponent(settings.WaitedClassName, settings.ExcludedUrls);
 
             foreach (var file in htmlFileExtractor.GetHtmlFiles(settings.RootUrl))
             {
                 DatabaseHandler.InsertOrUpdateHtmlFile(file);
+            }
+            lock (_startServiceLock)
+            {
+                _serviceState.IsHtmlExtractionRunning = false;
             }
         }
 
@@ -80,17 +99,33 @@ namespace Backend.Logic
         /// <param name="isSetup"></param>
         public void ExtractContexts(bool isSetup = false)
         {
-            var tokenConverter = new TokenConverter(new StopWordReader().GetStopwords());
+            if(_serviceState.IsContextExtractionRunning)
+            {
+                return;
+            }
+            lock (_startServiceLock)
+            {
+                _serviceState.IsContextExtractionRunning = true;
+            }
+            var tokenConverter = _tokenConverter;
             var htmlParser = new HtmlParserComponent(tokenConverter); // common elements
 
             if (isSetup)
             {
                 htmlParser.FindCommonElements(DatabaseHandler.GetHtmlFiles().Take(15).ToList());
             }
-            foreach (var htmlFile in DatabaseHandler.GetHtmlFiles())
+
+            Parallel.ForEach(DatabaseHandler.GetHtmlFiles(),new ParallelOptions { MaxDegreeOfParallelism=6},  file =>
             {
-                var context = htmlParser.ExtractRelevantContent(htmlFile);
-                DatabaseHandler.InsertOrUpdateContext(context);
+                var context = htmlParser.ExtractRelevantContent(file);
+                lock(_exractLock)
+                {
+                    DatabaseHandler.InsertOrUpdateContext(context);
+                }
+            });
+            lock (_startServiceLock)
+            {
+                _serviceState.IsContextExtractionRunning = false;
             }
         }
 
@@ -161,6 +196,9 @@ namespace Backend.Logic
             return DatabaseHandler.GetContexts().Count();
         }
 
-
+        public IServiceState GetServiceState()
+        {
+            return _serviceState;
+        }
     }
 }

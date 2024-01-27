@@ -1,4 +1,5 @@
 ﻿using Backend.Logic.Data;
+using Flurl;
 using General.Interfaces.Backend.Components;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
@@ -20,6 +21,7 @@ namespace Backend.Logic.Components
         IList<string> _excludedUrls;
         ChromeDriver _driver;
 
+        string notFoundContent;
         /// <summary>
         /// Etract html files from a root page
         /// </summary>
@@ -48,7 +50,8 @@ namespace Backend.Logic.Components
         public IEnumerable<IHtmlFile> GetHtmlFiles(string url)
         {
             string baseUriText = url;
-            if (baseUriText.EndsWith(".html"))
+            string[] urlParts = baseUriText.Split('/');
+            if (urlParts[urlParts.Length-1].Contains('.'))
             {
                 int lastSlash = baseUriText.LastIndexOf('/');
                 if (lastSlash != -1)
@@ -57,13 +60,16 @@ namespace Backend.Logic.Components
                 }
             }
             var baseUri = new Uri(RemoveLastSlash(baseUriText));
-            var visitedUrls = new HashSet<string>();
+            var visitedUrls = new ConcurrentBag<string>();
+            setNotFoundPage(baseUri);
 
+            return ExtractHtmlFiles(url, visitedUrls, baseUri).DistinctBy(x => x.Content).Where(x => x.Content != notFoundContent).ToList();
+        }
 
-            foreach (var htmlFile in ExtractHtmlFiles(url, visitedUrls, baseUri))
-            {
-                yield return htmlFile;
-            }
+        void setNotFoundPage(Uri rootUrl)
+        {
+            var notExistingPage = Url.Combine(rootUrl.AbsoluteUri.ToString(), Guid.NewGuid().ToString());
+            notFoundContent = ExtractHtmlFiles(notExistingPage, new ConcurrentBag<string>(),rootUrl).First().Content;
         }
 
         string ProcessUrl(string url)
@@ -87,7 +93,7 @@ namespace Backend.Logic.Components
         /// <param name="visitedUrls">Already extracted URLs</param>
         /// <param name="baseUri">The base of the url where we search</param>
         /// <returns></returns>
-        private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
+        private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, ConcurrentBag<string> visitedUrls, Uri baseUri)
         {
             ConcurrentBag<IHtmlFile> resultFiles = new ConcurrentBag<IHtmlFile>();
 
@@ -115,7 +121,7 @@ namespace Backend.Logic.Components
 
 
             _driver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
-            WaitForPageLoad(_driver);
+            Task.FromResult(WaitForPageLoad(_driver));
 
 
             htmlFile = new HtmlFile
@@ -150,33 +156,51 @@ namespace Backend.Logic.Components
                             resultFiles.Add(subHtmlFile);
                         }
                     }
+
+                    var absoluteUri2 = new Uri(Url.Combine(baseUri.ToString(),href));
+                    var absoluteUrl2 = Url.Combine(baseUri.ToString(), href);
+                    if (absoluteUri2.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
+                    {
+                        foreach (var subHtmlFile in ExtractHtmlFiles(absoluteUrl2, visitedUrls, baseUri))
+                        {
+                            resultFiles.Add(subHtmlFile);
+                        }
+                    }
                 }
             );
 
             return resultFiles;
         }
 
-        private void WaitForPageLoad(IWebDriver driver)
+        private async Task WaitForPageLoad(IWebDriver driver)
         {
             var jsExecutor = (IJavaScriptExecutor)driver;
 
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
-            wait.Until(driver => jsExecutor.ExecuteScript("return document.readyState").Equals("complete"));
+            try
+            {
+                wait.Until(driver => jsExecutor.ExecuteScript("return document.readyState").Equals("complete"));
+                await Task.Delay(3000);
+            }
+            catch
+            {
+                _log4.Warn("Document ready timed out: " + driver.Url);
+
+            }
             if (!_waitedClassName.IsNullOrEmpty())
             {
 
                 try
                 {
                     wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.ClassName(_waitedClassName)));
+                    wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.Id(_waitedClassName)));
                 }
                 catch
                 {
-                    _log4.Warn("Page did not have the element.");
+                    _log4.Warn("Page did not have the element: " + driver.Url);
                 }
             }
-
-            // wait.Until(ExpectedConditions.ElementIsVisible(By.Id("myElement")));
         }
     }
 }

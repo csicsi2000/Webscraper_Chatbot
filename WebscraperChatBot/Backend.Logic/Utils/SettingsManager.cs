@@ -24,7 +24,13 @@ namespace Backend.Logic.Utils
 
         public bool SetServerSettings(IServerSettings newSettings)
         {
+            newSettings.ExcludedUrls = newSettings.ExcludedUrls.Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
+            if (!newSettings.RootUrl.EndsWith("/"))
+            {
+                newSettings.RootUrl = newSettings.RootUrl + "/";
+            }
             serverSettings = newSettings; // Update the settings field
+
             SaveFile(); // Save the updated settings
             return true; // Indicate success or failure based on your logic
         }

@@ -48,5 +48,10 @@ namespace Backend.Logic
         /// </summary>
         /// <returns></returns>
         void SetSettings(IServerSettings settings);
+        /// <summary>
+        /// Return the status of the background services, if they are running
+        /// </summary>
+        /// <returns></returns>
+        IServiceState GetServiceState();
     }
 }

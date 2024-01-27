@@ -14,6 +14,16 @@
     protected async override void OnInitialized()
     {
         base.OnInitialized();
+        RefreshSettings();
+        while (true)
+        {
+            RefreshStatus();
+            await Task.Delay(1000);
+        }
+    }
+
+    async void RefreshSettings()
+    {
         var serverSettings = await ChatbotClient.GetServerSettingsAsync(new EmptyRequest());
         settings = new BackendSettings()
             {
@@ -22,6 +32,11 @@
                 ExcludedUrls = serverSettings.IgnoredUrls,
                 WaitedClassName = serverSettings.WaitedClassName
             };
+        StateHasChanged();
+    }
+
+    async void RefreshStatus()
+    {
 
         var availability = await ChatbotClient.GetStatusAsync(new EmptyRequest());
         serviceStatus = new ServiceStatus()
@@ -46,8 +61,6 @@
         {
             toastText = ex.Message;
         }
-        StateHasChanged();
-
     }
 
     async void RunContextExtraction()
@@ -63,11 +76,9 @@
         {
             toastText = ex.Message;
         }
-        StateHasChanged();
-
     }
 
-    void SaveSettings()
+    async Task SaveSettings()
     {
         if(settings == null)
         {
@@ -81,16 +92,7 @@
             WaitedClassName = settings.WaitedClassName,
         };
         curSettings.IgnoredUrls.AddRange(settings.ExcludedUrls);
-        ChatbotClient.SetServerSettingsAsync(curSettings);
-
-        var availability = ChatbotClient.GetStatus(new EmptyRequest());
-        serviceStatus = new ServiceStatus()
-            {
-                ContextCount = availability.ContextCount,
-                HtmlFileCount = availability.HtmlFileCount,
-                ContextExtraction = availability.ContextExtraction,
-                HtmlExtraction = availability.HtmlExtraction
-            };
+        await ChatbotClient.SetServerSettingsAsync(curSettings);
     }
 
     // Add a new ignored URL to the list
@@ -161,7 +163,7 @@
                             <button class="btn btn-success" @onclick="AddIgnoredUrl">Add URL</button>
                         </div>
                     </div>
-                <button class="btn btn-primary w-100 m-3" @onclick="SaveSettings">Save settings</button>
+                <button class="btn btn-primary w-100" @onclick="SaveSettings">Save settings</button>
             }
             </div>
         </div>
@@ -176,17 +178,17 @@
                 <div class="spinner-border text-secondary" role="status" />
             }else{
             <dl class="row">
-                <dt class="col-sm-5">Context Count:</dt>
-                <dd class="col-sm-9">@serviceStatus?.ContextCount</dd>
+                <dt class="">Context Count:</dt>
+                <dd class="">@serviceStatus?.ContextCount</dd>
 
-                <dt class="col-sm-5">HTML File Count:</dt>
-                <dd class="col-sm-9">@serviceStatus?.HtmlFileCount</dd>
+                <dt class="">HTML File Count:</dt>
+                <dd class="">@serviceStatus?.HtmlFileCount</dd>
 
-                <dt class="col-sm-5">HTML Extraction:</dt>
-                <dd class="col-sm-9">@serviceStatus?.HtmlExtraction</dd>
+                <dt class="">HTML Extraction:</dt>
+                <dd class="">@serviceStatus?.HtmlExtraction</dd>
 
-                <dt class="col-sm-5">Context Extraction:</dt>
-                <dd class="col-sm-9">@serviceStatus?.ContextExtraction</dd>
+                <dt class="">Context Extraction:</dt>
+                <dd class="">@serviceStatus?.ContextExtraction</dd>
                 <!-- Add more properties as needed -->
             </dl>}
             </div>
@@ -196,10 +198,10 @@
     </div>
     <div class="row">
         <div class="col-md-6 mb-3">
-            <button class="btn btn-primary btn-block" @onclick="RunHtmlExtraction">Start HTML Extraction</button>
+            <button class="btn btn-primary btn-block w-100" @onclick="RunHtmlExtraction">Start HTML Extraction</button>
         </div>
         <div class="col-md-6 mb-3">
-            <button class="btn btn-primary btn-block" @onclick="RunContextExtraction">Start Context Extraction</button>
+            <button class="btn btn-primary btn-block w-100" @onclick="RunContextExtraction">Start Context Extraction</button>
         </div>
     </div>
     @if (toastText != "")

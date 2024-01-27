@@ -1,5 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Backend.Logic;
+using Backend.Logic.Components;
+using Backend.Logic.Components.Logic;
 using Backend.Logic.Data.Json;
 using log4net;
 using log4net.Config;
@@ -9,29 +11,14 @@ ILog log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()
 XmlConfigurator.Configure(new FileInfo("log4net.config"));
 log4.Info("Server started.");
 
-var contextWorkflow = new ChatbotServices( new ServerSettings()
-{
-    RootUrl = "https://aries.ektf.hu/~hz/wiki7",
-    DbPath = "../wiki7.sqlite",
-    WaitedClassName = "main-content"
-});
-var excludedUrls = new List<string>() { "https://uni-eszterhazy.hu/api" };
-
 //contextWorkflow.ExtractHtmls("https://uni-eszterhazy.hu/matinf", excludedUrls);
-contextWorkflow.ExtractHtmls();
+//contextWorkflow.ExtractHtmls();
+
+ChatbotServices chatbotServices = new ChatbotServices(new ServerSettings() { DbPath= "database-simplemma.sqlite", ModelApiURL= "http://localhost:5555" });
+chatbotServices.ExtractContexts(true);
 Console.WriteLine("Finished");
+
 /*
-var stopWordReader = new StopWordReader();
-var tokenConverter = new TokenConverter(stopWordReader.GetStopwords());
-
-var htmlParser = new HtmlParserComponent(tokenConverter);
-//htmlParser.FindCommonElements(databaseHandler.GetHtmlFiles().Take(10).ToList());
-
-
-var retriever = new RetrieverComponent(tokenConverter);
-
-var questionAnswer = new Python_DebertaModel("C:\\Users\\csics\\AppData\\Local\\Programs\\Python\\Python310\\python310.dll");
-IEnumerable<IContext> contexts = contextWorkflow.DatabaseHandler.GetContexts();
 while (true)
 {
     Console.WriteLine("Mi a kérdésed?");

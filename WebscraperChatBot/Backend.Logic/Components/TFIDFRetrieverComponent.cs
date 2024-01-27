@@ -1,6 +1,7 @@
 ﻿using General.Interfaces.Backend.Components;
 using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
+using System.Collections.Concurrent;
 
 namespace Backend.Logic.Components
 {
@@ -44,10 +45,11 @@ namespace Backend.Logic.Components
         /// </summary>
         /// <param name="contexts"></param>
         /// <returns>Dictionary with the term as the key, and inside of it the each document score</returns>
-        Dictionary<string, Dictionary<int, double>> CalculateTFIDF(IEnumerable<IContext> contexts)
+        Dictionary<string, Dictionary<int, double>> CalculateTFIDF(IEnumerable<IContext> originContexts)
         {
             var termFrequency = new Dictionary<string, Dictionary<int, double>>();
             var documentFrequency = new Dictionary<string, int>();
+            var contexts = originContexts.ToList();
             var totalDocuments = contexts.Count();
 
             // Step 1: Calculate term frequency (TF) and document frequency (DF) for each term in each document
@@ -76,9 +78,9 @@ namespace Backend.Logic.Components
             }
 
             // Step 2: Calculate inverse document frequency (IDF) for each term
-            var tfidf = new Dictionary<string, Dictionary<int, double>>();
+            var tfidf = new ConcurrentDictionary<string, Dictionary<int, double>>();
 
-            foreach (var term in termFrequency.Keys)
+            Parallel.ForEach(termFrequency.Keys, term => 
             {
                 tfidf[term] = new Dictionary<int, double>();
 
@@ -91,9 +93,23 @@ namespace Backend.Logic.Components
                     var normalizedTermFreq = termFreq / contexts.Count();
                     tfidf[term][documentId] = normalizedTermFreq * inverseDocumentFrequency;
                 }
-            }
+            });
+            //foreach (var term in termFrequency.Keys)
+            //{
+            //    tfidf[term] = new Dictionary<int, double>();
 
-            return tfidf;
+            //    var termDocumentFrequency = documentFrequency[term];
+            //    var inverseDocumentFrequency = Math.Log(totalDocuments / (double)termDocumentFrequency);
+
+            //    foreach (var documentId in termFrequency[term].Keys)
+            //    {
+            //        var termFreq = termFrequency[term][documentId];
+            //        var normalizedTermFreq = termFreq / contexts.Count();
+            //        tfidf[term][documentId] = normalizedTermFreq * inverseDocumentFrequency;
+            //    }
+            //}
+
+            return tfidf.ToDictionary(x => x.Key, x => x.Value) ;
         }
     }
 }

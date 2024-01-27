@@ -2,9 +2,18 @@
 
 namespace Backend.Logic.Data.Json
 {
-    public class ModelPythonApi
+    public class FlaskPythonApi
     {
-        public class FlaskRequest
+        public class TokenizationRequest
+        {
+            public string text { get; set;}
+        }
+
+        public class TokenizationAnswer
+        {
+            public List<string> tokens { get; set; }
+        }
+        public class QuestionRequest
         {
             public string question { get; set; }
             public string context { get; set; }
