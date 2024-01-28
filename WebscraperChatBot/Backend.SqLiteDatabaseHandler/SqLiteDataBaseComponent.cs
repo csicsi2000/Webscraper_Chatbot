@@ -129,9 +129,6 @@ namespace Backend.SqLiteDatabaseHandler
             }
             return true;
         }
-
-
-
         public IHtmlFile GetHtmlFile(string url)
         {
             try
@@ -147,7 +144,6 @@ namespace Backend.SqLiteDatabaseHandler
                 return null;
             }
         }
-
         public IEnumerable<IHtmlFile> GetHtmlFiles()
         {
             try
@@ -161,8 +157,6 @@ namespace Backend.SqLiteDatabaseHandler
                 return Enumerable.Empty<IHtmlFile>();
             }
         }
-
-
         public bool InsertOrUpdateHtmlFile(IHtmlFile file)
         {
             try
@@ -191,6 +185,14 @@ namespace Backend.SqLiteDatabaseHandler
                 return false;
             }
             return true;
+        }
+
+        public void RemoveDuplicateHtmlFiles()
+        {
+            var dupes = dbContext.Files.GroupBy(x => x.Content).Where(g => g.Count() > 1).SelectMany(y => y.Skip(1));
+
+            dbContext.Files.RemoveRange(dupes);
+            dbContext.SaveChanges();
         }
 
         #endregion

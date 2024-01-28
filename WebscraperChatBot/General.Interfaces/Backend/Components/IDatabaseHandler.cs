@@ -28,6 +28,10 @@ namespace General.Interfaces.Backend.Components
         /// <returns></returns>
         public IEnumerable<IHtmlFile> GetHtmlFiles();
         /// <summary>
+        /// Remove duplicated files
+        /// </summary>
+        public void RemoveDuplicateHtmlFiles();
+        /// <summary>
         /// Insert context
         /// </summary>
         /// <param name="context"></param>

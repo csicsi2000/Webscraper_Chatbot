@@ -1,4 +1,5 @@
-﻿using Backend.Logic.Data;
+﻿using Backend.Logic.Components.Logic;
+using Backend.Logic.Data;
 using Flurl;
 using General.Interfaces.Backend.Components;
 using General.Interfaces.Data;
@@ -13,13 +14,12 @@ using System.Collections.Concurrent;
 
 namespace Backend.Logic.Components
 {
-    public class HtmlFileExtractorComponent : IWebScraper, IDisposable
+    public class HtmlFileExtractorComponent : IWebScraper
     {
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         string _waitedClassName;
         IList<string> _excludedUrls;
-        ChromeDriver _driver;
 
         string notFoundContent;
         /// <summary>
@@ -38,13 +38,7 @@ namespace Backend.Logic.Components
             {
                 options.AddArgument("--headless");
             }
-            _driver = new ChromeDriver(options);
-        }
-
-        public void Dispose()
-        {
-            _driver.Close();
-            _driver.Dispose();
+            
         }
 
         public IEnumerable<IHtmlFile> GetHtmlFiles(string url)
@@ -119,18 +113,19 @@ namespace Backend.Logic.Components
             visitedUrls.Add(currentUrl);
             IHtmlFile htmlFile;
 
-
-            _driver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
-            Task.FromResult(WaitForPageLoad(_driver));
-
-
-            htmlFile = new HtmlFile
+            using (var driver = new WebDriverManager())
             {
-                Url = currentUrl,
-                LastModified = DateTime.Now,
-                Content = _driver.PageSource
-            };
+                driver.WebDriver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
+                Task.FromResult(WaitForPageLoad(driver.WebDriver));
 
+
+                htmlFile = new HtmlFile
+                {
+                    Url = currentUrl,
+                    LastModified = DateTime.Now,
+                    Content = driver.WebDriver.PageSource
+                };
+            }
             resultFiles.Add(htmlFile);
 
             var doc = new HtmlDocument();
