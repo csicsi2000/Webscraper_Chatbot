@@ -113,19 +113,7 @@ namespace Backend.Logic.Components
             visitedUrls.Add(currentUrl);
             IHtmlFile htmlFile;
 
-            using (var driver = new WebDriverManager())
-            {
-                driver.WebDriver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
-                Task.FromResult(WaitForPageLoad(driver.WebDriver));
-
-
-                htmlFile = new HtmlFile
-                {
-                    Url = currentUrl,
-                    LastModified = DateTime.Now,
-                    Content = driver.WebDriver.PageSource
-                };
-            }
+            htmlFile = GetHtmlFile(currentUrl);
             resultFiles.Add(htmlFile);
 
             var doc = new HtmlDocument();
@@ -135,7 +123,8 @@ namespace Backend.Logic.Components
             Parallel.ForEach(
                 doc.DocumentNode.Descendants("a"),
                 new ParallelOptions { MaxDegreeOfParallelism = 4 },
-                link => {
+                link =>
+                {
                     var href = link.GetAttributeValue("href", string.Empty);
                     if (string.IsNullOrEmpty(href))
                     {
@@ -152,7 +141,7 @@ namespace Backend.Logic.Components
                         }
                     }
 
-                    var absoluteUri2 = new Uri(Url.Combine(baseUri.ToString(),href));
+                    var absoluteUri2 = new Uri(Url.Combine(baseUri.ToString(), href));
                     var absoluteUrl2 = Url.Combine(baseUri.ToString(), href);
                     if (absoluteUri2.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
                     {
@@ -165,6 +154,26 @@ namespace Backend.Logic.Components
             );
 
             return resultFiles;
+        }
+
+        private IHtmlFile GetHtmlFile(string currentUrl)
+        {
+            IHtmlFile htmlFile;
+            using (var driver = new WebDriverManager())
+            {
+                driver.WebDriver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
+                Task.FromResult(WaitForPageLoad(driver.WebDriver));
+
+
+                htmlFile = new HtmlFile
+                {
+                    Url = currentUrl,
+                    LastModified = DateTime.Now,
+                    Content = driver.WebDriver.PageSource
+                };
+            }
+
+            return htmlFile;
         }
 
         private async Task WaitForPageLoad(IWebDriver driver)
