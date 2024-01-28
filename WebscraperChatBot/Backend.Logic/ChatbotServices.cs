@@ -81,12 +81,9 @@ namespace Backend.Logic
                 _serviceState.IsHtmlExtractionRunning = true;
             }
             var settings = _settingsManager.GetServerSettings();
-            var htmlFileExtractor = new HtmlFileExtractorComponent(settings.WaitedClassName, settings.ExcludedUrls);
+            var htmlFileExtractor = new HtmlFileExtractorComponent(settings.WaitedClassName, settings.ExcludedUrls,DatabaseHandler);
 
-            foreach (var file in htmlFileExtractor.GetHtmlFiles(settings.RootUrl))
-            {
-                DatabaseHandler.InsertOrUpdateHtmlFile(file);
-            }
+            htmlFileExtractor.GetHtmlFiles(settings.RootUrl);
             lock (_startServiceLock)
             {
                 _serviceState.IsHtmlExtractionRunning = false;

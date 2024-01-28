@@ -22,26 +22,22 @@ namespace Backend.Logic.Components
         IList<string> _excludedUrls;
 
         string notFoundContent;
+        IDatabaseHandler _dbHandler;
         /// <summary>
         /// Etract html files from a root page
         /// </summary>
         /// <param name="waitedClassName">Name of the class which Selenium will wait to load</param>
         /// <param name="excludedUrls">All url which starts with the excluded url will be ignored</param>
         /// <param name="withUi">Chrome UI visibility</param>
-        public HtmlFileExtractorComponent(string waitedClassName, IList<string> excludedUrls, bool withUi = false)
+        public HtmlFileExtractorComponent(string waitedClassName, IList<string> excludedUrls,IDatabaseHandler dbHandler, bool withUi = false)
         {
             _waitedClassName = waitedClassName;
             _excludedUrls = excludedUrls ?? throw new ArgumentNullException(nameof(excludedUrls));
-
-            var options = new ChromeOptions();
-            if (!withUi)
-            {
-                options.AddArgument("--headless");
-            }
-            
+            _dbHandler = dbHandler ?? throw new ArgumentNullException(nameof(dbHandler));
+     
         }
 
-        public IEnumerable<IHtmlFile> GetHtmlFiles(string url)
+        public void GetHtmlFiles(string url)
         {
             string baseUriText = url;
             string[] urlParts = baseUriText.Split('/');
@@ -55,15 +51,10 @@ namespace Backend.Logic.Components
             }
             var baseUri = new Uri(RemoveLastSlash(baseUriText));
             var visitedUrls = new ConcurrentBag<string>();
-            setNotFoundPage(baseUri);
+            //setNotFoundPage(baseUri);
 
-            return ExtractHtmlFiles(url, visitedUrls, baseUri).DistinctBy(x => x.Content).Where(x => x.Content != notFoundContent).ToList();
-        }
-
-        void setNotFoundPage(Uri rootUrl)
-        {
-            var notExistingPage = Url.Combine(rootUrl.AbsoluteUri.ToString(), Guid.NewGuid().ToString());
-            notFoundContent = ExtractHtmlFiles(notExistingPage, new ConcurrentBag<string>(),rootUrl).First().Content;
+            ExtractHtmlFiles(url, visitedUrls, baseUri);//.DistinctBy(x => x.Content).Where(x => x.Content != notFoundContent).ToList();
+            _dbHandler.RemoveDuplicateHtmlFiles();
         }
 
         string ProcessUrl(string url)
@@ -87,26 +78,24 @@ namespace Backend.Logic.Components
         /// <param name="visitedUrls">Already extracted URLs</param>
         /// <param name="baseUri">The base of the url where we search</param>
         /// <returns></returns>
-        private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, ConcurrentBag<string> visitedUrls, Uri baseUri)
+        private void ExtractHtmlFiles(string url, ConcurrentBag<string> visitedUrls, Uri baseUri)
         {
-            ConcurrentBag<IHtmlFile> resultFiles = new ConcurrentBag<IHtmlFile>();
-
             var currentUrl = new Uri(url).AbsoluteUri;
 
             if (visitedUrls.Contains(currentUrl))
             {
-                return resultFiles;
+                return;
             }
             if (!ProcessUrl(currentUrl).StartsWith(ProcessUrl(baseUri.AbsoluteUri)))
             {
-                return resultFiles;
+                return;
 
             }
             var foundExcluded = _excludedUrls.FirstOrDefault(x => currentUrl.StartsWith(x));
             if (foundExcluded != null)
             {
                 _log4.Info("Skipped url: " + currentUrl);
-                return resultFiles;
+                return;
 
             }
 
@@ -114,7 +103,7 @@ namespace Backend.Logic.Components
             IHtmlFile htmlFile;
 
             htmlFile = GetHtmlFile(currentUrl);
-            resultFiles.Add(htmlFile);
+            _dbHandler.InsertOrUpdateHtmlFile(htmlFile);
 
             var doc = new HtmlDocument();
             doc.LoadHtml(htmlFile.Content);
@@ -122,7 +111,7 @@ namespace Backend.Logic.Components
 
             Parallel.ForEach(
                 doc.DocumentNode.Descendants("a"),
-                new ParallelOptions { MaxDegreeOfParallelism = 4 },
+                new ParallelOptions { MaxDegreeOfParallelism = 6 },
                 link =>
                 {
                     var href = link.GetAttributeValue("href", string.Empty);
@@ -135,57 +124,54 @@ namespace Backend.Logic.Components
                     var absoluteUrl = absoluteUri.ToString();
                     if (absoluteUri.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
                     {
-                        foreach (var subHtmlFile in ExtractHtmlFiles(absoluteUrl, visitedUrls, baseUri))
-                        {
-                            resultFiles.Add(subHtmlFile);
-                        }
+                        ExtractHtmlFiles(absoluteUrl, visitedUrls, baseUri);
                     }
-
+                    if(href.StartsWith("https://") || href.StartsWith("http://"))
+                    {
+                        return;
+                    }
                     var absoluteUri2 = new Uri(Url.Combine(baseUri.ToString(), href));
                     var absoluteUrl2 = Url.Combine(baseUri.ToString(), href);
                     if (absoluteUri2.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
                     {
-                        foreach (var subHtmlFile in ExtractHtmlFiles(absoluteUrl2, visitedUrls, baseUri))
-                        {
-                            resultFiles.Add(subHtmlFile);
-                        }
+                        ExtractHtmlFiles(absoluteUrl2, visitedUrls, baseUri);
                     }
                 }
             );
 
-            return resultFiles;
+            return ;
         }
 
         private IHtmlFile GetHtmlFile(string currentUrl)
         {
             IHtmlFile htmlFile;
-            using (var driver = new WebDriverManager())
+            using (var driverManager = new WebDriverManager())
             {
-                driver.WebDriver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
-                Task.FromResult(WaitForPageLoad(driver.WebDriver));
-
+                var driver = driverManager.WebDriver;
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+                driver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
+                Task.Delay(TimeSpan.FromSeconds(5)).Wait();    
+                WaitForPageLoad(driver);
 
                 htmlFile = new HtmlFile
                 {
                     Url = currentUrl,
                     LastModified = DateTime.Now,
-                    Content = driver.WebDriver.PageSource
+                    Content = driver.PageSource
                 };
             }
 
             return htmlFile;
         }
 
-        private async Task WaitForPageLoad(IWebDriver driver)
+        private void WaitForPageLoad(IWebDriver driver)
         {
             var jsExecutor = (IJavaScriptExecutor)driver;
-
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
             try
             {
                 wait.Until(driver => jsExecutor.ExecuteScript("return document.readyState").Equals("complete"));
-                await Task.Delay(3000);
             }
             catch
             {

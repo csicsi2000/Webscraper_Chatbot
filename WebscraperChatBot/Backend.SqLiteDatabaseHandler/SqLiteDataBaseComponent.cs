@@ -189,9 +189,12 @@ namespace Backend.SqLiteDatabaseHandler
 
         public void RemoveDuplicateHtmlFiles()
         {
-            var dupes = dbContext.Files.GroupBy(x => x.Content).Where(g => g.Count() > 1).SelectMany(y => y.Skip(1));
+            var dupes = dbContext.Files.GroupBy(x => x.Content);
 
-            dbContext.Files.RemoveRange(dupes);
+            foreach(var dupe in dupes)
+            {
+                dbContext.Files.RemoveRange(dupe.Skip(1));
+            }
             dbContext.SaveChanges();
         }
 
