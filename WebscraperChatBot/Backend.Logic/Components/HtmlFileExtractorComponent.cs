@@ -21,7 +21,7 @@ namespace Backend.Logic.Components
         string _waitedClassName;
         IList<string> _excludedUrls;
 
-        string notFoundContent;
+        string _notFoundContent;
         IDatabaseHandler _dbHandler;
         /// <summary>
         /// Etract html files from a root page
@@ -52,6 +52,7 @@ namespace Backend.Logic.Components
             var baseUri = new Uri(RemoveLastSlash(baseUriText));
             var visitedUrls = new ConcurrentBag<string>();
             //setNotFoundPage(baseUri);
+            GetNotFoundContent(url);
 
             ExtractHtmlFiles(url, visitedUrls, baseUri);//.DistinctBy(x => x.Content).Where(x => x.Content != notFoundContent).ToList();
             _dbHandler.RemoveDuplicateHtmlFiles();
@@ -71,6 +72,10 @@ namespace Backend.Logic.Components
             return url;
         }
 
+        void GetNotFoundContent(string rootUrl)
+        {
+            _notFoundContent = GetHtmlFile(Url.Combine(rootUrl,Guid.NewGuid().ToString())).Content;
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -80,8 +85,16 @@ namespace Backend.Logic.Components
         /// <returns></returns>
         private void ExtractHtmlFiles(string url, ConcurrentBag<string> visitedUrls, Uri baseUri)
         {
-            var currentUrl = new Uri(url).AbsoluteUri;
+            var preprocessedUrl = new Uri(url).AbsoluteUri;
+            UriBuilder builder = new UriBuilder(preprocessedUrl);
+            builder.Query = "";
+            builder.Fragment = "";
 
+            var currentUrl = builder.Uri.AbsoluteUri;
+            if(url.Count(x => x == ':') > 1)
+            {
+                return;
+            }
             if (visitedUrls.Contains(currentUrl))
             {
                 return;
@@ -89,7 +102,6 @@ namespace Backend.Logic.Components
             if (!ProcessUrl(currentUrl).StartsWith(ProcessUrl(baseUri.AbsoluteUri)))
             {
                 return;
-
             }
             var foundExcluded = _excludedUrls.FirstOrDefault(x => currentUrl.StartsWith(x));
             if (foundExcluded != null)
@@ -103,14 +115,17 @@ namespace Backend.Logic.Components
             IHtmlFile htmlFile;
 
             htmlFile = GetHtmlFile(currentUrl);
+            if(htmlFile.Content == _notFoundContent)
+            {
+                return;
+            }
+            visitedUrls.Add(htmlFile.Url);
             _dbHandler.InsertOrUpdateHtmlFile(htmlFile);
 
-            var doc = new HtmlDocument();
-            doc.LoadHtml(htmlFile.Content);
 
 
             Parallel.ForEach(
-                doc.DocumentNode.Descendants("a"),
+                GetDescendantLinks(htmlFile.Content),
                 new ParallelOptions { MaxDegreeOfParallelism = 6 },
                 link =>
                 {
@@ -142,6 +157,14 @@ namespace Backend.Logic.Components
             return ;
         }
 
+        private IEnumerable<HtmlNode> GetDescendantLinks(string content)
+        {
+            var doc = new HtmlDocument();
+
+            doc.LoadHtml(content);
+            return doc.DocumentNode.Descendants("a");
+        }
+
         private IHtmlFile GetHtmlFile(string currentUrl)
         {
             IHtmlFile htmlFile;
@@ -155,7 +178,7 @@ namespace Backend.Logic.Components
 
                 htmlFile = new HtmlFile
                 {
-                    Url = currentUrl,
+                    Url = driver.Url,
                     LastModified = DateTime.Now,
                     Content = driver.PageSource
                 };

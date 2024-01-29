@@ -1,14 +1,9 @@
 ﻿using Backend.Logic.Data.Json;
-using Backend.Logic.Data;
 using General.Interfaces.Backend.Logic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
+using log4net;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using log4net;
+using System.Text.RegularExpressions;
 
 namespace Backend.Logic.Components.Logic
 {
@@ -49,13 +44,44 @@ namespace Backend.Logic.Components.Logic
                     PropertyNameCaseInsensitive = true
                 });
 
-                return answerObj.tokens.Where(x => !_stopWords.Contains(x)).ToList();
+                var resultTokens = new List<string>();
+                foreach(var token in answerObj.tokens.Where(x => !_stopWords.Contains(x)))
+                {
+                    var tempToken = NormalizeText(token);
+                    if(tempToken != null)
+                    {
+                        resultTokens.Add(tempToken);
+                    }
+                }
+                return resultTokens;
             }
             else
             {
                 _log4.Error("Api call failed o the flask server: " + response.RequestMessage);
                 return null;
             }
+        }
+
+        private string NormalizeText(string word)
+        {
+            string pattern = "[()\\/.,;:%\\\"?!+-_&><\\[\\]]";
+
+            word = Regex.Replace(word, pattern, " ");
+
+            word = word.Trim();
+            word = word.ToLowerInvariant();
+
+            // stop words
+            if (_stopWords.Contains(word))
+            {
+                return null;
+            }
+            if (string.IsNullOrEmpty(word))
+            {
+                return null;
+            }
+
+            return word;
         }
     }
 }

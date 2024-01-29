@@ -13,6 +13,6 @@ namespace General.Interfaces.Backend.Components
         /// <param name="contexts"></param>
         /// <param name="text"></param>
         /// <returns></returns>
-        public void CalculateContextScores(IEnumerable<IContext> contexts, string text);
+        public IList<ITokenScore> CalculateContextScores(IEnumerable<IContext> contexts, string text);
     }
 }

@@ -1,4 +1,5 @@
-﻿using General.Interfaces.Backend.Components;
+﻿using Backend.Logic.Data;
+using General.Interfaces.Backend.Components;
 using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
 using System.Collections.Concurrent;
@@ -12,14 +13,18 @@ namespace Backend.Logic.Components
         {
             _tokenConverter = tokenConverter;
         }
-        public void CalculateContextScores(IEnumerable<IContext> contexts, string question)
+
+        public IList<ITokenScore> CalculateContextScores(IEnumerable<IContext> contexts, string question)
         {
+            ConcurrentBag<ITokenScore> scores = new ConcurrentBag<ITokenScore>();
+
             //var queryTerms = question.Split(' ');
             var queryTerms = _tokenConverter.ConvertToTokens(question);
 
-            var tfidfScores = CalculateTFIDF(contexts);
+            var neededContextValues = contexts.Select(x => (x.Id, x.Tokens));
+            var tfidfScores = CalculateTFIDF(neededContextValues);
 
-            Parallel.ForEach(contexts, context =>
+            Parallel.ForEach(neededContextValues, context =>
             {
                 //var contextTerms = context?.Text?.Split(' ');
                 //if(contextTerms == null)
@@ -35,9 +40,10 @@ namespace Backend.Logic.Components
                         score += tfidfScores[term][context.Id];
                     }
                 }
-
-                context.Score = score;
+                scores.Add(new TokenScore(context.Id, score));
             });
+
+            return scores.ToList();
         }
 
         /// <summary>
@@ -45,7 +51,7 @@ namespace Backend.Logic.Components
         /// </summary>
         /// <param name="contexts"></param>
         /// <returns>Dictionary with the term as the key, and inside of it the each document score</returns>
-        Dictionary<string, Dictionary<int, double>> CalculateTFIDF(IEnumerable<IContext> originContexts)
+        Dictionary<string, Dictionary<int, double>> CalculateTFIDF(IEnumerable<(int, string[])> originContexts)
         {
             var termFrequency = new Dictionary<string, Dictionary<int, double>>();
             var documentFrequency = new Dictionary<string, int>();
@@ -56,8 +62,8 @@ namespace Backend.Logic.Components
             foreach (var context in contexts)
             {
                 // var terms = context.Text.Split(' ').Distinct(); 
-                var terms = context.Tokens.Distinct(); // Remove duplicate terms in the document // TODO
-                var docId = context.Id;
+                var terms = context.Item2.Distinct(); // Remove duplicate terms in the document // TODO
+                var docId = context.Item1;
 
                 foreach (var term in terms)
                 {
@@ -94,20 +100,6 @@ namespace Backend.Logic.Components
                     tfidf[term][documentId] = normalizedTermFreq * inverseDocumentFrequency;
                 }
             });
-            //foreach (var term in termFrequency.Keys)
-            //{
-            //    tfidf[term] = new Dictionary<int, double>();
-
-            //    var termDocumentFrequency = documentFrequency[term];
-            //    var inverseDocumentFrequency = Math.Log(totalDocuments / (double)termDocumentFrequency);
-
-            //    foreach (var documentId in termFrequency[term].Keys)
-            //    {
-            //        var termFreq = termFrequency[term][documentId];
-            //        var normalizedTermFreq = termFreq / contexts.Count();
-            //        tfidf[term][documentId] = normalizedTermFreq * inverseDocumentFrequency;
-            //    }
-            //}
 
             return tfidf.ToDictionary(x => x.Key, x => x.Value) ;
         }

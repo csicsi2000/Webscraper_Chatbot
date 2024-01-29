@@ -8,6 +8,7 @@ using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
 using log4net;
 using log4net.Config;
+using NTextCat.Commons;
 
 namespace Backend.Logic
 {
@@ -135,19 +136,20 @@ namespace Backend.Logic
         {
             IEnumerable<IContext> contexts = DatabaseHandler.GetContexts();
 
-            _retriever.CalculateContextScores(contexts, question);
-            var bestContexts = contexts.OrderByDescending(x => x.Score).Take(10);
+            var scores = _retriever.CalculateContextScores(contexts, question);
+            var bestContexts = scores.OrderByDescending(x => x.Score).Take(10);
 
             var duplications = bestContexts.Last();
 
             bestContexts = bestContexts.Where(x => x.Score != duplications.Score);
+            GC.Collect();
 
             if (bestContexts.Count() == 0)
             {
                 return null;
             }
 
-            var answer = _questionAnswerModel.AnswerFromContext(bestContexts.First().Text, question);
+            var answer = _questionAnswerModel.AnswerFromContext(contexts.First(x => x.Id == bestContexts.First().Id).Text, question);
             return answer;
         }
 
@@ -160,19 +162,26 @@ namespace Backend.Logic
         {
             IEnumerable<IContext> contexts = DatabaseHandler.GetContexts();
 
-            _retriever.CalculateContextScores(contexts, question);
-            var bestContexts = contexts.OrderByDescending(x => x.Score).Take(10);
+            var scores = _retriever.CalculateContextScores(contexts, question);
+            var bestContexts = scores.OrderByDescending(x => x.Score).Take(10);
 
             var duplications = bestContexts.Last();
 
             bestContexts = bestContexts.Where(x => x.Score != duplications.Score);
+            GC.Collect();
 
             if (bestContexts.Count() == 0)
             {
                 return null;
             }
-
-            return bestContexts.ToList();
+            IList<IContext> results = new List<IContext>();
+            foreach ( var score in bestContexts)
+            {
+                var foundContext = contexts.First(x => x.Id == score.Id);
+                foundContext.Score = score.Score;
+                results.Add(foundContext);
+            }
+            return results.OrderBy(x => x.Score).ToList();
         }
 
         /// <summary>
