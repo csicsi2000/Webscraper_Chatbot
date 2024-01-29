@@ -69,11 +69,11 @@
 <div class="position-relative min-vh-100">
     <h3>Advanced Messages</h3>
     <p>Count: @QuestionAnswers.Count</p>
-    <ul>
+    <ul class="list-group">
         @foreach (var (message, index) in QuestionAnswers.Select((m, i) => (m, i)))
         {
 
-            <li>
+            <li class="list-group-item">
                 <article class="message is-info">
                     <div class="message-body">
                         @message.Key
@@ -81,7 +81,7 @@
                 </article>
             </li>
 
-            <li>
+            <li class="list-group-item">
                 <article class="message is-primary">
                     <table class="table table-striped">
                         <thead>
@@ -112,16 +112,16 @@
 
     <div class="fixed-bottom bg-light p-5" style="position: sticky">
         <div class="form-group">
-            <label for="question">Kérdés</label>
+            <label for="question">Question</label>
             <input @bind="inputText" type="text" class="form-control" aria-describedby="inputText" @onkeyup="HandleKeyPress">
-            <small class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
+            <small class="form-text text-muted">Ask a quetion</small>
         </div>
         @if (isInProgress)
         {
             <div class="spinner-border" role="status">
             </div>
         }else{
-            <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) || isInProgress)" class="btn btn-primary ">Küldés</button>
+            <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) || isInProgress)" class="btn btn-primary ">Send</button>
         }
     </div>
 </div>

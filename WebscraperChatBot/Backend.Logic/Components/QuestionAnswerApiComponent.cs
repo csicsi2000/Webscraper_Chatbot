@@ -20,6 +20,7 @@ namespace Backend.Logic.Components
         public IAnswer AnswerFromContext(string context, string question)
         {
             var client = new HttpClient();
+            client.Timeout = TimeSpan.FromMinutes(10);
             client.BaseAddress = new Uri(_url + "/interference");
 
             var requestModel = new FlaskPythonApi.QuestionRequest()
@@ -31,7 +32,8 @@ namespace Backend.Logic.Components
             var json = JsonSerializer.Serialize(requestModel);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = client.PostAsync("", content).Result;
+            var resultTask = client.PostAsync("", content);
+            HttpResponseMessage response = resultTask.Result;
 
             if (response.IsSuccessStatusCode)
             {

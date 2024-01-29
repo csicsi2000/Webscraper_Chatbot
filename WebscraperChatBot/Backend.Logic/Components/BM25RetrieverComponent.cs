@@ -12,8 +12,8 @@ namespace Backend.Logic.Components
     public class BM25RetrieverComponent : IContextRetriever
     {
         private readonly ITokenConverter _tokenConverter;
-        private const double k1 = 2; // Term saturation parameter
-        private const double b = 0.8; // Length normalization parameter
+        private const double K1 = 2; // Term saturation parameter
+        private const double B = 0.8; // Length normalization parameter
 
         public BM25RetrieverComponent(ITokenConverter tokenConverter)
         {
@@ -25,7 +25,7 @@ namespace Backend.Logic.Components
             ConcurrentBag<ITokenScore> scores = new ConcurrentBag<ITokenScore>();
 
             var queryTerms = _tokenConverter.ConvertToTokens(question);
-            var neededContextValues = contexts.Select(x => (x.Id, x.Tokens));
+            ConcurrentBag<(int,string[])> neededContextValues = new ConcurrentBag<(int, string[])>(contexts.Select(x => ( x.Id, x.Tokens )));
             var bm25Scores = CalculateBM25(neededContextValues, queryTerms);
 
             Parallel.ForEach(neededContextValues, context =>
@@ -34,12 +34,15 @@ namespace Backend.Logic.Components
 
                 foreach (var term in queryTerms)
                 {
-                    if (bm25Scores.ContainsKey(term) && bm25Scores[term].ContainsKey(context.Id))
+                    if (bm25Scores.ContainsKey(term) && bm25Scores[term].ContainsKey(context.Item1))
                     {
-                        score += bm25Scores[term][context.Id];
+                        double termFrequency = CalculateTermFrequency(context.Item2, term);
+                        double numerator = termFrequency * (K1 + 1.0);
+                        double denominator = termFrequency + K1 * (1.0 - B + B * context.Item2.Length / CalculateAverageDocumentLength(neededContextValues));
+                        score += bm25Scores[term][context.Item1] * numerator / denominator;
                     }
                 }
-                scores.Add(new TokenScore(context.Id, score));
+                scores.Add(new TokenScore(context.Item1, score));
             });
 
             return scores.ToList();
@@ -64,8 +67,8 @@ namespace Backend.Logic.Components
                     var documentLength = context.Item2.Length;
                     var averageDocumentLength = CalculateAverageDocumentLength(contexts);
 
-                    var numerator = termFrequency * (k1 + 1.0);
-                    var denominator = termFrequency + k1 * (1.0 - b + b * documentLength / averageDocumentLength);
+                    var numerator = termFrequency * (K1 + 1.0);
+                    var denominator = termFrequency + K1 * (1.0 - B + B * documentLength / averageDocumentLength);
                     var bm25 = inverseDocumentFrequency * numerator / denominator;
 
                     bm25Scores[term][context.Item1] = bm25;

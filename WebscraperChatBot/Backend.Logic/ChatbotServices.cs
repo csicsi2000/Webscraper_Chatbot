@@ -51,7 +51,7 @@ namespace Backend.Logic
             //htmlParser.FindCommonElements(databaseHandler.GetHtmlFiles().Take(10).ToList());
             _questionAnswerModel = new QuestionAnswerApiComponent(_settingsManager.GetServerSettings().ModelApiURL);
 
-            _retriever = new TFIDFRetrieverComponent(_tokenConverter);
+            _retriever = new BM25RetrieverComponent(_tokenConverter);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Backend.Logic
                 foundContext.Score = score.Score;
                 results.Add(foundContext);
             }
-            return results.OrderBy(x => x.Score).ToList();
+            return results.OrderByDescending(x => x.Score).ToList();
         }
 
         /// <summary>
