@@ -15,7 +15,7 @@ namespace Backend.Logic.Tests.Components
             // arrange
             var mockedTokenConverter = new Mock<ITokenConverter>();
             mockedTokenConverter.Setup(x => x.ConvertToTokens(It.IsAny<string>())).Returns((string x) => x.Split(' ').ToList());
-            var retriever = new TFIDFRetrieverComponent(mockedTokenConverter.Object);
+            var retriever = new BM25RetrieverComponent(mockedTokenConverter.Object);
             IList<IContext> retrievedContexts = new List<IContext>()
             {
                 new Context()
@@ -37,11 +37,11 @@ namespace Backend.Logic.Tests.Components
                 context.Tokens = context.Text.Split(' ');
             }
             // act
-            retriever.CalculateContextScores(retrievedContexts, "Dolgozat");
-            var bestContexts = retrievedContexts.OrderByDescending(x => x.Score).ToList();
+            var scores = retriever.CalculateContextScores(retrievedContexts, "Dolgozat").OrderByDescending(x => x.Score);
+            var bestContext = retrievedContexts.First(x => x.Id == scores.First().Id);
             // assert
-            Assert.AreEqual(2, bestContexts.Count);
-            Assert.AreEqual(0.34657359027997264, bestContexts.First().Score);
+            Assert.AreEqual(2, scores.Count());
+            Assert.AreEqual(0.6931471805599453, scores.First().Score);
 
         }
     }

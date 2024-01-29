@@ -1,5 +1,9 @@
 using Backend.Logic.Components;
 using Backend.Logic.Tests.Support;
+using General.Interfaces.Backend.Components;
+using General.Interfaces.Data;
+using Google.Protobuf.WellKnownTypes;
+using Moq;
 
 namespace Backend.Logic.Tests.Components
 {
@@ -7,9 +11,10 @@ namespace Backend.Logic.Tests.Components
     public class HtmlFileExtractorTests
     {
         private static string PORT = "8021";
-        private static StaticSiteStarter testSite = new StaticSiteStarter(PORT);
+        private static string IP = "127.0.0.1";
+        private static StaticSiteStarter testSite = new StaticSiteStarter(PORT, IP );
 
-        private string RootUrl = $"http://localhost:{PORT}";
+        private string RootUrl = $"http://{IP}:{PORT}";
 
         [ClassInitialize]
         public static void Initialize(TestContext context)
@@ -19,6 +24,7 @@ namespace Backend.Logic.Tests.Components
             {
                 Assert.Fail("Failed to start test server.");
             }
+
         }
 
         [ClassCleanup]
@@ -31,11 +37,16 @@ namespace Backend.Logic.Tests.Components
         public void TC01_GetHtmlFiles_ValidUrl_ReturnsHtmlFiles()
         {
             // Arrange
-            var extractor = new HtmlFileExtractorComponent("test", new List<string>());
+            var htmlFiles = new List<IHtmlFile>();
+            var mockedDb = new Mock<IDatabaseHandler>();
+            mockedDb.Setup(x => x.InsertOrUpdateHtmlFile(new Mock<IHtmlFile>().Object))
+                .Callback((IHtmlFile x) => htmlFiles.Add(x))
+                .Returns(true);
+            var extractor = new HtmlFileExtractorComponent("test", new List<string>(),mockedDb.Object);
             var url =  RootUrl+"/main.html";
 
             // Act
-            var htmlFiles = extractor.GetHtmlFiles(url);
+            extractor.GetHtmlFiles(url);
 
             // Assert
             Assert.IsNotNull(htmlFiles);
@@ -49,14 +60,19 @@ namespace Backend.Logic.Tests.Components
         public void TC02_GetHtmlFiles_ValidUrlWithExclude_ReturnsHtmlFiles()
         {
             // Arrange
+            var htmlFiles = new List<IHtmlFile>();
+            var mockedDb = new Mock<IDatabaseHandler>();
+            mockedDb.Setup(x => x.InsertOrUpdateHtmlFile(new Mock<IHtmlFile>().Object))
+                .Callback((IHtmlFile x) => htmlFiles.Add(x))
+                .Returns(true);
             var extractor = new HtmlFileExtractorComponent("test", new List<string>()
             {
                 $"{RootUrl}/test.html"
-            });
+            },mockedDb.Object);
             var url = RootUrl + "/main.html";
 
             // Act
-            var htmlFiles = extractor.GetHtmlFiles(url);
+            extractor.GetHtmlFiles(url);
 
             // Assert
             Assert.IsNotNull(htmlFiles);
@@ -73,14 +89,19 @@ namespace Backend.Logic.Tests.Components
         public void TC03_GetHtmlFiles_ValidUrlWithRealSite_ReturnsHtmlFiles()
         {
             // Arrange
+            var htmlFiles = new List<IHtmlFile>();
+            var mockedDb = new Mock<IDatabaseHandler>();
+            mockedDb.Setup(x => x.InsertOrUpdateHtmlFile(new Mock<IHtmlFile>().Object))
+                .Callback((IHtmlFile x) => htmlFiles.Add(x))
+                .Returns(true);
             var extractor = new HtmlFileExtractorComponent("test-site", new List<string>()
             {
                 "https://webscraper.io/test-sites/tables/tables-semantically-correct"
-            });
+            },mockedDb.Object);
             var url = "https://webscraper.io/test-sites/tables";
 
             // Act
-            var htmlFiles = extractor.GetHtmlFiles(url);
+            extractor.GetHtmlFiles(url);
 
             // Assert
             Assert.IsNotNull(htmlFiles);

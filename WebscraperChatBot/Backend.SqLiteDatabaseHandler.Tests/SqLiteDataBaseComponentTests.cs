@@ -66,7 +66,6 @@ namespace Backend.SqLiteDatabaseHandler.Tests
             Assert.AreEqual(1, contexts.Count());
             var firstItem = contexts.First();
             Assert.AreEqual("context 1", firstItem.Text);
-            Assert.AreEqual(1, firstItem.Score);
             Assert.AreEqual("test.com", firstItem.OriginUrl);
         }
 

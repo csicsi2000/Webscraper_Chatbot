@@ -23,6 +23,8 @@ namespace Backend.Logic.Components
 
         string _notFoundContent;
         IDatabaseHandler _dbHandler;
+
+        int separatorCount = 0;
         /// <summary>
         /// Etract html files from a root page
         /// </summary>
@@ -41,6 +43,9 @@ namespace Backend.Logic.Components
         {
             string baseUriText = url;
             string[] urlParts = baseUriText.Split('/');
+
+            separatorCount = url.Count(c => c == ':');
+
             if (urlParts[urlParts.Length-1].Contains('.'))
             {
                 int lastSlash = baseUriText.LastIndexOf('/');
@@ -91,7 +96,7 @@ namespace Backend.Logic.Components
             builder.Fragment = "";
 
             var currentUrl = builder.Uri.AbsoluteUri;
-            if(url.Count(x => x == ':') > 1)
+            if(url.Count(x => x == ':') > separatorCount)
             {
                 return;
             }
