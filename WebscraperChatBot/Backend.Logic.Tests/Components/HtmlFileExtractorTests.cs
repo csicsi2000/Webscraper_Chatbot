@@ -39,8 +39,8 @@ namespace Backend.Logic.Tests.Components
             // Arrange
             var htmlFiles = new List<IHtmlFile>();
             var mockedDb = new Mock<IDatabaseHandler>();
-            mockedDb.Setup(x => x.InsertOrUpdateHtmlFile(new Mock<IHtmlFile>().Object))
-                .Callback((IHtmlFile x) => htmlFiles.Add(x))
+            mockedDb.Setup(x => x.InsertOrUpdateHtmlFile(It.IsAny<IHtmlFile>()))
+                .Callback<IHtmlFile>((x) => htmlFiles.Add(x))
                 .Returns(true);
             var extractor = new HtmlFileExtractorComponent("test", new List<string>(),mockedDb.Object);
             var url =  RootUrl+"/main.html";
@@ -49,6 +49,7 @@ namespace Backend.Logic.Tests.Components
             extractor.GetHtmlFiles(url);
 
             // Assert
+            mockedDb.Verify(x => x.InsertOrUpdateHtmlFile(It.IsAny<IHtmlFile>()), Times.Exactly(2));
             Assert.IsNotNull(htmlFiles);
             Assert.AreEqual(2, htmlFiles.Count());
             var firstFile = htmlFiles.First(x => x.Url.EndsWith("/test.html"));
@@ -62,8 +63,8 @@ namespace Backend.Logic.Tests.Components
             // Arrange
             var htmlFiles = new List<IHtmlFile>();
             var mockedDb = new Mock<IDatabaseHandler>();
-            mockedDb.Setup(x => x.InsertOrUpdateHtmlFile(new Mock<IHtmlFile>().Object))
-                .Callback((IHtmlFile x) => htmlFiles.Add(x))
+            mockedDb.Setup(x => x.InsertOrUpdateHtmlFile(It.IsAny<IHtmlFile>()))
+                .Callback<IHtmlFile>((x) => htmlFiles.Add(x))
                 .Returns(true);
             var extractor = new HtmlFileExtractorComponent("test", new List<string>()
             {
@@ -75,6 +76,7 @@ namespace Backend.Logic.Tests.Components
             extractor.GetHtmlFiles(url);
 
             // Assert
+            mockedDb.Verify(x => x.InsertOrUpdateHtmlFile(It.IsAny<IHtmlFile>()), Times.Once);
             Assert.IsNotNull(htmlFiles);
             Assert.AreEqual(1, htmlFiles.Count());
             var firstFile = htmlFiles.First();
@@ -91,8 +93,8 @@ namespace Backend.Logic.Tests.Components
             // Arrange
             var htmlFiles = new List<IHtmlFile>();
             var mockedDb = new Mock<IDatabaseHandler>();
-            mockedDb.Setup(x => x.InsertOrUpdateHtmlFile(new Mock<IHtmlFile>().Object))
-                .Callback((IHtmlFile x) => htmlFiles.Add(x))
+            mockedDb.Setup(x => x.InsertOrUpdateHtmlFile(It.IsAny<IHtmlFile>()))
+                .Callback<IHtmlFile>((x) => htmlFiles.Add(x))
                 .Returns(true);
             var extractor = new HtmlFileExtractorComponent("test-site", new List<string>()
             {
@@ -104,6 +106,8 @@ namespace Backend.Logic.Tests.Components
             extractor.GetHtmlFiles(url);
 
             // Assert
+
+            mockedDb.Verify(x => x.InsertOrUpdateHtmlFile(It.IsAny<IHtmlFile>()), Times.Exactly(4));
             Assert.IsNotNull(htmlFiles);
             Assert.AreEqual(4, htmlFiles.Count());
             var urls = htmlFiles.Select(x=> x.Url).ToList();

@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Frontend.UI.RazorComponents\Frontend.UI.RazorComponents.csproj" />
     <ProjectReference Include="..\General.Interfaces\General.Interfaces.csproj" />
   </ItemGroup>
 
