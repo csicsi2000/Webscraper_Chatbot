@@ -1,0 +1,10 @@
+wikipedia_hu
+Ki nevezte először dologi jognak?
+Hogy hívják anglia fővárosát?
+
+
+Certainly! The BM25 formula in LaTeX form is:
+
+\[ \text{BM25}(D, Q) = \sum_{i=1}^{n} \text{IDF}(q_i) \cdot \frac{f(q_i, D) \cdot (k_1 + 1)}{f(q_i, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avg\_dl}}\right)} \]
+
+You can use this LaTeX representation to include the BM25 formula in your LaTeX documents or presentations.

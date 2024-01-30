@@ -26,7 +26,11 @@ namespace General.Interfaces.Backend.Components
         /// Get All html files
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<IHtmlFile> GetHtmlFiles();
+        public IQueryable<IHtmlFile> GetHtmlFiles();
+        /// <summary>
+        /// Remove duplicated files
+        /// </summary>
+        public void RemoveDuplicateHtmlFiles();
         /// <summary>
         /// Insert context
         /// </summary>
@@ -43,7 +47,7 @@ namespace General.Interfaces.Backend.Components
         /// Gett all contexts
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<IContext> GetContexts();
+        public IQueryable<IContext> GetContexts();
         /// <summary>
         /// Delete all data
         /// </summary>

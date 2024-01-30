@@ -15,12 +15,12 @@ builder.Services.AddSingleton<AppStateService>();
 builder.Services
     .AddGrpcClient<ChatbotService.ChatbotServiceClient>(options =>
     {
-        options.Address = new Uri("https://localhost:7253");
+        options.Address = new Uri("http://localhost:7253");
     })
     .ConfigurePrimaryHttpMessageHandler(
         () => new GrpcWebHandler(new HttpClientHandler()));
 
-var channel = GrpcChannel.ForAddress("https://localhost:7253", new GrpcChannelOptions
+var channel = GrpcChannel.ForAddress("http://localhost:7253", new GrpcChannelOptions
 {
     HttpHandler = new GrpcWebHandler(new HttpClientHandler())
 });

@@ -64,16 +64,16 @@
     {
         @if (index % 2 == 0)
         {
-            <p style="padding: .25em; text-align: left; overflow-wrap: normal">
-                <span @key="index" class="tag is-large is-success is-light">
+            <p style="padding: 1em; text-align: left; overflow-wrap: normal; background-color:#eff5fb ;color: #296fa8;border-radius: 25px; margin-right: 3em">
+                <span @key="index" class="is-large is-success is-light">
                     @message
                 </span>
             </p>
         }
         else
         {
-            <p style="padding: .25em; text-align: right; overflow-wrap: normal">
-                <span @key="index" class="tag is-large is-info is-light">
+            <p style="padding: 1em; text-align: right; overflow-wrap: normal; background-color:#effaf5 ;color: #257953;border-radius: 25px; margin-left: 3em">
+                <span @key="index" class="is-large is-info is-light">
                     @message
                 </span>
             </p>
@@ -83,9 +83,9 @@
 
     <div class="fixed-bottom bg-light p-5" style="position: sticky">
         <div class="form-group">
-            <label for="question">Kérdés</label>
+            <label for="question">Question</label>
             <input @bind="inputText" type="text" class="form-control" aria-describedby="inputText" @onkeyup="HandleKeyPress">
-            <small class="form-text text-muted">Minél részletesebb a kérdés annál pontosabb a válasz</small>
+            <small class="form-text text-muted">Ask a quetion</small>
         </div>
         @if (isInProgress)
         {
@@ -94,7 +94,7 @@
         }
         else
         {
-            <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) || isInProgress)" class="btn btn-primary ">Küldés</button>
+            <button @onclick="SendQuestion" disabled="@(string.IsNullOrWhiteSpace(inputText) || isInProgress)" class="btn btn-primary ">Send</button>
         }
     </div>
 </div>

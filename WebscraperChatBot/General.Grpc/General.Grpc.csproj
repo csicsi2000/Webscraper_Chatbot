@@ -8,11 +8,9 @@
 
   <ItemGroup>
     <None Remove="Grpc\grpc_chatbot.proto" />
-    <None Remove="Grpc\grpc_usermanager.proto" />
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Grpc\grpc_usermanager.proto" />
 	  <Protobuf Include="Grpc\grpc_chatbot.proto" />
   </ItemGroup>
 

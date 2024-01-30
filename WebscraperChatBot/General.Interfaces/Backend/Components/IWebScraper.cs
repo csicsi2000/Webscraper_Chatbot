@@ -4,6 +4,6 @@ namespace General.Interfaces.Backend.Components
 {
     public interface IWebScraper
     {
-        public IEnumerable<IHtmlFile> GetHtmlFiles(string baseUrl);
+        public void GetHtmlFiles(string baseUrl);
     }
 }

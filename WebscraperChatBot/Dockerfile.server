@@ -1,0 +1,29 @@
+# Use the official .NET SDK image as a base image
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the entire project and build
+COPY . .
+WORKDIR /app/GrpcService
+
+#WORKDIR /app/GrpcService
+RUN dotnet build -c Release -o out
+
+# Create the runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
+
+# Set the working directory
+
+# Copy the built files from the previous stage
+COPY --from=build /app/GrpcService/out ./
+COPY /app/databased.sqlite ./database.sqlite
+
+# Expose the gRPC port
+EXPOSE 7253
+
+# Start the gRPC server
+CMD ["dotnet", "GrpcService.dll"]
+
+# docker build . -f Dockerfile.server -t grpc_server

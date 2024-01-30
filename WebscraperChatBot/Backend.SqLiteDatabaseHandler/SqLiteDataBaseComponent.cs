@@ -12,11 +12,13 @@ namespace Backend.SqLiteDatabaseHandler
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         DatabaseContext dbContext;
+        string _connectionString;
         public SqLiteDataBaseComponent(string connectionString, bool tryCreateFile = false)
         {
             if (string.IsNullOrEmpty(connectionString))
                 throw new ArgumentNullException(nameof(connectionString));
 
+            _connectionString = connectionString;
             dbContext = new DatabaseContext(connectionString);
             if (tryCreateFile)
             {
@@ -38,18 +40,17 @@ namespace Backend.SqLiteDatabaseHandler
         }
 
         #region Context
-        public IEnumerable<IContext> GetContexts()
+        public IQueryable<IContext> GetContexts()
         {
             try
             {
-                var contexts = dbContext.Contexts.ToList();
-                _log4.Info("All context read");
-                return contexts;
+                _log4.Debug("All context read");
+                return dbContext.Contexts;
             }
             catch (Exception ex)
             {
                 _log4.Error(ex);
-                return Enumerable.Empty<IContext>();
+                return null;
             }
         }
         public bool DeleteContext(string text)
@@ -59,12 +60,12 @@ namespace Backend.SqLiteDatabaseHandler
                 var contexts = dbContext.Contexts.Where(x => x.Text == text);
                 if (!contexts.Any())
                 {
-                    _log4.Info("No context found for deletion");
+                    _log4.Debug("No context found for deletion");
                     return false;
                 }
                 dbContext.Contexts.RemoveRange(contexts);
                 dbContext.SaveChanges();
-                _log4.Info("All context deleted");
+                _log4.Debug("All context deleted");
             }
             catch (Exception ex)
             {
@@ -77,22 +78,24 @@ namespace Backend.SqLiteDatabaseHandler
         {
             try
             {
-                var samePage = dbContext.Contexts.FirstOrDefault(x => x.OriginUrl == context.OriginUrl);
-                 if (samePage != null)
+                using (var tempContext = new DatabaseContext(_connectionString))
                 {
-                    samePage.Text = context.Text;
-                    samePage.Tokens = context.Tokens;
-                    _log4.Info("Exisitng context updated");
+                    var samePage = tempContext.Contexts.FirstOrDefault(x => x.OriginUrl == context.OriginUrl);
+                    if (samePage != null)
+                    {
+                        samePage.Text = context.Text;
+                        samePage.Tokens = context.Tokens;
+                        _log4.Debug("Existing context updated");
+                    }
+                    else
+                    {
+                        var contextEntity = Adapters.GetContextEntity(context);
+                        contextEntity.FileEntity = tempContext.Files.FirstOrDefault(x => x.Url == contextEntity.OriginUrl);
+                        tempContext.Contexts.Add(contextEntity);
+                        _log4.Debug("New context added");
+                    }
+                    tempContext.SaveChanges();
                 }
-                else
-                {
-                    var contextEntity = Adapters.GetContextEntity(context);
-                    contextEntity.FileEntity = dbContext.Files.FirstOrDefault(x => x.Url == contextEntity.OriginUrl);
-                    dbContext.Contexts.Add(contextEntity);
-                     _log4.Info("New context added");
-                }
-                dbContext.SaveChanges();
-
             }
             catch (Exception ex)
             {
@@ -112,12 +115,12 @@ namespace Backend.SqLiteDatabaseHandler
                 var files = dbContext.Files.Where(x => x.Url == url);
                 if (!files.Any())
                 {
-                    _log4.Info("No files found for deletion");
+                    _log4.Debug("No files found for deletion");
                     return false;
                 }
                 dbContext.Files.RemoveRange(files);
                 dbContext.SaveChanges();
-                _log4.Info("All file deleted");
+                _log4.Debug("All file deleted");
             }
             catch (Exception ex)
             {
@@ -126,15 +129,12 @@ namespace Backend.SqLiteDatabaseHandler
             }
             return true;
         }
-
-
-
         public IHtmlFile GetHtmlFile(string url)
         {
             try
             {
                 var file = dbContext.Files.FirstOrDefault(x => x.Url == url);
-                _log4.Info("Html files red");
+                _log4.Debug("Html files red");
 
                 return file;
             }
@@ -144,42 +144,40 @@ namespace Backend.SqLiteDatabaseHandler
                 return null;
             }
         }
-
-        public IEnumerable<IHtmlFile> GetHtmlFiles()
+        public IQueryable<IHtmlFile> GetHtmlFiles()
         {
             try
             {
-                var files = dbContext.Files.ToList();
-                _log4.Info("All Html files red");
-
-                return files;
+                _log4.Debug("All Html files red");
+                return dbContext.Files;
             }
             catch (Exception ex)
             {
                 _log4.Error(ex);
-                return Enumerable.Empty<IHtmlFile>();
+                return null;
             }
         }
-
-
         public bool InsertOrUpdateHtmlFile(IHtmlFile file)
         {
             try
             {
-                var existingFile = dbContext.Files.FirstOrDefault(x => x.Url == file.Url);
-                if (existingFile != null)
+                using (var tempContext = new DatabaseContext(_connectionString))
                 {
-                    existingFile.Content = file.Content;
-                    existingFile.LastModified = file.LastModified;
-                    _log4.Info("Existing html modified: " + existingFile.Url);
+                    var existingFile = tempContext.Files.FirstOrDefault(x => x.Url == file.Url);
+                    if (existingFile != null)
+                    {
+                        existingFile.Content = file.Content;
+                        existingFile.LastModified = file.LastModified;
+                        _log4.Debug("Existing html modified: " + existingFile.Url);
 
+                    }
+                    else
+                    {
+                        tempContext.Files.Add(Adapters.GetHtmlFileEntity(file));
+                        _log4.Debug("New html added: " + file.Url);
+                    }
+                    tempContext.SaveChanges();
                 }
-                else
-                {
-                    dbContext.Files.Add(Adapters.GetHtmlFileEntity(file));
-                    _log4.Info("New html added: " + file.Url);
-                }
-                dbContext.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -187,6 +185,17 @@ namespace Backend.SqLiteDatabaseHandler
                 return false;
             }
             return true;
+        }
+
+        public void RemoveDuplicateHtmlFiles()
+        {
+            var dupes = dbContext.Files.GroupBy(x => x.Content);
+
+            foreach(var dupe in dupes)
+            {
+                dbContext.Files.RemoveRange(dupe.Skip(1));
+            }
+            dbContext.SaveChanges();
         }
 
         #endregion

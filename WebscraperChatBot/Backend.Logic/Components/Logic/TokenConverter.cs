@@ -17,10 +17,7 @@ namespace Backend.Logic.Components.Logic
 
         public IList<string> ConvertToTokens(string text)
         {
-            string pattern = "[()\\.,;:%\"?!+]";
-
-            string result = Regex.Replace(text, pattern, "");
-            string[] tokens = result.Split(' ');
+            string[] tokens = text.Split(' ');
             tokens = tokens.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
             IList<string> normalizedTokens = new List<string>();
@@ -45,7 +42,7 @@ namespace Backend.Logic.Components.Logic
             //}
             var factory = new RankedLanguageIdentifierFactory();
             var identifier = factory.Load(Path.Combine(CommonValues.folderLoc,"Resources/TextCat/Wiki82.profile.xml")); // can be an absolute or relative path. Beware of 260 chars limitation of the path length in Windows. Linux allows 4096 chars.
-            var languages = identifier.Identify(result);
+            var languages = identifier.Identify(text);
             var mostCertainLanguage = languages.FirstOrDefault();
 
             IStemmer stemmer;
@@ -69,11 +66,19 @@ namespace Backend.Logic.Components.Logic
 
         private string NormalizeText(string word)
         {
+            string pattern = "[()\\/.,;:%\\\"?!+-_&><\\[\\]]";
+
+            word = Regex.Replace(word, pattern, " ");
+
             word = word.Trim();
             word = word.ToLowerInvariant();
 
             // stop words
             if (_stopWords.Contains(word))
+            {
+                return null;
+            }
+            if(string.IsNullOrEmpty(word))
             {
                 return null;
             }

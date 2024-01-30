@@ -2,8 +2,46 @@
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Webscraper Chatbot </h1>
 
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+<ol class="list-group list-group-numbered">
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="ms-2 me-auto">
+            <div class="fw-bold">Configure database</div>
+            In the Server Management page, the user can configure which SQLite database to use. 
+            If the database is not present, it will create a new empty database.
+            If the database already contains elements inside, you can skip to step 5.
+        </div>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="ms-2 me-auto">
+            <div class="fw-bold">Select Site to webscrape</div>
+            Paste the url that needs to be scraped inside the Root Url field. It will only scrape urls 
+            that starts with the rooturl. 
+        </div>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="ms-2 me-auto">
+            <div class="fw-bold">Configure site settings</div>
+            The code by default will wait a few second during scraping, but the user can specify 
+            a class name that he wants to wait for on the site. If there is any route the needs to 
+            be ignored e.g. api route on the site, it can be added to the ignored urls field.
+        </div>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="ms-2 me-auto">
+            <div class="fw-bold">Scrape and Extract</div>
+            The code first needs to Extract all the htmls from the site. If the running service finished,
+            the context extraction also needs to be started.
+        </div>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="ms-2 me-auto">
+            <div class="fw-bold">Ask question</div>
+            Go to Simple Chatbot to ask a question!
+            <br>
+            If you are interested of the returned ranked context, you can use the Detailed Results page to 
+            see the top 10 results found in the database for the selected question.
+        </div>
+    </li>
+</ol>

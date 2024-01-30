@@ -8,10 +8,12 @@ namespace Backend.Logic.Tests.Support
     {
         private Process pythonServerProcess;
         private string PORT;
+        private string IP;
 
-        public StaticSiteStarter(string port)
+        public StaticSiteStarter(string port, string ip)
         {
             PORT = port;
+            IP = ip;
         }
 
         public bool StartHttpServer(string path)
@@ -19,41 +21,44 @@ namespace Backend.Logic.Tests.Support
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = "python",
-                Arguments = $"-m http.server {PORT} -d {path}",
+                Arguments = $"-m http.server {PORT} -d {path} --bind {IP}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false, // true to display
-                CreateNoWindow = false // false to display
+                CreateNoWindow = true // false to display
             };
 
             pythonServerProcess = new Process { StartInfo = startInfo };
 
             pythonServerProcess.Start();
-            return WaitForServerStart($"http://localhost:{PORT}",20, "Directory listing for");
+            return WaitForServerStart($"http://{IP}:{PORT}",30, "Directory listing for");
         }
 
         private bool WaitForServerStart(string url, int timeout, string searchText)
         {
             DateTime startTime = DateTime.Now;
-
+            Task.Delay(3000).Wait();
             while ((DateTime.Now - startTime).TotalSeconds < timeout)
             {
                 // Make an HTTP request to the webpage
                 using (HttpClient httpClient = new HttpClient())
                 {
-                    string htmlContent = httpClient.GetStringAsync(url).Result;
-
-                    // Use HtmlAgilityPack to parse the HTML content
-                    HtmlDocument htmlDocument = new HtmlDocument();
-                    htmlDocument.LoadHtml(htmlContent);
-
-                    // Find the specified text in the HTML
-                    if (htmlDocument.DocumentNode.InnerText.Contains(searchText))
+                    try
                     {
-                        Console.WriteLine($"The text '{searchText}' was found on the webpage.");
-                        return true; // Exit the program when the text is found
+                        string htmlContent = httpClient.GetStringAsync(url).Result;
+
+                        // Use HtmlAgilityPack to parse the HTML content
+                        HtmlDocument htmlDocument = new HtmlDocument();
+                        htmlDocument.LoadHtml(htmlContent);
+
+                        // Find the specified text in the HTML
+                        if (htmlDocument.DocumentNode.InnerText.Contains(searchText))
+                        {
+                            Console.WriteLine($"The text '{searchText}' was found on the webpage.");
+                            return true; // Exit the program when the text is found
+                        }
                     }
-                    else
+                    catch
                     {
                         Console.WriteLine($"The text '{searchText}' was not found on the webpage. Retrying in 1 seconds...");
 

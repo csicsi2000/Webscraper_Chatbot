@@ -11,18 +11,19 @@ namespace Backend.Logic.Components
     {
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        string URL;
+        string _url;
         public QuestionAnswerApiComponent(string url) 
         {
-            URL = url;
+            _url = url;
         }
 
         public IAnswer AnswerFromContext(string context, string question)
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri(URL + "/interference");
+            client.Timeout = TimeSpan.FromMinutes(10);
+            client.BaseAddress = new Uri(_url + "/interference");
 
-            var requestModel = new ModelPythonApi.FlaskRequest()
+            var requestModel = new FlaskPythonApi.QuestionRequest()
             {
                 question = question,
                 context = context
@@ -31,13 +32,14 @@ namespace Backend.Logic.Components
             var json = JsonSerializer.Serialize(requestModel);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = client.PostAsync("", content).Result;
+            var resultTask = client.PostAsync("", content);
+            HttpResponseMessage response = resultTask.Result;
 
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = response.Content.ReadAsStringAsync().Result;
                 // Parse the JSON response if needed
-                var answerObj = JsonSerializer.Deserialize<ModelPythonApi.FlaskAnswer>(responseContent, new JsonSerializerOptions
+                var answerObj = JsonSerializer.Deserialize<FlaskPythonApi.FlaskAnswer>(responseContent, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });

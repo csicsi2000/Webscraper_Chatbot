@@ -1,4 +1,6 @@
-﻿using Backend.Logic.Data;
+﻿using Backend.Logic.Components.Logic;
+using Backend.Logic.Data;
+using Flurl;
 using General.Interfaces.Backend.Components;
 using General.Interfaces.Data;
 using HtmlAgilityPack;
@@ -12,43 +14,39 @@ using System.Collections.Concurrent;
 
 namespace Backend.Logic.Components
 {
-    public class HtmlFileExtractorComponent : IWebScraper, IDisposable
+    public class HtmlFileExtractorComponent : IWebScraper
     {
         ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         string _waitedClassName;
         IList<string> _excludedUrls;
-        ChromeDriver _driver;
 
+        string _notFoundContent;
+        IDatabaseHandler _dbHandler;
+
+        int separatorCount = 0;
         /// <summary>
         /// Etract html files from a root page
         /// </summary>
         /// <param name="waitedClassName">Name of the class which Selenium will wait to load</param>
         /// <param name="excludedUrls">All url which starts with the excluded url will be ignored</param>
         /// <param name="withUi">Chrome UI visibility</param>
-        public HtmlFileExtractorComponent(string waitedClassName, IList<string> excludedUrls, bool withUi = false)
+        public HtmlFileExtractorComponent(string waitedClassName, IList<string> excludedUrls,IDatabaseHandler dbHandler, bool withUi = false)
         {
             _waitedClassName = waitedClassName;
             _excludedUrls = excludedUrls ?? throw new ArgumentNullException(nameof(excludedUrls));
-
-            var options = new ChromeOptions();
-            if (!withUi)
-            {
-                options.AddArgument("--headless");
-            }
-            _driver = new ChromeDriver(options);
+            _dbHandler = dbHandler ?? throw new ArgumentNullException(nameof(dbHandler));
+     
         }
 
-        public void Dispose()
-        {
-            _driver.Close();
-            _driver.Dispose();
-        }
-
-        public IEnumerable<IHtmlFile> GetHtmlFiles(string url)
+        public void GetHtmlFiles(string url)
         {
             string baseUriText = url;
-            if (baseUriText.EndsWith(".html"))
+            string[] urlParts = baseUriText.Split('/');
+
+            separatorCount = url.Count(c => c == ':');
+
+            if (urlParts[urlParts.Length-1].Contains('.'))
             {
                 int lastSlash = baseUriText.LastIndexOf('/');
                 if (lastSlash != -1)
@@ -57,13 +55,12 @@ namespace Backend.Logic.Components
                 }
             }
             var baseUri = new Uri(RemoveLastSlash(baseUriText));
-            var visitedUrls = new HashSet<string>();
+            var visitedUrls = new ConcurrentBag<string>();
+            //setNotFoundPage(baseUri);
+            GetNotFoundContent(url);
 
-
-            foreach (var htmlFile in ExtractHtmlFiles(url, visitedUrls, baseUri))
-            {
-                yield return htmlFile;
-            }
+            ExtractHtmlFiles(url, visitedUrls, baseUri);//.DistinctBy(x => x.Content).Where(x => x.Content != notFoundContent).ToList();
+            _dbHandler.RemoveDuplicateHtmlFiles();
         }
 
         string ProcessUrl(string url)
@@ -80,6 +77,10 @@ namespace Backend.Logic.Components
             return url;
         }
 
+        void GetNotFoundContent(string rootUrl)
+        {
+            _notFoundContent = GetHtmlFile(Url.Combine(rootUrl,Guid.NewGuid().ToString())).Content;
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -87,54 +88,52 @@ namespace Backend.Logic.Components
         /// <param name="visitedUrls">Already extracted URLs</param>
         /// <param name="baseUri">The base of the url where we search</param>
         /// <returns></returns>
-        private IEnumerable<IHtmlFile> ExtractHtmlFiles(string url, HashSet<string> visitedUrls, Uri baseUri)
+        private void ExtractHtmlFiles(string url, ConcurrentBag<string> visitedUrls, Uri baseUri)
         {
-            ConcurrentBag<IHtmlFile> resultFiles = new ConcurrentBag<IHtmlFile>();
+            var preprocessedUrl = new Uri(url).AbsoluteUri;
+            UriBuilder builder = new UriBuilder(preprocessedUrl);
+            builder.Query = "";
+            builder.Fragment = "";
 
-            var currentUrl = new Uri(url).AbsoluteUri;
-
+            var currentUrl = builder.Uri.AbsoluteUri;
+            if(url.Count(x => x == ':') > separatorCount)
+            {
+                return;
+            }
             if (visitedUrls.Contains(currentUrl))
             {
-                return resultFiles;
+                return;
             }
             if (!ProcessUrl(currentUrl).StartsWith(ProcessUrl(baseUri.AbsoluteUri)))
             {
-                return resultFiles;
-
+                return;
             }
             var foundExcluded = _excludedUrls.FirstOrDefault(x => currentUrl.StartsWith(x));
             if (foundExcluded != null)
             {
                 _log4.Info("Skipped url: " + currentUrl);
-                return resultFiles;
+                return;
 
             }
 
             visitedUrls.Add(currentUrl);
             IHtmlFile htmlFile;
 
-
-            _driver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
-            WaitForPageLoad(_driver);
-
-
-            htmlFile = new HtmlFile
+            htmlFile = GetHtmlFile(currentUrl);
+            if(htmlFile.Content == _notFoundContent)
             {
-                Url = currentUrl,
-                LastModified = DateTime.Now,
-                Content = _driver.PageSource
-            };
+                return;
+            }
+            visitedUrls.Add(htmlFile.Url);
+            _dbHandler.InsertOrUpdateHtmlFile(htmlFile);
 
-            resultFiles.Add(htmlFile);
-
-            var doc = new HtmlDocument();
-            doc.LoadHtml(htmlFile.Content);
 
 
             Parallel.ForEach(
-                doc.DocumentNode.Descendants("a"),
-                new ParallelOptions { MaxDegreeOfParallelism = 4 },
-                link => {
+                GetDescendantLinks(htmlFile.Content),
+                new ParallelOptions { MaxDegreeOfParallelism = 6 },
+                link =>
+                {
                     var href = link.GetAttributeValue("href", string.Empty);
                     if (string.IsNullOrEmpty(href))
                     {
@@ -145,38 +144,81 @@ namespace Backend.Logic.Components
                     var absoluteUrl = absoluteUri.ToString();
                     if (absoluteUri.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
                     {
-                        foreach (var subHtmlFile in ExtractHtmlFiles(absoluteUrl, visitedUrls, baseUri))
-                        {
-                            resultFiles.Add(subHtmlFile);
-                        }
+                        ExtractHtmlFiles(absoluteUrl, visitedUrls, baseUri);
+                    }
+                    if(href.StartsWith("https://") || href.StartsWith("http://"))
+                    {
+                        return;
+                    }
+                    var absoluteUri2 = new Uri(Url.Combine(baseUri.ToString(), href));
+                    var absoluteUrl2 = Url.Combine(baseUri.ToString(), href);
+                    if (absoluteUri2.Host == baseUri.Host && !visitedUrls.Contains(absoluteUrl))
+                    {
+                        ExtractHtmlFiles(absoluteUrl2, visitedUrls, baseUri);
                     }
                 }
             );
 
-            return resultFiles;
+            return ;
+        }
+
+        private IEnumerable<HtmlNode> GetDescendantLinks(string content)
+        {
+            var doc = new HtmlDocument();
+
+            doc.LoadHtml(content);
+            return doc.DocumentNode.Descendants("a");
+        }
+
+        private IHtmlFile GetHtmlFile(string currentUrl)
+        {
+            IHtmlFile htmlFile;
+            using (var driverManager = new WebDriverManager())
+            {
+                var driver = driverManager.WebDriver;
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+                driver.Navigate().GoToUrl(RemoveLastSlash(currentUrl));
+                Task.Delay(TimeSpan.FromSeconds(5)).Wait();    
+                WaitForPageLoad(driver);
+
+                htmlFile = new HtmlFile
+                {
+                    Url = driver.Url,
+                    LastModified = DateTime.Now,
+                    Content = driver.PageSource
+                };
+            }
+
+            return htmlFile;
         }
 
         private void WaitForPageLoad(IWebDriver driver)
         {
             var jsExecutor = (IJavaScriptExecutor)driver;
-
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
-            wait.Until(driver => jsExecutor.ExecuteScript("return document.readyState").Equals("complete"));
+            try
+            {
+                wait.Until(driver => jsExecutor.ExecuteScript("return document.readyState").Equals("complete"));
+            }
+            catch
+            {
+                _log4.Warn("Document ready timed out: " + driver.Url);
+
+            }
             if (!_waitedClassName.IsNullOrEmpty())
             {
 
                 try
                 {
                     wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.ClassName(_waitedClassName)));
+                    wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(By.Id(_waitedClassName)));
                 }
                 catch
                 {
-                    _log4.Warn("Page did not have the element.");
+                    _log4.Warn("Page did not have the element: " + driver.Url);
                 }
             }
-
-            // wait.Until(ExpectedConditions.ElementIsVisible(By.Id("myElement")));
         }
     }
 }

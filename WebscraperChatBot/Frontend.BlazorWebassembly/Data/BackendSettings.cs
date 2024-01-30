@@ -8,5 +8,6 @@ namespace Frontend.BlazorWebassembly.Data
         public IList<string> ExcludedUrls { get; set; }
         public string RootUrl { get; set; }
         public string WaitedClassName { get; set; }
+        public string ModelApiURL { get; set; }
     }
 }

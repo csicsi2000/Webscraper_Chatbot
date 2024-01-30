@@ -4,6 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>05a40098-2d5c-479d-9716-27227e337ce1</UserSecretsId>
+    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.59.0" />
     <PackageReference Include="Grpc.AspNetCore.Web" Version="2.59.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,9 +37,6 @@
   <ItemGroup>
     <Protobuf Include="..\General.Grpc\Grpc\grpc_chatbot.proto">
       <Link>Protos\grpc_chatbot.proto</Link>
-    </Protobuf>
-    <Protobuf Include="..\General.Grpc\Grpc\grpc_usermanager.proto">
-      <Link>Protos\grpc_usermanager.proto</Link>
     </Protobuf>
   </ItemGroup>
 

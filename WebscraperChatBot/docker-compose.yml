@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  flask-api:
+    build:
+      context: ./Backend.FlaskQuestionAnswer  # Adjust the path to your Flask API project
+    ports:
+      - "5555:5555"
+    restart: always
+
+  grpc-server:
+    build:
+      context: . # Adjust the path to your gRPC server project
+      dockerfile: Dockerfile.server
+    ports:
+      - "7253:7253"
+    restart: always
+
+  blazor-webassembly:
+    build:
+      context: .  # Adjust the path to your Blazor WebAssembly project
+      dockerfile: Dockerfile.wa
+    ports:
+      - "80:80"
+    restart: always
