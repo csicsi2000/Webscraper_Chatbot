@@ -44,8 +44,7 @@ namespace Backend.Logic.Utils
             }
             catch (Exception ex)
             {
-                // Handle exceptions that might occur during file saving
-                // Log or throw the exception based on your error-handling strategy
+                _log4.Error(ex.Message);
             }
         }
 
@@ -67,7 +66,8 @@ namespace Backend.Logic.Utils
             catch (Exception ex)
             {
                 serverSettings = new ServerSettings();
-                _log4.Info("New server settings file was not in the correct format.");
+                _log4.Error("New server settings file was not in the correct format.");
+                _log4.Error(ex.Message);
             }
         }
     }
