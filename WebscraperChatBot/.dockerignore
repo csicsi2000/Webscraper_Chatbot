@@ -7,6 +7,7 @@
 
 *.sqlite*
 *.Tests/
+*.safetensors
 
 # User-specific files
 *.suo

@@ -17,6 +17,8 @@ namespace GrpcService.Services
         private static bool _isHtmlExtractionRunning = false;
 
         IChatbotServices _chatbotServices;
+
+
         public MessageService() : base()
         {
             ILog log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -24,10 +26,6 @@ namespace GrpcService.Services
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
             _chatbotServices = new ChatbotServices();
             Console.WriteLine(_chatbotServices.GetContextCount());
-
-            var setting = _chatbotServices.GetSettings();
-            setting.ModelApiURL = "http://localhost:5555";
-            _chatbotServices.SetSettings(setting);
         }
 
         // TODO
@@ -52,6 +50,7 @@ namespace GrpcService.Services
                 DbPath = settings.DbPath,
                 RootUrl = settings.RootUrl,
                 WaitedClassName = settings.WaitedClassName,
+                ModelApiUrl = settings.ModelApiURL
             };
             curSettings.IgnoredUrls.AddRange(settings.ExcludedUrls);
 
@@ -65,6 +64,7 @@ namespace GrpcService.Services
             settings.RootUrl = request.RootUrl;
             settings.WaitedClassName = request.WaitedClassName;
             settings.ExcludedUrls = request.IgnoredUrls;
+            settings.ModelApiURL = request.ModelApiUrl;
             _chatbotServices.SetSettings(settings);
 
             return Task.FromResult(new EmptyRequest());
