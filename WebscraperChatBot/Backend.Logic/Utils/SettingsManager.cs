@@ -1,16 +1,20 @@
 ﻿using Backend.Logic.Data.Json;
 using General.Interfaces.Data;
 using log4net;
+using System;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
 
 namespace Backend.Logic.Utils
 {
     public class SettingsManager
     {
-        ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly object lockObject = new object();
+        private ILog _log4 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private const string SettingsFilePath = "webscrapeSettings.json";
-        private IServerSettings serverSettings; // Add a field to store the loaded settings
+        private IServerSettings serverSettings;
 
         public SettingsManager()
         {
@@ -19,55 +23,75 @@ namespace Backend.Logic.Utils
 
         public IServerSettings GetServerSettings()
         {
-            return serverSettings; // Return the loaded settings
+            lock (lockObject)
+            {
+                return serverSettings;
+            }
         }
 
         public bool SetServerSettings(IServerSettings newSettings)
         {
-            newSettings.ExcludedUrls = newSettings.ExcludedUrls.Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
-            if (!newSettings.RootUrl.EndsWith("/"))
+            lock (lockObject)
             {
-                newSettings.RootUrl = newSettings.RootUrl + "/";
-            }
-            serverSettings = newSettings; // Update the settings field
+                try
+                {
+                    newSettings.ExcludedUrls = newSettings.ExcludedUrls.Where(x => !string.IsNullOrEmpty(x)).Distinct().ToList();
+                    if (!newSettings.RootUrl.EndsWith("/"))
+                    {
+                        newSettings.RootUrl = newSettings.RootUrl + "/";
+                    }
+                    serverSettings = newSettings;
 
-            SaveFile(); // Save the updated settings
-            return true; // Indicate success or failure based on your logic
+                    SaveFile();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _log4.Error(ex.Message);
+                    return false;
+                }
+            }
         }
 
         private void SaveFile()
         {
-            try
+            lock (lockObject)
             {
-                string json = JsonSerializer.Serialize(serverSettings);
-                File.WriteAllText(SettingsFilePath, json);
-            }
-            catch (Exception ex)
-            {
-                _log4.Error(ex.Message);
+                try
+                {
+                    string json = JsonSerializer.Serialize(serverSettings);
+                    File.WriteAllText(SettingsFilePath, json);
+                }
+                catch (Exception ex)
+                {
+                    _log4.Error(ex.Message);
+                }
             }
         }
 
         private void LoadFile()
         {
-            try
+            lock (lockObject)
             {
-                if (File.Exists(SettingsFilePath))
+                try
                 {
-                    string json = File.ReadAllText(SettingsFilePath);
-                    serverSettings = JsonSerializer.Deserialize<ServerSettings>(json);
+                    if (File.Exists(SettingsFilePath))
+                    {
+                        string json = File.ReadAllText(SettingsFilePath);
+                        serverSettings = JsonSerializer.Deserialize<ServerSettings>(json);
+                    }
+                    else
+                    {
+                        serverSettings = new ServerSettings();
+                        _log4.Info("New server settings file was created.");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
                     serverSettings = new ServerSettings();
-                    _log4.Info("New server settings file was created.");
+                    _log4.Error("New server settings file was not in the correct format.");
+                    _log4.Error(ex.Message);
                 }
-            }
-            catch (Exception ex)
-            {
-                serverSettings = new ServerSettings();
-                _log4.Error("New server settings file was not in the correct format.");
-                _log4.Error(ex.Message);
             }
         }
     }

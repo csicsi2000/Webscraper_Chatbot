@@ -30,7 +30,8 @@
                 DbPath = serverSettings.DbPath,
                 RootUrl = serverSettings.RootUrl,
                 ExcludedUrls = serverSettings.IgnoredUrls,
-                WaitedClassName = serverSettings.WaitedClassName
+                WaitedClassName = serverSettings.WaitedClassName,
+                ModelApiURL = serverSettings.ModelApiUrl
             };
         StateHasChanged();
     }
@@ -90,6 +91,7 @@
             DbPath = settings.DbPath,
             RootUrl = settings.RootUrl,
             WaitedClassName = settings.WaitedClassName,
+            ModelApiUrl = settings.ModelApiURL
         };
         curSettings.IgnoredUrls.AddRange(settings.ExcludedUrls);
         await ChatbotClient.SetServerSettingsAsync(curSettings);
@@ -125,6 +127,15 @@
                         </div>
                         <div class="col-sm-7">
                             <input id="dbPath" @bind="@settings.DbPath" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row m-2">
+                        <div class="col-sm-5">
+                            <label for="dbPath">Flask api url:</label>
+                        </div>
+                        <div class="col-sm-7">
+                            <input id="dbPath" @bind="@settings.ModelApiURL" class="form-control" />
                         </div>
                     </div>
 

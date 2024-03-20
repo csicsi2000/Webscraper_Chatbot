@@ -6,5 +6,7 @@ COPY app.py .
 COPY download_models.py .
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt && python3 download_models.py
+
 EXPOSE 5555
+
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0","--port=5555"]

@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "Start all services",
+    "Projects": [
+      {
+        "Name": "Frontend.BlazorWebassembly\\Frontend.BlazorWebassembly.csproj",
+        "Action": "Start",
+        "DebugTarget": ""
+      },
+      {
+        "Name": "GrpcService\\GrpcService.csproj",
+        "Action": "Start",
+        "DebugTarget": ""
+      }
+    ]
+  }
+]

@@ -27,7 +27,8 @@ message CurrentSettings{
     string dbPath =1;
     string rootUrl =2;
     string waitedClassName = 3;
-    repeated string ignoredUrls = 4;
+    string modelApiUrl = 4;
+    repeated string ignoredUrls = 5;
 }
 
 message ServiceStatus{

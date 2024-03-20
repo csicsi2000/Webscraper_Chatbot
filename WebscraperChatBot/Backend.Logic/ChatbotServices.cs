@@ -8,6 +8,7 @@ using General.Interfaces.Backend.Logic;
 using General.Interfaces.Data;
 using log4net;
 using log4net.Config;
+using Newtonsoft.Json;
 using NTextCat.Commons;
 
 namespace Backend.Logic
@@ -52,6 +53,8 @@ namespace Backend.Logic
             _questionAnswerModel = new QuestionAnswerApiComponent(_settingsManager.GetServerSettings().ModelApiURL);
 
             _retriever = new BM25RetrieverComponent(_tokenConverter);
+
+            _log4.Info("Model api: " + _settingsManager.GetServerSettings().ModelApiURL);
         }
 
         /// <summary>
@@ -67,7 +70,9 @@ namespace Backend.Logic
         {
             _ = settings ?? throw new ArgumentNullException(nameof(settings));
             _settingsManager.SetServerSettings(settings);
+            _log4.Warn("Settings changed: " + JsonConvert.SerializeObject(settings));
         }
+
         /// <summary>
         /// Extracts all html files from an url
         /// </summary>

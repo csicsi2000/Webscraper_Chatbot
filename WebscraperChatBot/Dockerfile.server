@@ -18,8 +18,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 
 # Copy the built files from the previous stage
 COPY --from=build /app/GrpcService/out ./
-# COPY /database.sqlite ./database.sqlite
 
+# COPY /database.sqlite ./database.sqlite
+COPY /BaseData ./
 # Expose the gRPC port
 EXPOSE 7253
 
